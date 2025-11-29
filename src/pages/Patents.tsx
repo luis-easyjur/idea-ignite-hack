@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
 import { FileText, Calendar, TrendingDown, Building2, Search as SearchIcon } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { StatCard } from "@/components/StatCard";
 import { FilterBar, FilterState } from "@/components/FilterBar";
 import { ExportButton } from "@/components/ExportButton";
@@ -24,6 +32,9 @@ const Patents = () => {
   const [selectedPatent, setSelectedPatent] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSearchForm, setShowSearchForm] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const ITEMS_PER_PAGE = 5;
 
   useEffect(() => {
     fetchPatents();
@@ -31,6 +42,7 @@ const Patents = () => {
 
   useEffect(() => {
     applyFilters();
+    setCurrentPage(1); // Reset to first page when filters change
   }, [filters, patents]);
 
   const fetchPatents = async () => {
@@ -59,6 +71,12 @@ const Patents = () => {
 
     setFilteredPatents(filtered);
   };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredPatents.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedPatents = filteredPatents.slice(startIndex, endIndex);
 
   const categoryLabels: Record<string, string> = {
     foliar_nutrition: "Nutrição Foliar",
@@ -185,8 +203,9 @@ const Patents = () => {
                   Carregando dados...
                 </p>
               ) : (
+                <>
                 <div className="grid gap-4">
-                  {filteredPatents.map((patent) => {
+                  {paginatedPatents.map((patent) => {
                     const expiryStatus = getExpiryStatus(patent.expiry_date);
                     return (
                       <Card key={patent.id} className="p-6 hover:shadow-lg transition-shadow">
@@ -279,6 +298,39 @@ const Patents = () => {
                     );
                   })}
                 </div>
+                
+                {totalPages > 1 && (
+                  <Pagination className="mt-6">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                      
+                      {[...Array(totalPages)].map((_, i) => (
+                        <PaginationItem key={i + 1}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(i + 1)}
+                            isActive={currentPage === i + 1}
+                            className="cursor-pointer"
+                          >
+                            {i + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                )}
+                </>
               )}
             </TabsContent>
 
