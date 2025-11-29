@@ -45,6 +45,7 @@ export function PatentTermsManager() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [bigQueryQuotaExceeded, setBigQueryQuotaExceeded] = useState(false);
   
   // Form state
   const [newTerm, setNewTerm] = useState("");
@@ -52,6 +53,13 @@ export function PatentTermsManager() {
   const [newDescription, setNewDescription] = useState("");
   const [newStartDate, setNewStartDate] = useState(defaultStartDate);
   const [newEndDate, setNewEndDate] = useState(defaultEndDate);
+  
+  // Calculate next quota reset (1st of next month)
+  const getNextQuotaReset = () => {
+    const now = new Date();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return nextMonth.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+  };
 
   useEffect(() => {
     fetchTerms();
@@ -137,8 +145,8 @@ export function PatentTermsManager() {
         source = "Cache local";
         searchSuccess = true;
         console.log(`Found ${patents.length} patents in local cache`);
-      } else {
-        // If not in cache, query BigQuery with optimized parameters
+      } else if (!bigQueryQuotaExceeded) {
+        // Only try BigQuery if quota is not exceeded
         const term = terms.find(t => t.id === termId);
         const startDate = term?.start_date || defaultStartDate;
         const endDate = term?.end_date || defaultEndDate;
@@ -164,9 +172,22 @@ export function PatentTermsManager() {
           source = "BigQuery (otimizado)";
           searchSuccess = true;
         } else {
-          console.log("BigQuery failed:", bigQueryResult.error || bigQueryResult.data?.error);
-          toast.error("Erro ao buscar no BigQuery. Usando cache local apenas.");
+          const errorMsg = bigQueryResult.error || bigQueryResult.data?.error;
+          console.log("BigQuery failed:", errorMsg);
+          
+          // Check if it's a quota exceeded error
+          if (errorMsg && errorMsg.includes("Quota exceeded")) {
+            setBigQueryQuotaExceeded(true);
+            toast.error(
+              `Quota mensal do BigQuery excedida (1TB). Reset em ${getNextQuotaReset()}. Usando apenas cache local.`,
+              { duration: 6000 }
+            );
+          } else {
+            toast.error("Erro ao buscar no BigQuery. Usando cache local apenas.");
+          }
         }
+      } else {
+        toast.info(`BigQuery indisponível até ${getNextQuotaReset()}. Usando cache local.`);
       }
 
       if (!searchSuccess || patents.length === 0) {
@@ -265,7 +286,7 @@ export function PatentTermsManager() {
     <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex-1">
               <CardTitle className="flex items-center gap-2">
                 <Search className="h-5 w-5" />
                 Termos de Busca de Patentes
@@ -273,6 +294,11 @@ export function PatentTermsManager() {
               <CardDescription>
                 Gerencie seus termos de busca e execute buscas automáticas
               </CardDescription>
+              {bigQueryQuotaExceeded && (
+                <div className="mt-2 text-sm text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                  ⚠️ BigQuery indisponível (quota excedida). Reset: {getNextQuotaReset()}
+                </div>
+              )}
             </div>
             <Button onClick={() => setShowAddForm(!showAddForm)} size="sm">
               <Plus className="h-4 w-4 mr-2" />
