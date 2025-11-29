@@ -2,11 +2,15 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, BookOpen, Unlock, TrendingUp } from "lucide-react";
+import { Search, BookOpen, Unlock, TrendingUp, Database, Loader2 } from "lucide-react";
 import { mockStudies } from "@/data/research-studies";
 import { Study } from "@/types/research";
 import { StudyCard } from "@/components/research/StudyCard";
 import { StudyDetailModal } from "@/components/research/StudyDetailModal";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useCAPESStudies } from "@/hooks/useCAPESStudies";
+import { CAPES_RESOURCE_IDS } from "@/types/capes";
 import {
   Pagination,
   PaginationContent,
@@ -26,41 +30,63 @@ const Research = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [useCapesAPI, setUseCapesAPI] = useState(false);
+  const [areaFilter, setAreaFilter] = useState("");
+  const [institutionFilter, setInstitutionFilter] = useState("");
+
+  // Query CAPES API
+  const { data: capesData, isLoading: capesLoading, error: capesError } = useCAPESStudies({
+    query: searchQuery,
+    limit: itemsPerPage,
+    offset: (currentPage - 1) * itemsPerPage,
+    resource_id: CAPES_RESOURCE_IDS.THESES_2021_2024,
+    area: areaFilter || undefined,
+    institution: institutionFilter || undefined,
+    year: yearFilter !== "all" ? yearFilter : undefined,
+  });
 
   // Reset para página 1 quando filtros mudarem
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, yearFilter, oaFilter, typeFilter]);
+  }, [searchQuery, yearFilter, oaFilter, typeFilter, areaFilter, institutionFilter, useCapesAPI]);
 
-  // Filtrar estudos
-  const filteredStudies = mockStudies.filter((study) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      study.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      study.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      study.authorships.some((auth) =>
-        auth.author.display_name.toLowerCase().includes(searchQuery.toLowerCase())
-      ) ||
-      study.keywords?.some((kw) =>
-        kw.display_name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  // Determinar fonte de dados
+  const studies = useCapesAPI ? (capesData?.studies || []) : mockStudies;
+  const totalRecords = useCapesAPI ? (capesData?.total || 0) : mockStudies.length;
 
-    const matchesYear =
-      yearFilter === "all" || study.publication_year.toString() === yearFilter;
+  // Filtrar estudos (apenas para dados mock)
+  const filteredStudies = useCapesAPI
+    ? studies
+    : mockStudies.filter((study) => {
+        const matchesSearch =
+          searchQuery === "" ||
+          study.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          study.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          study.authorships.some((auth) =>
+            auth.author.display_name.toLowerCase().includes(searchQuery.toLowerCase())
+          ) ||
+          study.keywords?.some((kw) =>
+            kw.display_name.toLowerCase().includes(searchQuery.toLowerCase())
+          );
 
-    const matchesOA =
-      oaFilter === "all" || study.open_access.oa_status === oaFilter;
+        const matchesYear =
+          yearFilter === "all" || study.publication_year.toString() === yearFilter;
 
-    const matchesType = typeFilter === "all" || study.type === typeFilter;
+        const matchesOA =
+          oaFilter === "all" || study.open_access.oa_status === oaFilter;
 
-    return matchesSearch && matchesYear && matchesOA && matchesType;
-  });
+        const matchesType = typeFilter === "all" || study.type === typeFilter;
+
+        return matchesSearch && matchesYear && matchesOA && matchesType;
+      });
 
   // Paginação
-  const totalPages = Math.ceil(filteredStudies.length / itemsPerPage);
+  const totalPages = useCapesAPI
+    ? Math.ceil(totalRecords / itemsPerPage)
+    : Math.ceil(filteredStudies.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedStudies = filteredStudies.slice(startIndex, endIndex);
+  const paginatedStudies = useCapesAPI ? studies : filteredStudies.slice(startIndex, endIndex);
 
   // Gerar números de página com elipses
   const getPageNumbers = () => {
@@ -109,13 +135,14 @@ const Research = () => {
   );
 
   // Estatísticas
+  const dataSource = useCapesAPI ? filteredStudies : mockStudies;
   const stats = {
-    total: mockStudies.length,
-    openAccess: mockStudies.filter((s) => s.open_access.is_oa).length,
-    avgCitations: Math.round(
-      mockStudies.reduce((sum, s) => sum + s.cited_by_count, 0) / mockStudies.length
-    ),
-    topPercentile: mockStudies.filter(
+    total: useCapesAPI ? totalRecords : mockStudies.length,
+    openAccess: dataSource.filter((s) => s.open_access.is_oa).length,
+    avgCitations: dataSource.length > 0 
+      ? Math.round(dataSource.reduce((sum, s) => sum + s.cited_by_count, 0) / dataSource.length)
+      : 0,
+    topPercentile: dataSource.filter(
       (s) => s.citation_normalized_percentile?.is_in_top_10_percent
     ).length,
   };
@@ -187,10 +214,25 @@ const Research = () => {
         {/* Filtros */}
         <Card>
           <CardHeader>
-            <CardTitle>Filtros de Pesquisa</CardTitle>
-            <CardDescription>
-              Refine sua busca por estudos científicos
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Filtros de Pesquisa</CardTitle>
+                <CardDescription>
+                  Refine sua busca por estudos científicos
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-3">
+                <Label htmlFor="capes-api" className="flex items-center gap-2 cursor-pointer">
+                  <Database className="h-4 w-4" />
+                  API CAPES
+                </Label>
+                <Switch
+                  id="capes-api"
+                  checked={useCapesAPI}
+                  onCheckedChange={setUseCapesAPI}
+                />
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -236,21 +278,39 @@ const Research = () => {
               </Select>
             </div>
 
-            {/* Filtro de Tipo (segunda linha) */}
-            <div className="mt-4">
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Tipo de publicação" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os tipos</SelectItem>
-                  <SelectItem value="review">Revisão</SelectItem>
-                  <SelectItem value="article">Artigo</SelectItem>
-                  <SelectItem value="book-chapter">Capítulo de Livro</SelectItem>
-                  <SelectItem value="preprint">Pré-print</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Filtros adicionais para CAPES */}
+            {useCapesAPI && (
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Input
+                  placeholder="Área do conhecimento..."
+                  value={areaFilter}
+                  onChange={(e) => setAreaFilter(e.target.value)}
+                />
+                <Input
+                  placeholder="Instituição..."
+                  value={institutionFilter}
+                  onChange={(e) => setInstitutionFilter(e.target.value)}
+                />
+              </div>
+            )}
+
+            {/* Filtro de Tipo (apenas para dados mock) */}
+            {!useCapesAPI && (
+              <div className="mt-4">
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tipo de publicação" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os tipos</SelectItem>
+                    <SelectItem value="review">Revisão</SelectItem>
+                    <SelectItem value="article">Artigo</SelectItem>
+                    <SelectItem value="book-chapter">Capítulo de Livro</SelectItem>
+                    <SelectItem value="preprint">Pré-print</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Resultado da busca e controles */}
             <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -293,26 +353,54 @@ const Research = () => {
 
         {/* Lista de Estudos */}
         <div className="space-y-4">
-          {paginatedStudies.map((study) => (
-            <StudyCard
-              key={study.id}
-              study={study}
-              onViewDetails={() => handleViewDetails(study)}
-            />
-          ))}
-
-          {filteredStudies.length === 0 && (
+          {capesLoading && useCapesAPI ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <Loader2 className="h-16 w-16 text-primary mx-auto mb-4 animate-spin" />
                 <h3 className="text-xl font-semibold mb-2">
-                  Nenhum estudo encontrado
+                  Carregando estudos...
                 </h3>
                 <p className="text-muted-foreground">
-                  Tente ajustar seus filtros de pesquisa
+                  Buscando dados da API CAPES
                 </p>
               </CardContent>
             </Card>
+          ) : capesError && useCapesAPI ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <BookOpen className="h-16 w-16 text-destructive mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">
+                  Erro ao carregar estudos
+                </h3>
+                <p className="text-muted-foreground">
+                  {capesError.message}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              {paginatedStudies.map((study) => (
+                <StudyCard
+                  key={study.id}
+                  study={study}
+                  onViewDetails={() => handleViewDetails(study)}
+                />
+              ))}
+
+              {filteredStudies.length === 0 && !capesLoading && (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">
+                      Nenhum estudo encontrado
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Tente ajustar seus filtros de pesquisa
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
         </div>
 
