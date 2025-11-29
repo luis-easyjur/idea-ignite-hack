@@ -12,6 +12,21 @@ interface SearchParams {
   limit?: number;
 }
 
+// Helper to sanitize dates from BigQuery (converts "0", null, or invalid values to null or proper format)
+const sanitizeDate = (dateValue: string | number | null): string | null => {
+  if (!dateValue || dateValue === '0' || dateValue === 0 || dateValue === '') return null;
+  
+  const str = String(dateValue);
+  
+  // BigQuery returns dates as YYYYMMDD (integer) - convert to YYYY-MM-DD
+  if (str.length === 8 && /^\d{8}$/.test(str)) {
+    return `${str.slice(0,4)}-${str.slice(4,6)}-${str.slice(6,8)}`;
+  }
+  
+  // Already in YYYY-MM-DD format or timestamp
+  return str;
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -169,10 +184,10 @@ serve(async (req) => {
         abstract: fields[2]?.v || '',
         company: fields[3]?.v || 'Empresa desconhecida',
         inventors: inventors,
-        filing_date: fields[5]?.v || null,
-        grant_date: fields[6]?.v || null,
-        publication_date: fields[7]?.v || null,
-        priority_date: fields[8]?.v || null,
+        filing_date: sanitizeDate(fields[5]?.v),
+        grant_date: sanitizeDate(fields[6]?.v),
+        publication_date: sanitizeDate(fields[7]?.v),
+        priority_date: sanitizeDate(fields[8]?.v),
         application_number: fields[9]?.v || null,
         publication_number: fields[0]?.v || '',
         status: fields[6]?.v ? 'Concedida' : 'Em análise',
