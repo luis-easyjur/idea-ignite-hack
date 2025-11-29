@@ -1,13 +1,60 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+// Check if BigQuery quota is exceeded
+const checkQuotaStatus = () => {
+  const quotaStatus = localStorage.getItem('bigquery_quota_exceeded');
+  if (quotaStatus) {
+    const { exceeded, month, year } = JSON.parse(quotaStatus);
+    const now = new Date();
+    // Check if we're in a new month (quota resets on 1st)
+    if (now.getMonth() === month && now.getFullYear() === year) {
+      return exceeded;
+    } else {
+      // New month, clear the flag
+      localStorage.removeItem('bigquery_quota_exceeded');
+      return false;
+    }
+  }
+  return false;
+};
+
+const markQuotaExceeded = () => {
+  const now = new Date();
+  localStorage.setItem('bigquery_quota_exceeded', JSON.stringify({
+    exceeded: true,
+    month: now.getMonth(),
+    year: now.getFullYear()
+  }));
+};
+
+const getNextQuotaReset = () => {
+  const now = new Date();
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  return nextMonth.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+};
+
 export const DataSyncButton = () => {
   const [syncing, setSyncing] = useState(false);
+  const [quotaExceeded, setQuotaExceeded] = useState(checkQuotaStatus());
+
+  useEffect(() => {
+    setQuotaExceeded(checkQuotaStatus());
+  }, []);
 
   const handleSync = async () => {
+    // Check quota before attempting sync
+    if (quotaExceeded) {
+      toast.error(
+        `BigQuery indisponível - Quota mensal (1TB) excedida. Reset em ${getNextQuotaReset()}.`,
+        { duration: 5000 }
+      );
+      return;
+    }
+
     setSyncing(true);
     const startTime = Date.now();
     toast.info("🔄 Buscando patentes brasileiras via BigQuery...", { duration: 3000 });
@@ -17,11 +64,24 @@ export const DataSyncButton = () => {
       const { data, error } = await supabase.functions.invoke('search-patents-bigquery', {
         body: {
           query: 'agricultura sustentável',
-          limit: 100,
+          startDate: '20200101', // Last 5 years
+          endDate: new Date().toISOString().split('T')[0].replace(/-/g, ''),
+          limit: 50,
         },
       });
 
       if (error) throw error;
+      
+      // Check if response contains quota error
+      if (data?.error && data.error.includes("Quota exceeded")) {
+        markQuotaExceeded();
+        setQuotaExceeded(true);
+        toast.error(
+          `Quota mensal do BigQuery excedida (1TB). Reset em ${getNextQuotaReset()}.`,
+          { duration: 6000 }
+        );
+        return;
+      }
 
       const results = data?.results || [];
       const duration = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -61,24 +121,53 @@ export const DataSyncButton = () => {
       } else {
         toast.info(`ℹ️ Nenhuma patente encontrada no BigQuery (${duration}s)`, { duration: 4000 });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sync error:', error);
-      toast.error("❌ Erro ao sincronizar dados. Verifique os logs.");
+      
+      // Check if error message contains quota exceeded
+      const errorMsg = error?.message || JSON.stringify(error);
+      if (errorMsg.includes("Quota exceeded")) {
+        markQuotaExceeded();
+        setQuotaExceeded(true);
+        toast.error(
+          `Quota mensal do BigQuery excedida (1TB). Reset em ${getNextQuotaReset()}.`,
+          { duration: 6000 }
+        );
+      } else {
+        toast.error("❌ Erro ao sincronizar dados. Verifique os logs.");
+      }
     } finally {
       setSyncing(false);
     }
   };
 
   return (
-    <Button
-      onClick={handleSync}
-      disabled={syncing}
-      variant="outline"
-      size="sm"
-      className="gap-2"
-    >
-      <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-      {syncing ? 'Sincronizando...' : 'Atualizar Dados'}
-    </Button>
+    <div className="flex items-center gap-2">
+      <Button
+        onClick={handleSync}
+        disabled={syncing || quotaExceeded}
+        variant="outline"
+        size="sm"
+        className="gap-2"
+        title={quotaExceeded ? `BigQuery indisponível até ${getNextQuotaReset()}` : 'Sincronizar dados do BigQuery'}
+      >
+        {quotaExceeded ? (
+          <>
+            <AlertCircle className="h-4 w-4" />
+            BigQuery Indisponível
+          </>
+        ) : (
+          <>
+            <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+            {syncing ? 'Sincronizando...' : 'Atualizar Dados'}
+          </>
+        )}
+      </Button>
+      {quotaExceeded && (
+        <span className="text-xs text-muted-foreground">
+          Reset: {getNextQuotaReset()}
+        </span>
+      )}
+    </div>
   );
 };
