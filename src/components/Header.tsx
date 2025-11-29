@@ -1,6 +1,7 @@
 import { Bell, Search, User } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import ubyagroLogo from "@/assets/ubyagro-logo.png";
 
 export const Header = () => {
   return (
@@ -8,13 +9,14 @@ export const Header = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">U</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">UBYAGRO</h1>
-                <p className="text-xs text-muted-foreground">Intelligence Platform</p>
+            <div className="flex items-center gap-3">
+              <img 
+                src={ubyagroLogo} 
+                alt="UBYAGRO Grupo" 
+                className="h-10 w-auto"
+              />
+              <div className="border-l border-border pl-3">
+                <p className="text-sm font-semibold text-muted-foreground">Intelligence Platform</p>
               </div>
             </div>
           </div>
