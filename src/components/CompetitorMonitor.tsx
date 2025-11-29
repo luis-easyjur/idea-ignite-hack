@@ -1,157 +1,259 @@
-import { Card } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, TrendingUp, FileText, Shield, ExternalLink } from "lucide-react";
-import { DataSourceBadge } from "./DataSourceBadge";
-
-interface CompetitorActivity {
-  company: string;
-  activityScore: number;
-  recentMoves: {
-    type: "registro" | "patente" | "lancamento";
-    description: string;
-    date: string;
-    source?: "MAPA" | "INPI" | "Abisolo" | "IBGE";
-    url?: string;
-  }[];
-}
-
-const competitors: CompetitorActivity[] = [
-  {
-    company: "Stoller do Brasil",
-    activityScore: 95,
-    recentMoves: [
-      { type: "lancamento", description: "Novo bioestimulante para soja - Stimulate Max", date: "3 dias", source: "MAPA" },
-      { type: "registro", description: "2 registros MAPA aprovados para linha foliar", date: "1 semana", source: "MAPA" },
-      { type: "patente", description: "Patente de formulação com extrato de algas", date: "2 semanas", source: "INPI" },
-    ]
-  },
-  {
-    company: "FMC Agricultural Solutions",
-    activityScore: 87,
-    recentMoves: [
-      { type: "patente", description: "Tecnologia de microencapsulação aprovada", date: "5 dias", source: "INPI" },
-      { type: "registro", description: "Biodefensivo para controle de pragas", date: "1 semana", source: "MAPA" },
-      { type: "lancamento", description: "Adjuvante de nova geração lançado", date: "3 semanas", source: "MAPA" },
-    ]
-  },
-  {
-    company: "UPL Brasil",
-    activityScore: 82,
-    recentMoves: [
-      { type: "registro", description: "Biofertilizante à base de Azospirillum", date: "1 semana", source: "MAPA" },
-      { type: "lancamento", description: "Linha completa de nutrição foliar", date: "2 semanas", source: "MAPA" },
-    ]
-  },
-  {
-    company: "BASF Agricultural Solutions",
-    activityScore: 78,
-    recentMoves: [
-      { type: "patente", description: "Bioestimulante com tecnologia exclusiva", date: "4 dias", source: "INPI" },
-      { type: "registro", description: "Expansão de portfólio de biológicos", date: "10 dias", source: "MAPA" },
-    ]
-  },
-  {
-    company: "Koppert Brasil",
-    activityScore: 73,
-    recentMoves: [
-      { type: "lancamento", description: "Biodefensivo para doenças foliares", date: "1 semana", source: "MAPA" },
-      { type: "registro", description: "Novo inoculante para leguminosas", date: "3 semanas", source: "MAPA" },
-    ]
-  },
-];
-
-const getActivityColor = (score: number) => {
-  if (score >= 90) return "text-destructive";
-  if (score >= 80) return "text-warning";
-  return "text-success";
-};
-
-const getActivityLabel = (score: number) => {
-  if (score >= 90) return "Muito Alta";
-  if (score >= 80) return "Alta";
-  return "Moderada";
-};
-
-const getMoveIcon = (type: string) => {
-  switch (type) {
-    case "registro": return <FileText className="h-4 w-4" />;
-    case "patente": return <Shield className="h-4 w-4" />;
-    case "lancamento": return <TrendingUp className="h-4 w-4" />;
-    default: return null;
-  }
-};
-
-const getMoveColor = (type: string) => {
-  switch (type) {
-    case "registro": return "bg-chart-2/10 text-chart-2";
-    case "patente": return "bg-chart-3/10 text-chart-3";
-    case "lancamento": return "bg-chart-1/10 text-chart-1";
-    default: return "bg-muted";
-  }
-};
+import { Search, ExternalLink, Loader2, Calendar } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Competitor, CompetitorResearch } from "@/types/competitor";
+import { CompetitorResearchModal } from "./CompetitorResearchModal";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export const CompetitorMonitor = () => {
+  const [competitors, setCompetitors] = useState<Competitor[]>([]);
+  const [research, setResearch] = useState<Record<string, CompetitorResearch>>({});
+  const [loadingCompetitor, setLoadingCompetitor] = useState<string | null>(null);
+  const [selectedResearch, setSelectedResearch] = useState<{
+    research: CompetitorResearch;
+    name: string;
+  } | null>(null);
+  const { toast } = useToast();
+
+  const fetchCompetitors = async () => {
+    const { data, error } = await supabase
+      .from("competitors")
+      .select("*")
+      .eq("is_active", true)
+      .order("name");
+
+    if (error) {
+      console.error("Error fetching competitors:", error);
+      toast({
+        title: "Erro ao carregar concorrentes",
+        description: "Não foi possível carregar a lista de concorrentes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCompetitors(data || []);
+  };
+
+  const fetchLatestResearch = async () => {
+    const { data, error } = await supabase
+      .from("competitor_research")
+      .select("*")
+      .order("researched_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching research:", error);
+      return;
+    }
+
+    // Get latest research for each competitor
+    const latestByCompetitor: Record<string, CompetitorResearch> = {};
+    data?.forEach((r) => {
+      if (!latestByCompetitor[r.competitor_id]) {
+        latestByCompetitor[r.competitor_id] = {
+          ...r,
+          result_json: r.result_json as any,
+        } as CompetitorResearch;
+      }
+    });
+
+    setResearch(latestByCompetitor);
+  };
+
+  useEffect(() => {
+    fetchCompetitors();
+    fetchLatestResearch();
+  }, []);
+
+  const handleResearch = async (competitor: Competitor) => {
+    setLoadingCompetitor(competitor.id);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("research-competitor", {
+        body: {
+          competitorId: competitor.id,
+          companyName: competitor.name,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Pesquisa concluída",
+        description: `Pesquisa sobre ${competitor.name} finalizada com sucesso.`,
+      });
+
+      // Refresh research data
+      await fetchLatestResearch();
+    } catch (error) {
+      console.error("Research error:", error);
+      toast({
+        title: "Erro na pesquisa",
+        description: "Não foi possível realizar a pesquisa. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingCompetitor(null);
+    }
+  };
+
+  const getActivityColor = (score: number) => {
+    if (score >= 80) return "bg-red-100 text-red-700 border-red-300";
+    if (score >= 60) return "bg-orange-100 text-orange-700 border-orange-300";
+    if (score >= 40) return "bg-yellow-100 text-yellow-700 border-yellow-300";
+    return "bg-green-100 text-green-700 border-green-300";
+  };
+
+  if (competitors.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Monitor de Concorrentes</CardTitle>
+          <CardDescription>
+            Nenhum concorrente cadastrado. Adicione empresas para começar o monitoramento.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Building2 className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-foreground">Monitoramento de Concorrentes</h3>
-            <p className="text-sm text-muted-foreground">Principais players e atividades recentes</p>
-          </div>
-        </div>
-      </div>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {competitors.map((competitor) => {
+          const latestResearch = research[competitor.id];
+          const isLoading = loadingCompetitor === competitor.id;
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {competitors.map((competitor, idx) => (
-          <div key={idx} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h4 className="font-bold text-foreground mb-1">{competitor.company}</h4>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm text-muted-foreground">Índice de Atividade:</span>
-                  <span className={`text-sm font-bold ${getActivityColor(competitor.activityScore)}`}>
-                    {competitor.activityScore}/100
-                  </span>
-                  <Badge variant="outline" className={getActivityColor(competitor.activityScore)}>
-                    {getActivityLabel(competitor.activityScore)}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {competitor.recentMoves.map((move, moveIdx) => (
-                <div key={moveIdx} className="flex items-start gap-3 text-sm">
-                  <div className={`p-1.5 rounded ${getMoveColor(move.type)}`}>
-                    {getMoveIcon(move.type)}
-                  </div>
+          return (
+            <Card key={competitor.id}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <p className="text-foreground">{move.description}</p>
-                      {move.source && <DataSourceBadge source={move.source} size="sm" />}
-                      {move.url && (
-                        <a 
-                          href={move.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-primary hover:underline"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
+                    <CardTitle className="text-lg">{competitor.name}</CardTitle>
+                    {competitor.segment && (
+                      <CardDescription>{competitor.segment}</CardDescription>
+                    )}
+                  </div>
+                  {competitor.website && (
+                    <a
+                      href={competitor.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  )}
+                </div>
+
+                {latestResearch && (
+                  <div className="pt-2">
+                    <Badge
+                      variant="outline"
+                      className={getActivityColor(latestResearch.activity_score)}
+                    >
+                      Score: {latestResearch.activity_score}/100
+                    </Badge>
+                  </div>
+                )}
+              </CardHeader>
+
+              <CardContent>
+                {latestResearch ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      Última pesquisa:{" "}
+                      {format(new Date(latestResearch.researched_at), "dd/MM/yyyy", {
+                        locale: ptBR,
+                      })}
+                    </div>
+
+                    <div className="space-y-1 text-sm">
+                      {latestResearch.result_json.regulatory?.length > 0 && (
+                        <div>• {latestResearch.result_json.regulatory.length} registros regulatórios</div>
+                      )}
+                      {latestResearch.result_json.patents?.length > 0 && (
+                        <div>• {latestResearch.result_json.patents.length} patentes</div>
+                      )}
+                      {latestResearch.result_json.market_moves?.length > 0 && (
+                        <div>• {latestResearch.result_json.market_moves.length} movimentações</div>
+                      )}
+                      {latestResearch.result_json.news?.length > 0 && (
+                        <div>• {latestResearch.result_json.news.length} notícias</div>
                       )}
                     </div>
-                    <span className="text-xs text-muted-foreground">há {move.date}</span>
+
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleResearch(competitor)}
+                        disabled={isLoading}
+                        className="flex-1"
+                      >
+                        {isLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Search className="h-4 w-4 mr-1" />
+                            Atualizar
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          setSelectedResearch({
+                            research: latestResearch,
+                            name: competitor.name,
+                          })
+                        }
+                        className="flex-1"
+                      >
+                        Ver Detalhes
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Nenhuma pesquisa realizada ainda
+                    </p>
+                    <Button
+                      size="sm"
+                      onClick={() => handleResearch(competitor)}
+                      disabled={isLoading}
+                      className="w-full"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Search className="h-4 w-4 mr-1" />
+                          Iniciar Pesquisa
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
-    </Card>
+
+      <CompetitorResearchModal
+        open={!!selectedResearch}
+        onOpenChange={(open) => !open && setSelectedResearch(null)}
+        research={selectedResearch?.research || null}
+        companyName={selectedResearch?.name || ""}
+      />
+    </>
   );
 };
