@@ -1,5 +1,11 @@
 project_id = "ikwthbqubpwerygwbwzn"
 
+[functions.test-elasticsearch]
+verify_jwt = false
+
+[functions.fetch-elastic-products]
+verify_jwt = false
+
 [functions.analyze-study-ai]
 verify_jwt = false
 

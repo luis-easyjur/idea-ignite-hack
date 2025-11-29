@@ -30,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MarketEvolutionChart } from "@/components/MarketEvolutionChart";
 import { RegionalGrowthChart } from "@/components/RegionalGrowthChart";
 import { PatentsDashboardSection } from "@/components/PatentsDashboardSection";
+import { ProductsIntelligenceSection } from "@/components/ProductsIntelligenceSection";
 
 const Index = () => {
   const [filters, setFilters] = useState<FilterState>({});
@@ -169,6 +170,11 @@ const Index = () => {
         {/* Patents Intelligence Section */}
         <div className="mb-8">
           <PatentsDashboardSection />
+        </div>
+
+        {/* Products Intelligence Section - Elasticsearch */}
+        <div className="mb-8">
+          <ProductsIntelligenceSection />
         </div>
 
         {/* Charts Section */}
