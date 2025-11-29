@@ -1,6 +1,7 @@
 import { Settings as SettingsIcon, User, Bell, Shield, Database } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { DataSourcesManager } from "@/components/DataSourcesManager";
 
 const Settings = () => {
   return (
@@ -54,7 +55,7 @@ const Settings = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Em desenvolvimento</p>
+            <DataSourcesManager />
           </CardContent>
         </Card>
 

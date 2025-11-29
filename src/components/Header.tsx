@@ -1,4 +1,4 @@
-import { Bell, Search, User, LogOut } from "lucide-react";
+import { Bell, Search, User, LogOut, Bot } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
@@ -16,7 +16,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export const Header = () => {
+interface HeaderProps {
+  onOpenChat?: () => void;
+}
+
+export const Header = ({ onOpenChat }: HeaderProps) => {
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [unreadAlerts, setUnreadAlerts] = useState(0);
   const [userEmail, setUserEmail] = useState<string>("");
@@ -62,6 +66,16 @@ export const Header = () => {
         </div>
 
         <div className="flex items-center gap-1 border-l pl-4 border-border/50">
+          {onOpenChat && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onOpenChat}
+              title="Abrir chat com Gemini"
+            >
+              <Bot className="h-5 w-5" />
+            </Button>
+          )}
           <Button 
             variant="ghost" 
             size="icon" 

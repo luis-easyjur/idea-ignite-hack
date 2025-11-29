@@ -9,7 +9,9 @@ const corsHeaders = {
  * Testa a conexão com o Gemini sem RAG
  */
 async function testGeminiConnection(userMessage: string): Promise<Response> {
-  const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+  // TESTE: Chave direta no código
+  const GEMINI_API_KEY = "AIzaSyCYC4qCiZTvjsl2u4JVwAgB7izOtHfWJPQ";
+  // const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
   if (!GEMINI_API_KEY) {
     return new Response(
@@ -45,11 +47,12 @@ async function testGeminiConnection(userMessage: string): Promise<Response> {
     },
   };
 
-  const model = "gemini-2.0-flash-exp";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+  const model = "gemini-2.0-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
   console.log("Testando conexão com Gemini...");
-  console.log("URL:", url.replace(GEMINI_API_KEY, "***"));
+  console.log("URL:", url);
+  console.log("API Key presente:", !!GEMINI_API_KEY);
   console.log("Mensagem:", userMessage);
 
   try {
@@ -57,6 +60,7 @@ async function testGeminiConnection(userMessage: string): Promise<Response> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-goog-api-key": GEMINI_API_KEY,
       },
       body: JSON.stringify(requestBody),
     });

@@ -106,7 +106,9 @@ async function callGemini(
   systemPrompt: string,
   messages: Array<{ role: string; content: string }>
 ): Promise<Response> {
-  const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+  // TESTE: Chave direta no código
+  const GEMINI_API_KEY = "AIzaSyCYC4qCiZTvjsl2u4JVwAgB7izOtHfWJPQ";
+  // const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
   if (!GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY is not configured");
@@ -133,13 +135,18 @@ async function callGemini(
     },
   };
 
-  const model = "gemini-2.0-flash-exp";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+  const model = "gemini-2.0-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+  console.log("Chamando Gemini - URL:", url);
+  console.log("Chamando Gemini - API Key presente:", !!GEMINI_API_KEY);
+  console.log("Chamando Gemini - Request body:", JSON.stringify(requestBody).substring(0, 200));
 
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "X-goog-api-key": GEMINI_API_KEY,
     },
     body: JSON.stringify(requestBody),
   });

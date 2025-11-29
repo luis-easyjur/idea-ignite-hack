@@ -12,7 +12,9 @@ serve(async (req) => {
 
   try {
     const { messages } = await req.json();
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    // TESTE: Chave direta no código
+    const GEMINI_API_KEY = "AIzaSyCYC4qCiZTvjsl2u4JVwAgB7izOtHfWJPQ";
+    // const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     
     if (!GEMINI_API_KEY) {
       return new Response(
@@ -75,12 +77,30 @@ TECNOLOGIAS EMERGENTES:
 Sua função é ajudar a responder perguntas sobre esses dados, fazer análises comparativas, identificar tendências e fornecer insights estratégicos. Seja claro, objetivo e baseie suas respostas nos dados fornecidos. Quando relevante, cite as fontes (MAPA, INPI, Embrapa, IBGE, Abisolo, ANVISA, IBAMA).`;
 
     // Converter mensagens do formato OpenAI para formato Gemini
-    const geminiContents = messages
-      .filter((msg: any) => msg.role !== "system") // Remover system messages (vai no systemInstruction)
-      .map((msg: any) => ({
-        role: msg.role === "assistant" ? "model" : "user",
-        parts: [{ text: msg.content }],
-      }));
+    // O Gemini requer alternância entre "user" e "model", então agrupamos mensagens consecutivas do mesmo role
+    const filteredMessages = messages.filter((msg: any) => msg.role !== "system");
+    
+    const geminiContents: any[] = [];
+    let lastRole: string | null = null;
+    
+    for (const msg of filteredMessages) {
+      const geminiRole = msg.role === "assistant" ? "model" : "user";
+      
+      // Se for o mesmo role da mensagem anterior, combina o texto
+      if (lastRole === geminiRole && geminiContents.length > 0) {
+        const lastContent = geminiContents[geminiContents.length - 1];
+        lastContent.parts[0].text += "\n\n" + msg.content;
+      } else {
+        // Nova mensagem com role diferente
+        geminiContents.push({
+          role: geminiRole,
+          parts: [{ text: msg.content }],
+        });
+        lastRole = geminiRole;
+      }
+    }
+    
+    console.log("Mensagens convertidas para Gemini:", JSON.stringify(geminiContents, null, 2));
 
     const requestBody = {
       contents: geminiContents,
@@ -95,35 +115,70 @@ Sua função é ajudar a responder perguntas sobre esses dados, fazer análises 
       },
     };
 
-    const model = "gemini-2.0-flash-exp";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+    const model = "gemini-2.0-flash";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+    // Validar que há pelo menos uma mensagem do usuário
+    const hasUserMessage = geminiContents.some((msg: any) => msg.role === "user");
+    if (!hasUserMessage) {
+      console.error("Nenhuma mensagem do usuário encontrada");
+      return new Response(
+        JSON.stringify({ error: "É necessário pelo menos uma mensagem do usuário" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validar que a primeira mensagem não é do modelo (Gemini requer que comece com user)
+    if (geminiContents.length > 0 && geminiContents[0].role === "model") {
+      console.warn("Primeira mensagem é do modelo, removendo para garantir formato correto");
+      geminiContents.shift();
+    }
+
+    console.log("Chamando Gemini - URL:", url);
+    console.log("Chamando Gemini - API Key presente:", !!GEMINI_API_KEY);
+    console.log("Request body:", JSON.stringify(requestBody, null, 2));
 
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-goog-api-key": GEMINI_API_KEY,
       },
       body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("Erro na resposta do Gemini:", response.status, errorData);
+      const errorText = await response.text();
+      let errorData: any = {};
+      
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { raw: errorText };
+      }
+      
+      console.error("Erro na resposta do Gemini:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData
+      });
 
       let errorMessage = "Erro ao conectar com a IA";
       
       if (response.status === 429) {
         errorMessage = "Limite de requisições atingido. Tente novamente em alguns instantes.";
       } else if (response.status === 400) {
-        errorMessage = `Erro na requisição: ${JSON.stringify(errorData)}`;
+        const errorDetail = errorData.error?.message || errorData.message || JSON.stringify(errorData);
+        errorMessage = `Erro na requisição ao Gemini: ${errorDetail}`;
       } else if (response.status === 401 || response.status === 403) {
         errorMessage = "Erro de autenticação. Verifique se a GEMINI_API_KEY está correta.";
       } else {
-        errorMessage = `Erro ${response.status}: ${JSON.stringify(errorData)}`;
+        const errorDetail = errorData.error?.message || errorData.message || JSON.stringify(errorData);
+        errorMessage = `Erro ${response.status}: ${errorDetail}`;
       }
 
       return new Response(
-        JSON.stringify({ error: errorMessage }),
+        JSON.stringify({ error: errorMessage, details: errorData }),
         { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

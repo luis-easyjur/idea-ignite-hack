@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Header } from "@/components/Header";
 import { StatCard } from "@/components/StatCard";
 import { AlertItem } from "@/components/AlertItem";
 import { DataPillarCard } from "@/components/DataPillarCard";
@@ -29,7 +28,6 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MarketEvolutionChart } from "@/components/MarketEvolutionChart";
 import { RegionalGrowthChart } from "@/components/RegionalGrowthChart";
-import { GeminiTest } from "@/components/GeminiTest";
 
 const Index = () => {
   const [filters, setFilters] = useState<FilterState>({});
@@ -37,8 +35,6 @@ const Index = () => {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
-        <Header />
-      
       <main className="container mx-auto px-6 py-8">
         {/* Hero Section */}
         <div className="mb-8 animate-in flex items-center justify-between">
@@ -177,11 +173,6 @@ const Index = () => {
         {/* AI Trend Forecast Section */}
         <div className="mb-8">
           <TrendForecast />
-        </div>
-
-        {/* Gemini Test Section - TEMPORÁRIO */}
-        <div className="mb-8">
-          <GeminiTest />
         </div>
 
         {/* Data Pillars Section */}
