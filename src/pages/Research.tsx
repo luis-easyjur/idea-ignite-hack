@@ -1,273 +1,352 @@
 import { useState } from "react";
-import { BookOpen, Filter, Search, ExternalLink } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-
-interface Author {
-  id: string;
-  display_name: string;
-  orcid?: string;
-}
-
-interface Source {
-  display_name: string;
-  issn_l?: string;
-  type: string;
-}
-
-interface Topic {
-  id: string;
-  display_name: string;
-  score: number;
-}
-
-interface Study {
-  id: string;
-  doi?: string;
-  title: string;
-  display_name: string;
-  publication_year: number;
-  publication_date: string;
-  relevance_score: number;
-  open_access: {
-    is_oa: boolean;
-    oa_status: string;
-    oa_url?: string;
-  };
-  authorships: Array<{
-    author: Author;
-  }>;
-  primary_location: {
-    source: Source;
-    landing_page_url?: string;
-  };
-  primary_topic?: Topic;
-  topics?: Topic[];
-  cited_by_count: number;
-  keywords?: Array<{
-    display_name: string;
-    score: number;
-  }>;
-}
-
-// Mock data for demonstration
-const mockStudies: Study[] = [
-  {
-    id: "W4412713698",
-    doi: "https://doi.org/10.1016/j.scienta.2025.114300",
-    title: "Microbial inoculants enhance walnut yield and soil health",
-    display_name: "Microbial inoculants enhance walnut yield and soil health",
-    relevance_score: 45.9,
-    publication_year: 2025,
-    publication_date: "2025-07-25",
-    open_access: {
-      is_oa: true,
-      oa_status: "gold",
-      oa_url: "https://doi.org/10.1016/j.scienta.2025.114300"
-    },
-    authorships: [
-      { author: { id: "A1", display_name: "Qiqi Chen" } },
-      { author: { id: "A2", display_name: "Gang Chen", orcid: "https://orcid.org/0000-0002-6476-7812" } }
-    ],
-    primary_location: {
-      source: {
-        display_name: "Scientia Horticulturae",
-        issn_l: "0304-4238",
-        type: "journal"
-      },
-      landing_page_url: "https://doi.org/10.1016/j.scienta.2025.114300"
-    },
-    primary_topic: {
-      id: "T10004",
-      display_name: "Soil Carbon and Nitrogen Dynamics",
-      score: 0.99
-    },
-    topics: [
-      { id: "T10004", display_name: "Soil Carbon and Nitrogen Dynamics", score: 0.99 },
-      { id: "T12436", display_name: "Agronomic Practices and Intercropping Systems", score: 0.98 }
-    ],
-    cited_by_count: 0,
-    keywords: [
-      { display_name: "Microbial inoculant", score: 0.92 },
-      { display_name: "Yield", score: 0.72 },
-      { display_name: "Horticulture", score: 0.51 }
-    ]
-  }
-];
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Search, BookOpen, Calendar, Unlock, TrendingUp } from "lucide-react";
+import { mockStudies } from "@/data/research-studies";
+import { AuthorList } from "@/components/research/AuthorList";
+import { ImpactMetrics } from "@/components/research/ImpactMetrics";
+import { TopicHierarchy } from "@/components/research/TopicHierarchy";
+import { AbstractSection } from "@/components/research/AbstractSection";
+import { SDGBadges } from "@/components/research/SDGBadges";
+import { LocationLinks } from "@/components/research/LocationLinks";
+import { translateType, translateOAStatus, oaStatusColors, formatDate } from "@/lib/research-utils";
 
 const Research = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [yearFilter, setYearFilter] = useState<string>("all");
-  const [oaFilter, setOaFilter] = useState<string>("all");
+  const [yearFilter, setYearFilter] = useState("all");
+  const [oaFilter, setOaFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
 
-  const filteredStudies = mockStudies.filter(study => {
-    const matchesSearch = study.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesYear = yearFilter === "all" || study.publication_year.toString() === yearFilter;
-    const matchesOA = oaFilter === "all" || 
-      (oaFilter === "open" && study.open_access.is_oa) ||
-      (oaFilter === "closed" && !study.open_access.is_oa);
-    
-    return matchesSearch && matchesYear && matchesOA;
+  // Filtrar estudos
+  const filteredStudies = mockStudies.filter((study) => {
+    const matchesSearch =
+      searchQuery === "" ||
+      study.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      study.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      study.authorships.some((auth) =>
+        auth.author.display_name.toLowerCase().includes(searchQuery.toLowerCase())
+      ) ||
+      study.keywords?.some((kw) =>
+        kw.display_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+    const matchesYear =
+      yearFilter === "all" || study.publication_year.toString() === yearFilter;
+
+    const matchesOA =
+      oaFilter === "all" || study.open_access.oa_status === oaFilter;
+
+    const matchesType = typeFilter === "all" || study.type === typeFilter;
+
+    return matchesSearch && matchesYear && matchesOA && matchesType;
   });
 
+  // Extrair anos únicos
+  const uniqueYears = Array.from(new Set(mockStudies.map((s) => s.publication_year))).sort(
+    (a, b) => b - a
+  );
+
+  // Estatísticas
+  const stats = {
+    total: mockStudies.length,
+    openAccess: mockStudies.filter((s) => s.open_access.is_oa).length,
+    avgCitations: Math.round(
+      mockStudies.reduce((sum, s) => sum + s.cited_by_count, 0) / mockStudies.length
+    ),
+    topPercentile: mockStudies.filter(
+      (s) => s.citation_normalized_percentile?.is_in_top_10_percent
+    ).length,
+  };
+
   return (
-    <div className="flex-1 space-y-6 p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Estudos Científicos</h2>
-          <p className="text-muted-foreground">
-            Pesquisas e publicações científicas relacionadas ao agronegócio
-          </p>
-        </div>
-        <Button size="sm" variant="outline">
-          <Filter className="mr-2 h-4 w-4" />
-          Filtros Avançados
-        </Button>
-      </div>
-
-      {/* Search and Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4 md:flex-row">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por título, autor, palavra-chave..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
+      <div className="container mx-auto px-4 py-8 space-y-8">
+        {/* Header */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-primary/10">
+              <BookOpen className="h-8 w-8 text-primary" />
             </div>
-            <Select value={yearFilter} onValueChange={setYearFilter}>
-              <SelectTrigger className="w-full md:w-40">
-                <SelectValue placeholder="Ano" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os anos</SelectItem>
-                <SelectItem value="2025">2025</SelectItem>
-                <SelectItem value="2024">2024</SelectItem>
-                <SelectItem value="2023">2023</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={oaFilter} onValueChange={setOaFilter}>
-              <SelectTrigger className="w-full md:w-40">
-                <SelectValue placeholder="Acesso" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="open">Acesso Aberto</SelectItem>
-                <SelectItem value="closed">Restrito</SelectItem>
-              </SelectContent>
-            </Select>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+                Estudos Científicos
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Base de conhecimento de pesquisas científicas relevantes
+              </p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Results */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            {filteredStudies.length} {filteredStudies.length === 1 ? 'estudo encontrado' : 'estudos encontrados'}
-          </p>
+          {/* Estatísticas */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card className="border-l-4 border-l-primary">
+              <CardHeader className="pb-3">
+                <CardDescription>Total de Estudos</CardDescription>
+                <CardTitle className="text-3xl">{stats.total}</CardTitle>
+              </CardHeader>
+            </Card>
+            <Card className="border-l-4 border-l-success">
+              <CardHeader className="pb-3">
+                <CardDescription className="flex items-center gap-1">
+                  <Unlock className="h-3 w-3" />
+                  Acesso Aberto
+                </CardDescription>
+                <CardTitle className="text-3xl">
+                  {stats.openAccess}
+                  <span className="text-sm text-muted-foreground ml-2">
+                    ({Math.round((stats.openAccess / stats.total) * 100)}%)
+                  </span>
+                </CardTitle>
+              </CardHeader>
+            </Card>
+            <Card className="border-l-4 border-l-secondary">
+              <CardHeader className="pb-3">
+                <CardDescription className="flex items-center gap-1">
+                  <TrendingUp className="h-3 w-3" />
+                  Média de Citações
+                </CardDescription>
+                <CardTitle className="text-3xl">{stats.avgCitations}</CardTitle>
+              </CardHeader>
+            </Card>
+            <Card className="border-l-4 border-l-warning">
+              <CardHeader className="pb-3">
+                <CardDescription>Top 10% Impacto</CardDescription>
+                <CardTitle className="text-3xl">
+                  {stats.topPercentile}
+                  <span className="text-sm text-muted-foreground ml-2">
+                    ({Math.round((stats.topPercentile / stats.total) * 100)}%)
+                  </span>
+                </CardTitle>
+              </CardHeader>
+            </Card>
+          </div>
         </div>
 
-        {filteredStudies.map((study) => (
-          <Card key={study.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
-                      <BookOpen className="h-3 w-3 mr-1" />
-                      {study.publication_year}
-                    </Badge>
-                    {study.open_access.is_oa && (
-                      <Badge variant="outline" className="bg-success/10 text-success border-success/30">
-                        Acesso Aberto
+        {/* Filtros */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Filtros de Pesquisa</CardTitle>
+            <CardDescription>
+              Refine sua busca por estudos científicos
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Busca */}
+              <div className="relative md:col-span-2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Buscar por título, autor ou palavra-chave..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Filtro de Ano */}
+              <Select value={yearFilter} onValueChange={setYearFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Ano de publicação" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os anos</SelectItem>
+                  {uniqueYears.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Filtro de Acesso Aberto */}
+              <Select value={oaFilter} onValueChange={setOaFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Acesso Aberto" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="gold">Dourado</SelectItem>
+                  <SelectItem value="green">Verde</SelectItem>
+                  <SelectItem value="hybrid">Híbrido</SelectItem>
+                  <SelectItem value="bronze">Bronze</SelectItem>
+                  <SelectItem value="closed">Restrito</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro de Tipo (segunda linha) */}
+            <div className="mt-4">
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Tipo de publicação" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os tipos</SelectItem>
+                  <SelectItem value="review">Revisão</SelectItem>
+                  <SelectItem value="article">Artigo</SelectItem>
+                  <SelectItem value="book-chapter">Capítulo de Livro</SelectItem>
+                  <SelectItem value="preprint">Pré-print</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Resultado da busca */}
+            <div className="mt-4 text-sm text-muted-foreground">
+              {filteredStudies.length === mockStudies.length
+                ? `Mostrando todos os ${filteredStudies.length} estudos`
+                : `Encontrados ${filteredStudies.length} de ${mockStudies.length} estudos`}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Lista de Estudos */}
+        <div className="space-y-6">
+          {filteredStudies.map((study) => (
+            <Card key={study.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="space-y-4">
+                <div className="flex flex-wrap gap-2 items-start justify-between">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <Badge variant="default" className={oaStatusColors[study.open_access.oa_status]}>
+                        {translateOAStatus(study.open_access.oa_status)}
                       </Badge>
-                    )}
-                    {study.cited_by_count > 0 && (
-                      <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/30">
-                        {study.cited_by_count} citações
+                      <Badge variant="outline">
+                        {translateType(study.type)}
                       </Badge>
+                      <Badge variant="secondary" className="gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {study.publication_year}
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-2xl leading-tight hover:text-primary transition-colors cursor-pointer">
+                      {study.title}
+                    </CardTitle>
+                    {study.title !== study.display_name && (
+                      <CardDescription className="text-sm italic">
+                        {study.display_name}
+                      </CardDescription>
                     )}
                   </div>
-                  <CardTitle className="text-xl mb-2">{study.display_name}</CardTitle>
-                  <CardDescription className="text-sm">
-                    {study.authorships.slice(0, 3).map(a => a.author.display_name).join(", ")}
-                    {study.authorships.length > 3 && ` e mais ${study.authorships.length - 3}`}
-                  </CardDescription>
                 </div>
-                <div className="flex gap-2">
-                  {study.primary_location.landing_page_url && (
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={study.primary_location.landing_page_url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  <span className="font-medium text-foreground">Publicado em:</span> {study.primary_location.source.display_name}
-                </p>
-                {study.doi && (
-                  <p className="text-xs text-muted-foreground">
-                    DOI: <a href={study.doi} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{study.doi}</a>
-                  </p>
+
+                {/* Autores */}
+                <AuthorList authorships={study.authorships} />
+
+                {/* Métricas de Impacto */}
+                <ImpactMetrics
+                  citedByCount={study.cited_by_count}
+                  fwci={study.fwci}
+                  citationPercentile={study.citation_normalized_percentile}
+                />
+              </CardHeader>
+
+              <CardContent className="space-y-4">
+                {/* Abstract */}
+                {study.abstract_inverted_index && (
+                  <div>
+                    <h4 className="font-semibold mb-2">Resumo</h4>
+                    <AbstractSection abstractInvertedIndex={study.abstract_inverted_index} />
+                  </div>
                 )}
-              </div>
 
-              {study.primary_topic && (
-                <div>
-                  <Separator className="mb-3" />
-                  <div className="flex flex-wrap gap-2">
-                    <span className="text-xs font-medium text-muted-foreground">Tópico Principal:</span>
-                    <Badge variant="secondary" className="text-xs">
-                      {study.primary_topic.display_name}
-                    </Badge>
+                {/* Hierarquia de Tópicos */}
+                {study.primary_topic && (
+                  <div>
+                    <h4 className="font-semibold mb-2">Classificação</h4>
+                    <TopicHierarchy topic={study.primary_topic} showScore />
                   </div>
-                </div>
-              )}
+                )}
 
-              {study.keywords && study.keywords.length > 0 && (
-                <div>
-                  <Separator className="mb-3" />
-                  <div className="flex flex-wrap gap-2">
-                    <span className="text-xs font-medium text-muted-foreground">Palavras-chave:</span>
-                    {study.keywords.slice(0, 5).map((keyword, idx) => (
-                      <Badge key={idx} variant="outline" className="text-xs">
-                        {keyword.display_name}
-                      </Badge>
-                    ))}
+                {/* Palavras-chave */}
+                {study.keywords && study.keywords.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-2">Palavras-chave</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {study.keywords.slice(0, 8).map((keyword) => (
+                        <Badge key={keyword.id} variant="secondary" className="text-xs">
+                          {keyword.display_name}
+                          <span className="ml-1 text-muted-foreground">
+                            ({(keyword.score * 100).toFixed(0)}%)
+                          </span>
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <div className="flex items-center justify-between pt-2">
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>Relevância: {study.relevance_score.toFixed(1)}</span>
-                  <span>•</span>
-                  <span>{new Date(study.publication_date).toLocaleDateString('pt-BR')}</span>
+                {/* Termos MeSH */}
+                {study.mesh && study.mesh.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-2">Termos MeSH</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {study.mesh
+                        .filter((m) => m.is_major_topic)
+                        .slice(0, 5)
+                        .map((mesh, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {mesh.descriptor_name}
+                          </Badge>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ODS */}
+                {study.sustainable_development_goals &&
+                  study.sustainable_development_goals.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2">
+                        Objetivos de Desenvolvimento Sustentável
+                      </h4>
+                      <SDGBadges sdgs={study.sustainable_development_goals} />
+                    </div>
+                  )}
+
+                {/* Links */}
+                <div className="pt-4 border-t">
+                  <LocationLinks
+                    primaryLocation={study.primary_location}
+                    locations={study.locations}
+                    doi={study.doi}
+                  />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+
+                {/* Metadata adicional */}
+                <div className="text-xs text-muted-foreground pt-2 border-t flex flex-wrap gap-4">
+                  <span>Publicado em: {formatDate(study.publication_date)}</span>
+                  {study.referenced_works_count && (
+                    <span>Referências: {study.referenced_works_count}</span>
+                  )}
+                  {study.apc_paid && (
+                    <span>
+                      APC: {study.apc_paid.currency} {study.apc_paid.value.toLocaleString()}
+                    </span>
+                  )}
+                  <span>
+                    Colaboração: {study.institutions_distinct_count} instituições,{" "}
+                    {study.countries_distinct_count} países
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {filteredStudies.length === 0 && (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">
+                  Nenhum estudo encontrado
+                </h3>
+                <p className="text-muted-foreground">
+                  Tente ajustar seus filtros de pesquisa
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );
