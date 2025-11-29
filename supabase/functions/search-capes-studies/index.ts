@@ -78,47 +78,116 @@ Deno.serve(async (req) => {
     const searchQuery = body.q || '';
     const limit = parseInt(body.limit?.toString() || '10');
     const offset = parseInt(body.offset?.toString() || '0');
-    const resourceId = body.resource_id || RESOURCE_IDS.THESES_2019;
+    const multiYear = body.multiYear || false;
     const area = body.area || '';
     const institution = body.institution || '';
     const year = body.year || '';
 
-    console.log('Using resource_id:', resourceId);
+    // Se multiYear, usar datasets de 2019 e 2020
+    const resourceIds = multiYear 
+      ? [RESOURCE_IDS.THESES_2020, RESOURCE_IDS.THESES_2019]
+      : [body.resource_id || RESOURCE_IDS.THESES_2019];
+
+    console.log('Using resource_ids:', resourceIds);
     console.log('Search query:', searchQuery);
+    console.log('Multi-year mode:', multiYear);
 
-    // Construir parâmetros para a API CKAN da CAPES
-    const params: CKANSearchParams = {
-      resource_id: resourceId,
-      limit,
-      offset,
-    };
+    // Buscar dados de múltiplos anos se necessário
+    let allRecords: CAPESStudyRecord[] = [];
+    let totalRecords = 0;
 
-    if (searchQuery) {
-      params.q = searchQuery;
+    if (multiYear) {
+      // Fetch paralelo para múltiplos anos
+      const promises = resourceIds.map(async (resourceId) => {
+        const params: CKANSearchParams = {
+          resource_id: resourceId,
+          limit: Math.ceil(limit / resourceIds.length), // Dividir o limite entre os anos
+          offset: 0, // Sempre buscar do início para cada ano
+        };
+
+        if (searchQuery) {
+          params.q = searchQuery;
+        }
+
+        const queryString = new URLSearchParams(params as any).toString();
+        const apiUrl = `https://dadosabertos.capes.gov.br/api/3/action/datastore_search?${queryString}`;
+
+        console.log(`Fetching from CAPES API (resource: ${resourceId}):`, apiUrl);
+
+        const response = await fetch(apiUrl, {
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('CAPES API error:', response.status, errorText);
+          throw new Error(`CAPES API returned ${response.status}: ${errorText}`);
+        }
+
+        const data: CKANResponse = await response.json();
+        console.log(`CAPES API response (resource: ${resourceId}) - total records:`, data.result.total);
+        
+        return {
+          records: data.result.records,
+          total: data.result.total,
+        };
+      });
+
+      const results = await Promise.all(promises);
+      allRecords = results.flatMap(r => r.records);
+      totalRecords = results.reduce((sum, r) => sum + r.total, 0);
+      
+      // Ordenar por ano (mais recente primeiro) - usando AN_BASE
+      allRecords.sort((a, b) => {
+        const yearA = parseInt(a.AN_BASE || '0');
+        const yearB = parseInt(b.AN_BASE || '0');
+        return yearB - yearA;
+      });
+
+      // Aplicar limite total
+      allRecords = allRecords.slice(0, limit);
+
+      console.log(`Combined ${allRecords.length} records from ${resourceIds.length} datasets`);
+    } else {
+      // Busca simples de um único dataset
+      const params: CKANSearchParams = {
+        resource_id: resourceIds[0],
+        limit,
+        offset,
+      };
+
+      if (searchQuery) {
+        params.q = searchQuery;
+      }
+
+      const queryString = new URLSearchParams(params as any).toString();
+      const apiUrl = `https://dadosabertos.capes.gov.br/api/3/action/datastore_search?${queryString}`;
+
+      console.log('Fetching from CAPES API:', apiUrl);
+
+      const response = await fetch(apiUrl, {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('CAPES API error:', response.status, errorText);
+        throw new Error(`CAPES API returned ${response.status}: ${errorText}`);
+      }
+
+      const data: CKANResponse = await response.json();
+      console.log('CAPES API response - total records:', data.result.total);
+      console.log('First record sample:', data.result.records[0]);
+
+      allRecords = data.result.records;
+      totalRecords = data.result.total;
     }
 
-    const queryString = new URLSearchParams(params as any).toString();
-    const apiUrl = `https://dadosabertos.capes.gov.br/api/3/action/datastore_search?${queryString}`;
-
-    console.log('Fetching from CAPES API:', apiUrl);
-
-    const response = await fetch(apiUrl, {
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('CAPES API error:', response.status, errorText);
-      throw new Error(`CAPES API returned ${response.status}: ${errorText}`);
-    }
-
-    const data: CKANResponse = await response.json();
-    console.log('CAPES API response - total records:', data.result.total);
-    console.log('First record sample:', data.result.records[0]);
-
-    let filteredRecords = data.result.records;
+    let filteredRecords = allRecords;
 
     // Aplicar filtros adicionais
     if (area) {
@@ -177,9 +246,9 @@ Deno.serve(async (req) => {
         success: true,
         data: {
           studies: mappedStudies,
-          total: data.result.total,
-          limit: data.result.limit,
-          offset: data.result.offset,
+          total: totalRecords,
+          limit,
+          offset,
         },
       }),
       {

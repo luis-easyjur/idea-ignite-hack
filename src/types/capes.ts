@@ -20,6 +20,7 @@ export interface CAPESSearchParams {
   area?: string;
   institution?: string;
   year?: string;
+  multiYear?: boolean;
 }
 
 export interface CAPESStudy {
