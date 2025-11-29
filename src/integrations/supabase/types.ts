@@ -120,12 +120,21 @@ export type Database = {
       patents: {
         Row: {
           abstract: string | null
+          all_images: string[] | null
+          application_number: string | null
           category: Database["public"]["Enums"]["product_category"]
+          cited_by: Json | null
           claims: string | null
+          classifications: Json | null
           company: string
           country_status: Json | null
           created_at: string
+          description: string | null
+          details_loaded: boolean | null
+          details_loaded_at: string | null
+          events: Json | null
           expiry_date: string | null
+          external_links: Json | null
           figures: Json | null
           filing_date: string
           google_patents_link: string | null
@@ -134,24 +143,37 @@ export type Database = {
           inpi_link: string | null
           inventors: string[] | null
           language: string | null
+          legal_events: Json | null
           patent_number: string
           pdf_url: string | null
+          prior_art_keywords: string[] | null
           priority_date: string | null
           publication_date: string | null
           publication_number: string | null
+          similar_documents: Json | null
           status: string
           thumbnail_url: string | null
           title: string
           updated_at: string
+          worldwide_applications: Json | null
         }
         Insert: {
           abstract?: string | null
+          all_images?: string[] | null
+          application_number?: string | null
           category: Database["public"]["Enums"]["product_category"]
+          cited_by?: Json | null
           claims?: string | null
+          classifications?: Json | null
           company: string
           country_status?: Json | null
           created_at?: string
+          description?: string | null
+          details_loaded?: boolean | null
+          details_loaded_at?: string | null
+          events?: Json | null
           expiry_date?: string | null
+          external_links?: Json | null
           figures?: Json | null
           filing_date: string
           google_patents_link?: string | null
@@ -160,24 +182,37 @@ export type Database = {
           inpi_link?: string | null
           inventors?: string[] | null
           language?: string | null
+          legal_events?: Json | null
           patent_number: string
           pdf_url?: string | null
+          prior_art_keywords?: string[] | null
           priority_date?: string | null
           publication_date?: string | null
           publication_number?: string | null
+          similar_documents?: Json | null
           status: string
           thumbnail_url?: string | null
           title: string
           updated_at?: string
+          worldwide_applications?: Json | null
         }
         Update: {
           abstract?: string | null
+          all_images?: string[] | null
+          application_number?: string | null
           category?: Database["public"]["Enums"]["product_category"]
+          cited_by?: Json | null
           claims?: string | null
+          classifications?: Json | null
           company?: string
           country_status?: Json | null
           created_at?: string
+          description?: string | null
+          details_loaded?: boolean | null
+          details_loaded_at?: string | null
+          events?: Json | null
           expiry_date?: string | null
+          external_links?: Json | null
           figures?: Json | null
           filing_date?: string
           google_patents_link?: string | null
@@ -186,15 +221,19 @@ export type Database = {
           inpi_link?: string | null
           inventors?: string[] | null
           language?: string | null
+          legal_events?: Json | null
           patent_number?: string
           pdf_url?: string | null
+          prior_art_keywords?: string[] | null
           priority_date?: string | null
           publication_date?: string | null
           publication_number?: string | null
+          similar_documents?: Json | null
           status?: string
           thumbnail_url?: string | null
           title?: string
           updated_at?: string
+          worldwide_applications?: Json | null
         }
         Relationships: []
       }
