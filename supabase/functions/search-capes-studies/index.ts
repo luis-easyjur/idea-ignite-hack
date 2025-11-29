@@ -1,5 +1,3 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.86.0';
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -18,21 +16,25 @@ interface CKANSearchParams {
   q?: string;
   limit?: number;
   offset?: number;
-  filters?: Record<string, string>;
 }
 
 interface CAPESStudyRecord {
   _id: number;
-  NM_TESE_DISSERTACAO?: string;
+  NM_PRODUCAO?: string;
   AN_BASE?: string;
   NM_PROGRAMA?: string;
   NM_ENTIDADE_ENSINO?: string;
+  SG_UF_IES?: string;
   NM_GRAU_ACADEMICO?: string;
   NM_GRANDE_AREA_CONHECIMENTO?: string;
   NM_AREA_CONHECIMENTO?: string;
-  NM_AUTOR?: string;
+  NM_AREA_AVALIACAO?: string;
+  NM_DISCENTE?: string;
+  NM_ORIENTADOR?: string;
   DS_PALAVRA_CHAVE?: string;
   DS_RESUMO?: string;
+  NM_LINHA_PESQUISA?: string;
+  DS_URL_TEXTO_COMPLETO?: string;
 }
 
 interface CKANResponse {
@@ -40,8 +42,27 @@ interface CKANResponse {
   result: {
     records: CAPESStudyRecord[];
     total: number;
-    fields: any[];
+    limit: number;
+    offset: number;
   };
+}
+
+interface CAPESStudy {
+  id: string;
+  titulo: string;
+  resumo?: string;
+  urlTextoCompleto?: string;
+  autor: string;
+  orientador?: string;
+  instituicao: string;
+  siglaUF: string;
+  programa: string;
+  areaConhecimento: string;
+  grandeArea: string;
+  ano: number;
+  tipo: 'DISSERTAÇÃO' | 'TESE';
+  palavrasChave: string[];
+  linhaPesquisa?: string;
 }
 
 Deno.serve(async (req) => {
@@ -51,189 +72,105 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Ler parâmetros do body da requisição
     const body = await req.json();
+    console.log('Search request received:', body);
+
     const searchQuery = body.q || '';
     const limit = parseInt(body.limit?.toString() || '10');
     const offset = parseInt(body.offset?.toString() || '0');
-    const resourceId = body.resource_id || RESOURCE_IDS.THESES_2019; // Usa 2019 como padrão
+    const resourceId = body.resource_id || RESOURCE_IDS.THESES_2019;
     const area = body.area || '';
     const institution = body.institution || '';
     const year = body.year || '';
 
-    console.log('Searching CAPES API:', { searchQuery, limit, offset, resourceId, area, institution, year });
+    console.log('Using resource_id:', resourceId);
+    console.log('Search query:', searchQuery);
 
-    // Construir URL da API CKAN
-    const ckanUrl = new URL('https://dadosabertos.capes.gov.br/pt_BR/api/3/action/datastore_search');
-    ckanUrl.searchParams.set('resource_id', resourceId);
-    ckanUrl.searchParams.set('limit', limit.toString());
-    ckanUrl.searchParams.set('offset', offset.toString());
-    
+    // Construir parâmetros para a API CKAN da CAPES
+    const params: CKANSearchParams = {
+      resource_id: resourceId,
+      limit,
+      offset,
+    };
+
     if (searchQuery) {
-      ckanUrl.searchParams.set('q', searchQuery);
+      params.q = searchQuery;
     }
 
-    // Adicionar filtros se especificados
-    const filters: Record<string, string> = {};
-    if (area) filters['NM_AREA_CONHECIMENTO'] = area;
-    if (institution) filters['NM_ENTIDADE_ENSINO'] = institution;
-    if (year) filters['AN_BASE'] = year;
-    
-    if (Object.keys(filters).length > 0) {
-      ckanUrl.searchParams.set('filters', JSON.stringify(filters));
-    }
+    const queryString = new URLSearchParams(params as any).toString();
+    const apiUrl = `https://dadosabertos.capes.gov.br/api/3/action/datastore_search?${queryString}`;
 
-    console.log('CKAN URL:', ckanUrl.toString());
+    console.log('Fetching from CAPES API:', apiUrl);
 
-    // Fazer requisição para API CAPES
-    const response = await fetch(ckanUrl.toString(), {
-      method: 'GET',
+    const response = await fetch(apiUrl, {
       headers: {
         'Accept': 'application/json',
       },
     });
 
     if (!response.ok) {
-      throw new Error(`CAPES API error: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('CAPES API error:', response.status, errorText);
+      throw new Error(`CAPES API returned ${response.status}: ${errorText}`);
     }
 
     const data: CKANResponse = await response.json();
+    console.log('CAPES API response - total records:', data.result.total);
+    console.log('First record sample:', data.result.records[0]);
 
-    console.log('CAPES API response:', {
-      success: data.success,
-      total: data.result.total,
-      records: data.result.records.length
-    });
+    let filteredRecords = data.result.records;
 
-    // Log do primeiro registro para debug dos campos
-    if (data.result.records.length > 0) {
-      console.log('Primeiro registro CAPES completo:', JSON.stringify(data.result.records[0], null, 2));
+    // Aplicar filtros adicionais
+    if (area) {
+      filteredRecords = filteredRecords.filter(record =>
+        record.NM_AREA_CONHECIMENTO?.toLowerCase().includes(area.toLowerCase()) ||
+        record.NM_GRANDE_AREA_CONHECIMENTO?.toLowerCase().includes(area.toLowerCase())
+      );
     }
 
-    // Mapear dados para formato compatível com Study
-    const mappedStudies = data.result.records.map((record, index) => ({
-      id: `capes-${record._id}`,
-      doi: null,
-      title: record.NM_TESE_DISSERTACAO || 'Sem título',
-      display_name: record.NM_TESE_DISSERTACAO || 'Sem título',
-      relevance_score: 100 - (offset + index),
-      publication_year: parseInt(record.AN_BASE || new Date().getFullYear().toString()),
-      publication_date: `${record.AN_BASE}-01-01`,
-      language: 'pt',
-      type: record.NM_GRAU_ACADEMICO === 'DOUTORADO' ? 'dissertation' : 'thesis',
-      open_access: {
-        is_oa: true,
-        oa_status: 'green',
-        oa_url: null,
-        any_repository_has_fulltext: false,
-      },
-      authorships: [
-        {
-          author_position: 'first',
-          author: {
-            id: `capes-author-${record._id}`,
-            display_name: record.NM_AUTOR || 'Autor não informado',
-            orcid: null,
-          },
-          institutions: [
-            {
-              id: `capes-inst-${record._id}`,
-              display_name: record.NM_ENTIDADE_ENSINO || 'Instituição não informada',
-              ror: null,
-              country_code: 'BR',
-              type: 'education',
-              lineage: [],
-            },
-          ],
-          countries: ['BR'],
-          is_corresponding: true,
-          raw_author_name: record.NM_AUTOR || 'Autor não informado',
-          raw_affiliation_strings: [record.NM_ENTIDADE_ENSINO || 'Instituição não informada'],
-        },
-      ],
-      institutions_distinct_count: 1,
-      countries_distinct_count: 1,
-      corresponding_author_ids: [`capes-author-${record._id}`],
-      cited_by_count: 0,
-      fwci: 0,
-      citation_normalized_percentile: null,
-      cited_by_percentile_year: null,
-      primary_topic: {
-        id: `capes-topic-${record._id}`,
-        display_name: record.NM_AREA_CONHECIMENTO || record.NM_GRANDE_AREA_CONHECIMENTO || 'Área não informada',
-        score: 0.95,
-        subfield: {
-          id: `capes-subfield-${record._id}`,
-          display_name: record.NM_AREA_CONHECIMENTO || 'Subárea não informada',
-        },
-        field: {
-          id: `capes-field-${record._id}`,
-          display_name: record.NM_GRANDE_AREA_CONHECIMENTO || 'Campo não informado',
-        },
-        domain: {
-          id: 'capes-domain',
-          display_name: 'Ciências',
-        },
-      },
-      topics: [
-        {
-          id: `capes-topic-${record._id}`,
-          display_name: record.NM_PROGRAMA || 'Programa não informado',
-          score: 0.95,
-          subfield: {
-            id: `capes-subfield-${record._id}`,
-            display_name: record.NM_AREA_CONHECIMENTO || 'Subárea não informada',
-          },
-          field: {
-            id: `capes-field-${record._id}`,
-            display_name: record.NM_GRANDE_AREA_CONHECIMENTO || 'Campo não informado',
-          },
-          domain: {
-            id: 'capes-domain',
-            display_name: 'Ciências',
-          },
-        },
-      ],
-      keywords: record.DS_PALAVRA_CHAVE
-        ? record.DS_PALAVRA_CHAVE.split(';').slice(0, 5).map((kw, i) => ({
-            id: `capes-kw-${record._id}-${i}`,
-            display_name: kw.trim(),
-            score: 0.8,
-          }))
-        : [],
-      mesh: [],
-      sustainable_development_goals: [],
-      primary_location: {
-        id: `capes-location-${record._id}`,
-        is_oa: true,
-        landing_page_url: null,
-        pdf_url: null,
-        source: {
-          id: 'capes-source',
-          display_name: 'Catálogo de Teses e Dissertações CAPES',
-          issn_l: null,
-          issn: [],
-          is_oa: true,
-          is_in_doaj: false,
-          is_core: true,
-          type: 'repository',
-        },
-        license: null,
-        license_id: null,
-        version: 'publishedVersion',
-        is_accepted: true,
-        is_published: true,
-      },
-      apc_list: null,
-      apc_paid: null,
-      indexed_in: ['capes'],
-      is_retracted: false,
-      is_paratext: false,
-      referenced_works_count: 0,
-      abstract_inverted_index: record.DS_RESUMO
-        ? { resumo: [0] } // Simplificado
-        : undefined,
-    }));
+    if (institution) {
+      filteredRecords = filteredRecords.filter(record =>
+        record.NM_ENTIDADE_ENSINO?.toLowerCase().includes(institution.toLowerCase())
+      );
+    }
+
+    if (year) {
+      filteredRecords = filteredRecords.filter(record =>
+        record.AN_BASE?.toString() === year
+      );
+    }
+
+    // Mapear os registros CAPES para o formato CAPESStudy
+    const mappedStudies: CAPESStudy[] = filteredRecords.map(record => {
+      const palavrasChave = record.DS_PALAVRA_CHAVE
+        ? record.DS_PALAVRA_CHAVE.split(/[;,]/).map(k => k.trim()).filter(k => k)
+        : [];
+
+      const tipo = record.NM_GRAU_ACADEMICO?.toUpperCase().includes('DOUTORADO')
+        ? 'TESE' as const
+        : 'DISSERTAÇÃO' as const;
+
+      return {
+        id: record._id.toString(),
+        titulo: record.NM_PRODUCAO || 'Sem título',
+        resumo: record.DS_RESUMO,
+        urlTextoCompleto: record.DS_URL_TEXTO_COMPLETO,
+        autor: record.NM_DISCENTE || 'Autor não informado',
+        orientador: record.NM_ORIENTADOR,
+        instituicao: record.NM_ENTIDADE_ENSINO || 'Instituição não informada',
+        siglaUF: record.SG_UF_IES || '',
+        programa: record.NM_PROGRAMA || '',
+        areaConhecimento: record.NM_AREA_CONHECIMENTO || record.NM_AREA_AVALIACAO || '',
+        grandeArea: record.NM_GRANDE_AREA_CONHECIMENTO || '',
+        ano: parseInt(record.AN_BASE || '0'),
+        tipo,
+        palavrasChave,
+        linhaPesquisa: record.NM_LINHA_PESQUISA,
+      };
+    });
+
+    console.log('Mapped studies:', mappedStudies.length);
+    console.log('First mapped study:', mappedStudies[0]);
 
     return new Response(
       JSON.stringify({
@@ -241,8 +178,8 @@ Deno.serve(async (req) => {
         data: {
           studies: mappedStudies,
           total: data.result.total,
-          limit,
-          offset,
+          limit: data.result.limit,
+          offset: data.result.offset,
         },
       }),
       {
@@ -250,12 +187,18 @@ Deno.serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error in search-capes-studies:', error);
+    console.error('Error in search-capes-studies function:', error);
     const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao buscar estudos';
     return new Response(
       JSON.stringify({
         success: false,
         error: errorMessage,
+        data: {
+          studies: [],
+          total: 0,
+          limit: 0,
+          offset: 0,
+        },
       }),
       {
         status: 500,
