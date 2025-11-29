@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, FileText, Building2, Users, Download, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { PatentClassifications } from "./patent/PatentClassifications";
@@ -66,6 +66,11 @@ export const PatentDetailModal = ({ patent, open, onOpenChange }: PatentDetailMo
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [localPatent, setLocalPatent] = useState<Patent | null>(patent);
   const { toast } = useToast();
+
+  // Sync local state with prop changes
+  useEffect(() => {
+    setLocalPatent(patent);
+  }, [patent]);
 
   if (!localPatent) return null;
 
