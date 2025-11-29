@@ -178,8 +178,7 @@ export function PatentTermsManager() {
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
+    <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -337,6 +336,5 @@ export function PatentTermsManager() {
           )}
         </CardContent>
       </Card>
-    </div>
   );
 }

@@ -23,7 +23,7 @@ import { PatentDetailModal } from "@/components/PatentDetailModal";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-import { PatentTermsManager } from "@/components/PatentTermsManager";
+import { PatentTermsModal } from "@/components/PatentTermsModal";
 
 const Patents = () => {
   const [patents, setPatents] = useState<any[]>([]);
@@ -157,7 +157,10 @@ const Patents = () => {
                 Monitoramento de propriedade intelectual no setor
               </p>
             </div>
-            <ExportButton data={filteredPatents} filename="patentes" />
+            <div className="flex gap-2">
+              <PatentTermsModal />
+              <ExportButton data={filteredPatents} filename="patentes" />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -202,8 +205,6 @@ const Patents = () => {
           
 
           <FilterBar onFilterChange={setFilters} />
-
-          <PatentTermsManager />
 
           <Collapsible open={showSearchForm} onOpenChange={setShowSearchForm} className="mb-6">
             <CollapsibleTrigger asChild>
