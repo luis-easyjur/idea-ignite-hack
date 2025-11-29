@@ -10,6 +10,8 @@ interface SearchParams {
   assignee?: string;
   category?: string;
   limit?: number;
+  startDate?: string; // YYYYMMDD format
+  endDate?: string;   // YYYYMMDD format
 }
 
 // Helper to sanitize dates from BigQuery (converts "0", null, or invalid values to null or proper format)
@@ -39,10 +41,40 @@ serve(async (req) => {
     }
 
     const serviceAccount = JSON.parse(serviceAccountJson);
-    const { query, assignee, category, limit = 100 }: SearchParams = await req.json();
+    const { 
+      query, 
+      assignee, 
+      category, 
+      limit = 50,
+      startDate,
+      endDate 
+    }: SearchParams = await req.json();
 
-    // Build SQL query for Brazilian patents with proper UNNEST for arrays
+    // Default to last 5 years if no dates provided (to reduce data scanned)
+    const defaultStartDate = startDate || '20200101';
+    const defaultEndDate = endDate || new Date().toISOString().split('T')[0].replace(/-/g, '');
+
+    // Build optimized SQL query with CTE to pre-filter BR patents
     let sqlQuery = `
+      WITH br_patents AS (
+        SELECT 
+          publication_number,
+          title_localized,
+          abstract_localized,
+          assignee_harmonized,
+          inventor_harmonized,
+          filing_date,
+          grant_date,
+          publication_date,
+          priority_date,
+          application_number,
+          family_id,
+          country_code
+        FROM \`patents-public-data.patents.publications\`
+        WHERE country_code = 'BR'
+          AND filing_date >= ${defaultStartDate}
+          AND filing_date <= ${defaultEndDate}
+      )
       SELECT 
         p.publication_number,
         ARRAY_AGG(DISTINCT title.text IGNORE NULLS ORDER BY title.text LIMIT 1)[OFFSET(0)] as title,
@@ -56,13 +88,12 @@ serve(async (req) => {
         p.application_number,
         p.family_id,
         p.country_code
-      FROM \`patents-public-data.patents.publications\` p
+      FROM br_patents p
       LEFT JOIN UNNEST(p.title_localized) as title
       LEFT JOIN UNNEST(p.abstract_localized) as abstract
       LEFT JOIN UNNEST(p.assignee_harmonized) as assignee
       LEFT JOIN UNNEST(p.inventor_harmonized) as inventor
-      WHERE p.country_code = 'BR'
-        AND (title.language = 'pt' OR title.language = 'en')
+      WHERE (title.language = 'pt' OR title.language = 'en')
     `;
 
     if (query) {
@@ -84,7 +115,8 @@ serve(async (req) => {
       LIMIT ${limit}
     `;
 
-    console.log('Executing BigQuery SQL:', sqlQuery);
+    console.log('Executing optimized BigQuery SQL with date range:', defaultStartDate, '-', defaultEndDate);
+    console.log('Query:', sqlQuery.substring(0, 200) + '...');
 
     // Get OAuth2 token for BigQuery API
     const now = Math.floor(Date.now() / 1000);
