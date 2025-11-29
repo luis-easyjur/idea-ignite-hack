@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,12 +12,28 @@ import { AbstractSection } from "@/components/research/AbstractSection";
 import { SDGBadges } from "@/components/research/SDGBadges";
 import { LocationLinks } from "@/components/research/LocationLinks";
 import { translateType, translateOAStatus, oaStatusColors, formatDate } from "@/lib/research-utils";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const Research = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [yearFilter, setYearFilter] = useState("all");
   const [oaFilter, setOaFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Reset para página 1 quando filtros mudarem
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, yearFilter, oaFilter, typeFilter]);
 
   // Filtrar estudos
   const filteredStudies = mockStudies.filter((study) => {
@@ -42,6 +58,48 @@ const Research = () => {
 
     return matchesSearch && matchesYear && matchesOA && matchesType;
   });
+
+  // Paginação
+  const totalPages = Math.ceil(filteredStudies.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedStudies = filteredStudies.slice(startIndex, endIndex);
+
+  // Gerar números de página com elipses
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push("ellipsis");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push("ellipsis");
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push("ellipsis");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push("ellipsis");
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
 
   // Extrair anos únicos
   const uniqueYears = Array.from(new Set(mockStudies.map((s) => s.publication_year))).sort(
@@ -192,18 +250,48 @@ const Research = () => {
               </Select>
             </div>
 
-            {/* Resultado da busca */}
-            <div className="mt-4 text-sm text-muted-foreground">
-              {filteredStudies.length === mockStudies.length
-                ? `Mostrando todos os ${filteredStudies.length} estudos`
-                : `Encontrados ${filteredStudies.length} de ${mockStudies.length} estudos`}
+            {/* Resultado da busca e controles */}
+            <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="text-sm text-muted-foreground">
+                {filteredStudies.length === 0 ? (
+                  "Nenhum estudo encontrado"
+                ) : (
+                  <>
+                    Mostrando {startIndex + 1}-{Math.min(endIndex, filteredStudies.length)} de{" "}
+                    {filteredStudies.length} estudos
+                  </>
+                )}
+              </div>
+
+              {/* Seletor de itens por página */}
+              {filteredStudies.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Itens por página:</span>
+                  <Select
+                    value={itemsPerPage.toString()}
+                    onValueChange={(value) => {
+                      setItemsPerPage(Number(value));
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-20">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="20">20</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
         {/* Lista de Estudos */}
         <div className="space-y-6">
-          {filteredStudies.map((study) => (
+          {paginatedStudies.map((study) => (
             <Card key={study.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="space-y-4">
                 <div className="flex flex-wrap gap-2 items-start justify-between">
@@ -347,6 +435,61 @@ const Research = () => {
             </Card>
           )}
         </div>
+
+        {/* Paginação */}
+        {filteredStudies.length > 0 && totalPages > 1 && (
+          <Card>
+            <CardContent className="py-6">
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-sm text-muted-foreground">
+                  Página {currentPage} de {totalPages}
+                </div>
+
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        className={
+                          currentPage === 1
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+
+                    {getPageNumbers().map((page, index) => (
+                      <PaginationItem key={index}>
+                        {page === "ellipsis" ? (
+                          <PaginationEllipsis />
+                        ) : (
+                          <PaginationLink
+                            onClick={() => setCurrentPage(page as number)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        )}
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        className={
+                          currentPage === totalPages
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
