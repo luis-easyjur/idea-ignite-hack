@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { StatCard } from "@/components/StatCard";
 import { FilterBar, FilterState } from "@/components/FilterBar";
 import { ExportButton } from "@/components/ExportButton";
+import { DataSyncButton } from "@/components/DataSyncButton";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -106,7 +107,10 @@ const Patents = () => {
                 Monitoramento de propriedade intelectual no setor
               </p>
             </div>
-            <ExportButton data={filteredPatents} filename="patentes" />
+            <div className="flex gap-2">
+              <DataSyncButton />
+              <ExportButton data={filteredPatents} filename="patentes" />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

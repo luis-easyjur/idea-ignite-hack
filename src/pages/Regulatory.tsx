@@ -5,6 +5,7 @@ import { StatCard } from "@/components/StatCard";
 import { RegulatoryTimeline } from "@/components/RegulatoryTimeline";
 import { FilterBar, FilterState } from "@/components/FilterBar";
 import { ExportButton } from "@/components/ExportButton";
+import { DataSyncButton } from "@/components/DataSyncButton";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -73,7 +74,10 @@ const Regulatory = () => {
                 Acompanhamento completo de registros no MAPA
               </p>
             </div>
-            <ExportButton data={filteredRecords} filename="registros-regulatorios" />
+            <div className="flex gap-2">
+              <DataSyncButton />
+              <ExportButton data={filteredRecords} filename="registros-regulatorios" />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
