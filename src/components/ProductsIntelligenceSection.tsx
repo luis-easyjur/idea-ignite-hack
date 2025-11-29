@@ -24,7 +24,9 @@ const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accen
 export const ProductsIntelligenceSection = () => {
   const { data, isLoading, error } = useElasticProductStats();
   const [companiesPage, setCompaniesPage] = useState(1);
+  const [chemicalGroupsPage, setChemicalGroupsPage] = useState(1);
   const companiesPerPage = 5;
+  const chemicalGroupsPerPage = 5;
 
   if (error) {
     return (
@@ -333,23 +335,65 @@ export const ProductsIntelligenceSection = () => {
         {/* Top Chemical Groups */}
         <Card>
           <CardHeader>
-            <CardTitle>Top Grupos Químicos</CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              <span>Grupos Químicos</span>
+              <Badge variant="outline">{data.chemicalGroups.length} grupos</Badge>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {data.chemicalGroups.slice(0, 10).map((group, index) => (
-                <div key={group.name} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
-                      {index + 1}
-                    </Badge>
-                    <span className="text-sm font-medium truncate max-w-[200px]">
-                      {group.name}
-                    </span>
-                  </div>
-                  <Badge variant="secondary">{group.count}</Badge>
-                </div>
-              ))}
+              {(() => {
+                const totalGroups = data.chemicalGroups.length;
+                const totalPages = Math.ceil(totalGroups / chemicalGroupsPerPage);
+                const startIndex = (chemicalGroupsPage - 1) * chemicalGroupsPerPage;
+                const endIndex = startIndex + chemicalGroupsPerPage;
+                const paginatedGroups = data.chemicalGroups.slice(startIndex, endIndex);
+                
+                return (
+                  <>
+                    {paginatedGroups.map((group, index) => (
+                      <div key={group.name} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
+                            {startIndex + index + 1}
+                          </Badge>
+                          <span className="text-sm font-medium truncate max-w-[200px]">
+                            {group.name}
+                          </span>
+                        </div>
+                        <Badge variant="secondary">{group.count}</Badge>
+                      </div>
+                    ))}
+                    
+                    {/* Pagination Controls */}
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                      <span className="text-sm text-muted-foreground">
+                        Página {chemicalGroupsPage} de {totalPages}
+                      </span>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setChemicalGroupsPage(p => Math.max(1, p - 1))}
+                          disabled={chemicalGroupsPage === 1}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          Anterior
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setChemicalGroupsPage(p => Math.min(totalPages, p + 1))}
+                          disabled={chemicalGroupsPage === totalPages}
+                        >
+                          Próximo
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </CardContent>
         </Card>
