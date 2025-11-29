@@ -9,19 +9,20 @@ export const useCAPESStudies = (params: CAPESSearchParams) => {
     queryFn: async (): Promise<{ studies: Study[]; total: number }> => {
       console.log('Fetching CAPES studies with params:', params);
 
-      const searchParams = new URLSearchParams();
-      if (params.query) searchParams.set('q', params.query);
-      if (params.limit) searchParams.set('limit', params.limit.toString());
-      if (params.offset) searchParams.set('offset', params.offset.toString());
-      if (params.resource_id) searchParams.set('resource_id', params.resource_id);
-      if (params.area) searchParams.set('area', params.area);
-      if (params.institution) searchParams.set('institution', params.institution);
-      if (params.year) searchParams.set('year', params.year);
+      // Enviar parâmetros como objeto JSON simples
+      const requestBody: Record<string, any> = {};
+      if (params.query) requestBody.q = params.query;
+      if (params.limit) requestBody.limit = params.limit;
+      if (params.offset) requestBody.offset = params.offset;
+      if (params.resource_id) requestBody.resource_id = params.resource_id;
+      if (params.area) requestBody.area = params.area;
+      if (params.institution) requestBody.institution = params.institution;
+      if (params.year) requestBody.year = params.year;
 
       const { data, error } = await supabase.functions.invoke<CAPESSearchResponse>(
         'search-capes-studies',
         {
-          body: searchParams,
+          body: requestBody,
         }
       );
 
