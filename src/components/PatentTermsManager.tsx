@@ -104,46 +104,87 @@ export function PatentTermsManager() {
   const handleSearch = async (termId: string, searchTerm: string) => {
     setSearching(termId);
     try {
+      let patents: any[] = [];
+      let source = "";
+      let searchSuccess = false;
+
       // Try BigQuery first
-      let data, error;
-      let source = "BigQuery";
-      
       const bigQueryResult = await supabase.functions.invoke("search-patents-bigquery", {
         body: { query: searchTerm },
       });
 
-      // Check if BigQuery failed due to quota
-      if (bigQueryResult.error || bigQueryResult.data?.error?.includes("Quota exceeded")) {
-        console.log("BigQuery quota exceeded, falling back to Google Patents API");
-        toast.info("Usando fonte alternativa de dados...");
+      // Check if BigQuery succeeded
+      if (!bigQueryResult.error && !bigQueryResult.data?.error) {
+        patents = bigQueryResult.data?.results || [];
+        source = "BigQuery";
+        searchSuccess = true;
+      } else {
+        console.log("BigQuery failed:", bigQueryResult.error || bigQueryResult.data?.error);
         
-        // Fallback to Google Patents API
+        // Try Google Patents API as fallback
+        toast.info("Tentando fonte alternativa de dados...");
         const googleResult = await supabase.functions.invoke("search-google-patents", {
           body: { query: searchTerm },
         });
         
-        data = googleResult.data;
-        error = googleResult.error;
-        source = "Google Patents API";
-      } else {
-        data = bigQueryResult.data;
-        error = bigQueryResult.error;
+        if (!googleResult.error && googleResult.data?.success) {
+          patents = googleResult.data?.results || [];
+          source = "Google Patents API";
+          searchSuccess = true;
+        } else {
+          console.log("Google Patents API failed:", googleResult.error || googleResult.data?.error);
+          
+          // If both APIs failed, search existing database
+          toast.info("Buscando em registros existentes...");
+          const { data: dbPatents, error: dbError } = await supabase
+            .from("patents")
+            .select("*")
+            .or(`title.ilike.%${searchTerm}%,abstract.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%`)
+            .limit(100);
+
+          if (!dbError && dbPatents && dbPatents.length > 0) {
+            patents = dbPatents;
+            source = "Base de dados local";
+            searchSuccess = true;
+          }
+        }
       }
 
-      if (error) throw error;
-
-      const patents = data?.results || [];
+      if (!searchSuccess || patents.length === 0) {
+        toast.warning(
+          "Limite de buscas atingido. Configure as credenciais das APIs ou tente novamente mais tarde.",
+          { duration: 5000 }
+        );
+        
+        // Update search term with zero results
+        await supabase
+          .from("patent_search_terms")
+          .update({
+            last_searched_at: new Date().toISOString(),
+            results_count: 0,
+          })
+          .eq("id", termId);
+        
+        fetchTerms();
+        return;
+      }
       
-      // Update patents in database
-      for (const patent of patents) {
-        await supabase.from("patents").upsert({
-          patent_number: patent.patent_number,
-          title: patent.title,
-          company: patent.company,
-          filing_date: patent.filing_date,
-          status: patent.status,
-          category: patent.category || "biostimulants",
-        });
+      // Update patents in database (only if from external sources)
+      if (source !== "Base de dados local") {
+        for (const patent of patents) {
+          await supabase.from("patents").upsert({
+            patent_number: patent.patent_number,
+            title: patent.title,
+            company: patent.company,
+            filing_date: patent.filing_date,
+            status: patent.status,
+            category: patent.category || "biostimulants",
+            abstract: patent.abstract,
+            inventors: patent.inventors,
+          }, {
+            onConflict: "patent_number"
+          });
+        }
       }
 
       // Update search term stats
@@ -155,7 +196,7 @@ export function PatentTermsManager() {
         })
         .eq("id", termId);
 
-      toast.success(`Busca concluída via ${source}! ${patents.length} patentes encontradas`);
+      toast.success(`${patents.length} patentes encontradas via ${source}!`);
       fetchTerms();
     } catch (error) {
       console.error("Error searching patents:", error);
