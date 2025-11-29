@@ -17,11 +17,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         <AppSidebar onOpenChat={() => setChatOpen(true)} />
         
         <SidebarInset className="flex-1 flex flex-col">
-          <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <div className="flex-1">
-              <Header />
-            </div>
+          <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
+            <Header />
           </header>
           
           <main className="flex-1 overflow-auto">
