@@ -26,37 +26,48 @@ serve(async (req) => {
     const serviceAccount = JSON.parse(serviceAccountJson);
     const { query, assignee, category, limit = 100 }: SearchParams = await req.json();
 
-    // Build SQL query for Brazilian patents
+    // Build SQL query for Brazilian patents with proper UNNEST for arrays
     let sqlQuery = `
       SELECT 
-        publication_number,
-        title_localized.text as title,
-        abstract_localized.text as abstract,
-        assignee_harmonized.name as assignee,
-        inventor_harmonized.name as inventors,
-        filing_date,
-        grant_date,
-        publication_date,
-        priority_date,
-        application_number,
-        family_id,
-        country_code
-      FROM \`patents-public-data.patents.publications\`
-      WHERE country_code = 'BR'
+        p.publication_number,
+        ARRAY_AGG(DISTINCT title.text IGNORE NULLS ORDER BY title.text LIMIT 1)[OFFSET(0)] as title,
+        ARRAY_AGG(DISTINCT abstract.text IGNORE NULLS ORDER BY abstract.text LIMIT 1)[OFFSET(0)] as abstract,
+        ARRAY_AGG(DISTINCT assignee.name IGNORE NULLS ORDER BY assignee.name LIMIT 1)[OFFSET(0)] as assignee,
+        ARRAY_TO_STRING(ARRAY_AGG(DISTINCT inventor.name IGNORE NULLS ORDER BY inventor.name), ', ') as inventors,
+        p.filing_date,
+        p.grant_date,
+        p.publication_date,
+        p.priority_date,
+        p.application_number,
+        p.family_id,
+        p.country_code
+      FROM \`patents-public-data.patents.publications\` p
+      LEFT JOIN UNNEST(p.title_localized) as title
+      LEFT JOIN UNNEST(p.abstract_localized) as abstract
+      LEFT JOIN UNNEST(p.assignee_harmonized) as assignee
+      LEFT JOIN UNNEST(p.inventor_harmonized) as inventor
+      WHERE p.country_code = 'BR'
+        AND (title.language = 'pt' OR title.language = 'en')
     `;
 
     if (query) {
       sqlQuery += ` AND (
-        LOWER(title_localized.text) LIKE LOWER('%${query}%') OR
-        LOWER(abstract_localized.text) LIKE LOWER('%${query}%')
+        LOWER(title.text) LIKE LOWER('%${query}%') OR
+        LOWER(abstract.text) LIKE LOWER('%${query}%')
       )`;
     }
 
     if (assignee) {
-      sqlQuery += ` AND LOWER(assignee_harmonized.name) LIKE LOWER('%${assignee}%')`;
+      sqlQuery += ` AND LOWER(assignee.name) LIKE LOWER('%${assignee}%')`;
     }
 
-    sqlQuery += ` ORDER BY filing_date DESC LIMIT ${limit}`;
+    sqlQuery += ` 
+      GROUP BY p.publication_number, p.filing_date, p.grant_date, 
+               p.publication_date, p.priority_date, p.application_number, 
+               p.family_id, p.country_code
+      ORDER BY p.filing_date DESC 
+      LIMIT ${limit}
+    `;
 
     console.log('Executing BigQuery SQL:', sqlQuery);
 
@@ -147,12 +158,17 @@ serve(async (req) => {
     // Format results to match our patent schema
     const formattedResults = bigqueryData.rows?.map((row: any) => {
       const fields = row.f;
+      
+      // Parse inventors string back to array
+      const inventorsStr = fields[4]?.v || '';
+      const inventors = inventorsStr ? inventorsStr.split(', ').filter((i: string) => i) : [];
+      
       return {
         patent_number: fields[0]?.v || '',
         title: fields[1]?.v || 'Sem título',
         abstract: fields[2]?.v || '',
-        company: fields[3]?.v?.[0]?.v || 'Empresa desconhecida',
-        inventors: fields[4]?.v?.map((inv: any) => inv.v) || [],
+        company: fields[3]?.v || 'Empresa desconhecida',
+        inventors: inventors,
         filing_date: fields[5]?.v || null,
         grant_date: fields[6]?.v || null,
         publication_date: fields[7]?.v || null,
