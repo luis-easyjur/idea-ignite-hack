@@ -3,6 +3,8 @@ import { StatCard } from "@/components/StatCard";
 import { AlertItem } from "@/components/AlertItem";
 import { DataPillarCard } from "@/components/DataPillarCard";
 import { CorrelationTimeline } from "@/components/CorrelationTimeline";
+import { CompetitorMonitor } from "@/components/CompetitorMonitor";
+import { TrendForecast } from "@/components/TrendForecast";
 import { 
   TrendingUp, 
   FileText, 
@@ -125,6 +127,16 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <MarketEvolutionChart />
           <RegionalGrowthChart />
+        </div>
+
+        {/* Competitor Monitor Section */}
+        <div className="mb-8">
+          <CompetitorMonitor />
+        </div>
+
+        {/* AI Trend Forecast Section */}
+        <div className="mb-8">
+          <TrendForecast />
         </div>
 
         {/* Data Pillars Section */}
