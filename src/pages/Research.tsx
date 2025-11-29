@@ -3,9 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, BookOpen, Loader2 } from "lucide-react";
-import { CAPESStudy } from "@/types/capes";
-import { CAPESStudyCard } from "@/components/research/CAPESStudyCard";
-import { CAPESStudyDetailModal } from "@/components/research/CAPESStudyDetailModal";
+import { Study } from "@/types/research";
+import { StudyCard } from "@/components/research/StudyCard";
+import { StudyDetailModal } from "@/components/research/StudyDetailModal";
 import { useCAPESStudies } from "@/hooks/useCAPESStudies";
 import { CAPES_RESOURCE_IDS } from "@/types/capes";
 import {
@@ -23,7 +23,7 @@ const Research = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
-  const [selectedStudy, setSelectedStudy] = useState<CAPESStudy | null>(null);
+  const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Query CAPES API - só dispara quando searchQuery muda
@@ -90,7 +90,7 @@ const Research = () => {
     return pages;
   };
 
-  const handleViewDetails = (study: CAPESStudy) => {
+  const handleViewDetails = (study: Study) => {
     setSelectedStudy(study);
     setIsModalOpen(true);
   };
@@ -183,23 +183,23 @@ const Research = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <>
               {studies.map((study) => (
-                <CAPESStudyCard
+                <StudyCard
                   key={study.id}
                   study={study}
-                  onViewDetails={handleViewDetails}
+                  onViewDetails={() => handleViewDetails(study)}
                 />
               ))}
-            </div>
+            </>
           )}
         </div>
 
         {/* Study Detail Modal */}
-        <CAPESStudyDetailModal
+        <StudyDetailModal
           study={selectedStudy}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
         />
 
         {/* Paginação */}
