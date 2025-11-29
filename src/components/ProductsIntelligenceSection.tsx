@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sprout, Building2, Bug, Leaf, Beaker, ShieldAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sprout, Building2, Bug, Leaf, Beaker, ShieldAlert, ChevronLeft, ChevronRight } from "lucide-react";
 import { useElasticProductStats } from "@/hooks/useElasticProductStats";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -21,6 +23,8 @@ const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accen
 
 export const ProductsIntelligenceSection = () => {
   const { data, isLoading, error } = useElasticProductStats();
+  const [companiesPage, setCompaniesPage] = useState(1);
+  const companiesPerPage = 5;
 
   if (error) {
     return (
@@ -165,23 +169,65 @@ export const ProductsIntelligenceSection = () => {
         {/* Top Companies */}
         <Card>
           <CardHeader>
-            <CardTitle>Top Empresas Detentoras</CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              <span>Empresas Detentoras</span>
+              <Badge variant="outline">{data.companies.length} empresas</Badge>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {data.companies.slice(0, 8).map((company, index) => (
-                <div key={company.name} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
-                      {index + 1}
-                    </Badge>
-                    <span className="text-sm font-medium truncate max-w-[200px]">
-                      {company.name}
-                    </span>
-                  </div>
-                  <Badge variant="secondary">{company.count}</Badge>
-                </div>
-              ))}
+              {(() => {
+                const totalCompanies = data.companies.length;
+                const totalPages = Math.ceil(totalCompanies / companiesPerPage);
+                const startIndex = (companiesPage - 1) * companiesPerPage;
+                const endIndex = startIndex + companiesPerPage;
+                const paginatedCompanies = data.companies.slice(startIndex, endIndex);
+                
+                return (
+                  <>
+                    {paginatedCompanies.map((company, index) => (
+                      <div key={company.name} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
+                            {startIndex + index + 1}
+                          </Badge>
+                          <span className="text-sm font-medium truncate max-w-[200px]">
+                            {company.name}
+                          </span>
+                        </div>
+                        <Badge variant="secondary">{company.count}</Badge>
+                      </div>
+                    ))}
+                    
+                    {/* Pagination Controls */}
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                      <span className="text-sm text-muted-foreground">
+                        Página {companiesPage} de {totalPages}
+                      </span>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setCompaniesPage(p => Math.max(1, p - 1))}
+                          disabled={companiesPage === 1}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          Anterior
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setCompaniesPage(p => Math.min(totalPages, p + 1))}
+                          disabled={companiesPage === totalPages}
+                        >
+                          Próximo
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </CardContent>
         </Card>
