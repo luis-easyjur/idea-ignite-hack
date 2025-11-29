@@ -3,6 +3,7 @@ import { FileText, Calendar, TrendingDown, Building2, Search as SearchIcon } fro
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -116,6 +117,32 @@ const Patents = () => {
       );
       return daysUntilExpiry < 365 && daysUntilExpiry > 0;
     }).length,
+  };
+
+  const getVisiblePages = () => {
+    const delta = 1;
+    const range: (number | 'ellipsis')[] = [];
+    
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    
+    range.push(1);
+    
+    const start = Math.max(2, currentPage - delta);
+    const end = Math.min(totalPages - 1, currentPage + delta);
+    
+    if (start > 2) range.push('ellipsis');
+    
+    for (let i = start; i <= end; i++) {
+      range.push(i);
+    }
+    
+    if (end < totalPages - 1) range.push('ellipsis');
+    
+    if (totalPages > 1) range.push(totalPages);
+    
+    return range;
   };
 
   return (
@@ -300,35 +327,45 @@ const Patents = () => {
                 </div>
                 
                 {totalPages > 1 && (
-                  <Pagination className="mt-6">
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious
-                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
-                      </PaginationItem>
-                      
-                      {[...Array(totalPages)].map((_, i) => (
-                        <PaginationItem key={i + 1}>
-                          <PaginationLink
-                            onClick={() => setCurrentPage(i + 1)}
-                            isActive={currentPage === i + 1}
-                            className="cursor-pointer"
-                          >
-                            {i + 1}
-                          </PaginationLink>
+                  <div className="space-y-4">
+                    <Pagination className="mt-6">
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
                         </PaginationItem>
-                      ))}
-                      
-                      <PaginationItem>
-                        <PaginationNext
-                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
+                        
+                        {getVisiblePages().map((page, index) => (
+                          <PaginationItem key={index}>
+                            {page === 'ellipsis' ? (
+                              <PaginationEllipsis />
+                            ) : (
+                              <PaginationLink
+                                onClick={() => setCurrentPage(page)}
+                                isActive={currentPage === page}
+                                className="cursor-pointer"
+                              >
+                                {page}
+                              </PaginationLink>
+                            )}
+                          </PaginationItem>
+                        ))}
+                        
+                        <PaginationItem>
+                          <PaginationNext
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                    
+                    <p className="text-sm text-muted-foreground text-center">
+                      Mostrando {startIndex + 1}-{Math.min(endIndex, filteredPatents.length)} de {filteredPatents.length} patentes
+                    </p>
+                  </div>
                 )}
                 </>
               )}
