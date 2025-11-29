@@ -11,6 +11,7 @@ import Regulatory from "./pages/Regulatory";
 import Patents from "./pages/Patents";
 import Market from "./pages/Market";
 import Competitors from "./pages/Competitors";
+import Research from "./pages/Research";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -75,6 +76,17 @@ const App = () => (
               <ProtectedRoute>
                 <AppLayout>
                   <Competitors />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/research"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Research />
                 </AppLayout>
               </ProtectedRoute>
             }

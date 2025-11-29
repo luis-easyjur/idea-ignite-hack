@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, Beaker, TrendingUp, Building2, Bot, Settings, LogOut, ChevronLeft } from "lucide-react";
+import { LayoutDashboard, FileText, Beaker, TrendingUp, Building2, BookOpen, Bot, Settings, LogOut, ChevronLeft } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,7 @@ const navigationItems = [
   { title: "Análise de Patentes", url: "/patents", icon: Beaker },
   { title: "Mercado & Tendências", url: "/market", icon: TrendingUp },
   { title: "Monitor de Concorrentes", url: "/competitors", icon: Building2 },
+  { title: "Estudos Científicos", url: "/research", icon: BookOpen },
 ];
 
 interface AppSidebarProps {
