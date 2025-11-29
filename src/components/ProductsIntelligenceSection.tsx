@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sprout, Building2, Bug, Leaf } from "lucide-react";
+import { Sprout, Building2, Bug, Leaf, Beaker, ShieldAlert } from "lucide-react";
 import { useElasticProductStats } from "@/hooks/useElasticProductStats";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -245,6 +245,134 @@ export const ProductsIntelligenceSection = () => {
         </Card>
       </div>
 
+      {/* New Section: Ingredients and Chemical Groups */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Ingredients */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Beaker className="h-5 w-5 text-primary" />
+              Top Ingredientes Ativos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.ingredients.slice(0, 10)} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis type="number" className="fill-muted-foreground" />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={150}
+                  fontSize={10}
+                  className="fill-muted-foreground"
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))' 
+                  }}
+                />
+                <Bar dataKey="count" fill="hsl(var(--primary))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Top Chemical Groups */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Top Grupos Químicos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {data.chemicalGroups.slice(0, 10).map((group, index) => (
+                <div key={group.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
+                      {index + 1}
+                    </Badge>
+                    <span className="text-sm font-medium truncate max-w-[200px]">
+                      {group.name}
+                    </span>
+                  </div>
+                  <Badge variant="secondary">{group.count}</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Toxicity and Formulations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Toxicity Classification */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5 text-orange-500" />
+              Classificação Toxicológica
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={data.toxicityLevels}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="count"
+                >
+                  {data.toxicityLevels.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))' 
+                  }}
+                />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Formulation Types */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Tipos de Formulação</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.formulations.slice(0, 8)} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis type="number" className="fill-muted-foreground" />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={180}
+                  fontSize={10}
+                  className="fill-muted-foreground"
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))' 
+                  }}
+                />
+                <Bar dataKey="count" fill="hsl(var(--secondary))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Categories Distribution */}
       {data.categories.length > 0 && (
         <Card>
@@ -252,7 +380,7 @@ export const ProductsIntelligenceSection = () => {
             <CardTitle>Categorias de Produtos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {data.categories.map((category) => (
                 <div key={category.name} className="p-4 border rounded-lg">
                   <div className="text-sm font-medium mb-1">{category.name}</div>
