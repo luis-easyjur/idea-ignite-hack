@@ -118,23 +118,21 @@ export const TrendForecast = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {opportunities.map((opp, idx) => (
               <div key={idx} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <h4 className="font-bold text-foreground mb-1">{opp.title}</h4>
-                    <p className="text-sm text-muted-foreground mb-2">{opp.description}</p>
-                    <p className="text-xs text-muted-foreground italic">Fonte: {opp.source}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-2 ml-4">
-                    <Badge variant={opp.impact === "Alto" ? "default" : "secondary"}>
-                      {opp.impact} Impacto
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-start justify-between">
+                    <h4 className="font-bold text-foreground flex-1">{opp.title}</h4>
+                    <Badge variant={opp.impact === "Alto" ? "default" : "secondary"} className="ml-2">
+                      {opp.impact}
                     </Badge>
-                    <div className="text-right">
-                      <span className="text-xs text-muted-foreground">Confiança</span>
-                      <p className="text-lg font-bold text-primary">{opp.confidence}%</p>
-                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{opp.description}</p>
+                  <p className="text-xs text-muted-foreground italic">Fonte: {opp.source}</p>
+                  <div className="flex items-center justify-between pt-2 border-t border-border">
+                    <span className="text-xs text-muted-foreground">Confiança da IA</span>
+                    <span className="text-lg font-bold text-primary">{opp.confidence}%</span>
                   </div>
                 </div>
               </div>
