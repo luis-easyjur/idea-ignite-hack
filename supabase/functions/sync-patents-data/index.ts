@@ -92,6 +92,11 @@ Deno.serve(async (req) => {
       console.log(`Found ${patents.length} patents for query: ${query}`);
 
       for (const patent of patents) {
+        // Extract clean patent number (remove 'patent/' prefix and country suffix)
+        const cleanPatentNumber = patent.patent_id?.replace('patent/', '')?.replace(/\/[a-z]{2}$/i, '') || patent.patent_id;
+        
+        console.log(`Processing patent: ${patent.patent_id} -> Clean: ${cleanPatentNumber}`);
+        
         // Extract inventors array
         let inventorsList: string[] = [];
         if (patent.inventor) {
@@ -102,7 +107,7 @@ Deno.serve(async (req) => {
         }
 
         const record = {
-          patent_number: patent.patent_id || `TEMP-${Date.now()}-${Math.random()}`,
+          patent_number: cleanPatentNumber || `TEMP-${Date.now()}-${Math.random()}`,
           publication_number: patent.publication_number || patent.patent_id || null,
           title: patent.title || 'Título não disponível',
           abstract: patent.snippet || null,
@@ -124,23 +129,40 @@ Deno.serve(async (req) => {
         };
 
         // Try to update first, then insert if not exists
-        const { data: existing } = await supabase
+        const { data: existing, error: selectError } = await supabase
           .from('patents')
           .select('id')
           .eq('patent_number', record.patent_number)
           .single();
 
+        if (selectError && selectError.code !== 'PGRST116') {
+          console.error(`Error checking patent ${record.patent_number}:`, selectError);
+          continue;
+        }
+
         if (existing) {
-          await supabase
+          const { error: updateError } = await supabase
             .from('patents')
             .update(record)
             .eq('id', existing.id);
-          totalUpdated++;
+          
+          if (updateError) {
+            console.error(`Error updating patent ${record.patent_number}:`, updateError);
+          } else {
+            console.log(`✓ Updated patent: ${record.patent_number}`);
+            totalUpdated++;
+          }
         } else {
-          await supabase
+          const { error: insertError } = await supabase
             .from('patents')
             .insert(record);
-          totalInserted++;
+          
+          if (insertError) {
+            console.error(`Error inserting patent ${record.patent_number}:`, insertError);
+          } else {
+            console.log(`✓ Inserted patent: ${record.patent_number}`);
+            totalInserted++;
+          }
         }
       }
     }
