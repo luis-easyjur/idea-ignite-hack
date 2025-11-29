@@ -140,7 +140,6 @@ export const FilterBar = ({
               <SelectValue placeholder="Todas" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas</SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat.value} value={cat.value}>
                   {cat.label}
@@ -162,7 +161,6 @@ export const FilterBar = ({
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
                   {cultures.map((culture) => (
                     <SelectItem key={culture.value} value={culture.value}>
                       {culture.label}
@@ -182,7 +180,6 @@ export const FilterBar = ({
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
                   {regions.map((region) => (
                     <SelectItem key={region.value} value={region.value}>
                       {region.label}
@@ -202,7 +199,6 @@ export const FilterBar = ({
                   <SelectValue placeholder="Todo período" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todo período</SelectItem>
                   {periods.map((period) => (
                     <SelectItem key={period.value} value={period.value}>
                       {period.label}
