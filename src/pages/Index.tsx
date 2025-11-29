@@ -11,10 +11,14 @@ import {
   BarChart3,
   Leaf,
   Sprout,
-  Bug
+  Bug,
+  Droplets,
+  Wheat
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MarketEvolutionChart } from "@/components/MarketEvolutionChart";
+import { RegionalGrowthChart } from "@/components/RegionalGrowthChart";
 
 const Index = () => {
   return (
@@ -115,6 +119,12 @@ const Index = () => {
           <div>
             <CorrelationTimeline />
           </div>
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <MarketEvolutionChart />
+          <RegionalGrowthChart />
         </div>
 
         {/* Data Pillars Section */}
@@ -230,6 +240,44 @@ const Index = () => {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Crescimento</span>
                       <span className="font-semibold text-success">+25%</span>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-6 hover:shadow-lg transition-shadow animate-in">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-accent/10 rounded-lg">
+                      <Droplets className="h-5 w-5 text-accent" />
+                    </div>
+                    <h4 className="font-bold text-foreground">Adjuvantes</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Produtos ativos</span>
+                      <span className="font-semibold">43</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Crescimento</span>
+                      <span className="font-semibold text-success">+9%</span>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-6 hover:shadow-lg transition-shadow animate-in">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-chart-5/10 rounded-lg">
+                      <Wheat className="h-5 w-5" style={{ color: 'hsl(var(--chart-5))' }} />
+                    </div>
+                    <h4 className="font-bold text-foreground">Biofertilizantes</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Produtos ativos</span>
+                      <span className="font-semibold">38</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Crescimento</span>
+                      <span className="font-semibold text-success">+21%</span>
                     </div>
                   </div>
                 </Card>
