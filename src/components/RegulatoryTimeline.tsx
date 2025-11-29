@@ -1,6 +1,7 @@
 import { CheckCircle2, Clock, XCircle, AlertCircle, Pause } from "lucide-react";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
+import { SourceLink } from "./SourceLink";
 
 interface RegulatoryRecord {
   id: string;
@@ -11,6 +12,7 @@ interface RegulatoryRecord {
   submission_date: string | null;
   approval_date: string | null;
   category: string;
+  mapa_link: string | null;
 }
 
 interface RegulatoryTimelineProps {
@@ -99,7 +101,7 @@ export const RegulatoryTimeline = ({ records }: RegulatoryTimelineProps) => {
                   )}
                 </div>
 
-                <div className="flex gap-4 text-xs text-muted-foreground">
+                <div className="flex gap-4 text-xs text-muted-foreground mb-3">
                   {record.submission_date && (
                     <span>
                       Submetido: {new Date(record.submission_date).toLocaleDateString("pt-BR")}
@@ -111,6 +113,12 @@ export const RegulatoryTimeline = ({ records }: RegulatoryTimelineProps) => {
                     </span>
                   )}
                 </div>
+                
+                {record.mapa_link && (
+                  <div className="mt-2">
+                    <SourceLink url={record.mapa_link} label="Ver no MAPA" source="MAPA" />
+                  </div>
+                )}
               </div>
             </div>
 

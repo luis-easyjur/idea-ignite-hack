@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SourceLink } from "@/components/SourceLink";
 
 const Patents = () => {
   const [patents, setPatents] = useState<any[]>([]);
@@ -234,6 +235,17 @@ const Patents = () => {
                                 </Badge>
                               ))}
                             </div>
+                          </div>
+                        )}
+                        
+                        {(patent.inpi_link || patent.google_patents_link) && (
+                          <div className="mt-4 pt-4 border-t flex gap-2 flex-wrap">
+                            {patent.inpi_link && (
+                              <SourceLink url={patent.inpi_link} label="Ver no INPI" source="INPI" />
+                            )}
+                            {patent.google_patents_link && (
+                              <SourceLink url={patent.google_patents_link} label="Ver no Google Patents" />
+                            )}
                           </div>
                         )}
                       </Card>

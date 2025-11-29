@@ -131,9 +131,10 @@ Deno.serve(async (req) => {
   }
 });
 
-function mapPatentCategory(query: string): 'biostimulant' | 'biological' | 'fertilizer' | 'specialty' | 'conventional_pesticide' {
-  if (query.includes('biostimulant')) return 'biostimulant';
-  if (query.includes('biological')) return 'biological';
-  if (query.includes('fertilizer')) return 'fertilizer';
-  return 'specialty';
+function mapPatentCategory(query: string): 'foliar_nutrition' | 'biostimulants' | 'biodefensives' | 'adjuvants' | 'biofertilizers' {
+  if (query.includes('biostimulant')) return 'biostimulants';
+  if (query.includes('biological') || query.includes('pesticide')) return 'biodefensives';
+  if (query.includes('fertilizer')) return 'biofertilizers';
+  if (query.includes('adjuvant')) return 'adjuvants';
+  return 'foliar_nutrition';
 }

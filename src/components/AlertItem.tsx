@@ -1,6 +1,6 @@
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
-import { Clock } from "lucide-react";
+import { Clock, ExternalLink } from "lucide-react";
 import { DataSourceBadge } from "./DataSourceBadge";
 
 interface AlertItemProps {
@@ -10,9 +10,10 @@ interface AlertItemProps {
   type: "regulatory" | "market" | "patent" | "science";
   priority: "high" | "medium" | "low";
   source?: "MAPA" | "INPI" | "Abisolo" | "IBGE" | "Embrapa" | "ANVISA" | "IBAMA";
+  sourceUrl?: string;
 }
 
-export const AlertItem = ({ title, description, time, type, priority, source }: AlertItemProps) => {
+export const AlertItem = ({ title, description, time, type, priority, source, sourceUrl }: AlertItemProps) => {
   const typeColors = {
     regulatory: "bg-chart-2/10 text-chart-2 border-chart-2/20",
     market: "bg-chart-1/10 text-chart-1 border-chart-1/20",
@@ -51,6 +52,17 @@ export const AlertItem = ({ title, description, time, type, priority, source }: 
               {priorityLabels[priority]}
             </Badge>
             {source && <DataSourceBadge source={source} size="sm" />}
+            {sourceUrl && (
+              <a 
+                href={sourceUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+              >
+                <ExternalLink className="h-3 w-3" />
+                Ver fonte
+              </a>
+            )}
           </div>
           <h4 className="font-semibold text-foreground mb-1">{title}</h4>
           <p className="text-sm text-muted-foreground">{description}</p>
