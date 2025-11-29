@@ -2,3 +2,12 @@ project_id = "mtujvdqhuzjfbwlacupc"
 
 [functions.dashboard-ai-chat]
 verify_jwt = false
+
+[functions.sync-agrofit-data]
+verify_jwt = false
+
+[functions.sync-patents-data]
+verify_jwt = false
+
+[functions.data-scheduler]
+verify_jwt = false

@@ -10,6 +10,7 @@ import { TrendForecast } from "@/components/TrendForecast";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { FilterBar, FilterState } from "@/components/FilterBar";
 import { ExportButton } from "@/components/ExportButton";
+import { DataSyncButton } from "@/components/DataSyncButton";
 import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, 
@@ -61,6 +62,7 @@ const Index = () => {
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </Link>
+            <DataSyncButton />
             <ExportButton filename="dashboard" />
           </div>
         </div>
