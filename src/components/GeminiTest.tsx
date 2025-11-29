@@ -18,7 +18,7 @@ export const GeminiTest = () => {
 
     try {
       const { data, error: invokeError } = await supabase.functions.invoke(
-        "ai-chat-quick-test",
+        "ai-chat-quick",
         {
           body: { message },
         }
@@ -30,7 +30,7 @@ export const GeminiTest = () => {
         
         // Mensagens mais específicas baseadas no tipo de erro
         if (invokeError.message?.includes("Function not found") || invokeError.message?.includes("404")) {
-          errorMessage = "Função não encontrada. Certifique-se de que a Edge Function 'ai-chat-quick-test' foi deployada no Supabase.";
+          errorMessage = "Função não encontrada. Certifique-se de que a Edge Function 'ai-chat-quick' foi deployada no Supabase.";
         } else if (invokeError.message?.includes("401") || invokeError.message?.includes("403")) {
           errorMessage = "Erro de autenticação. Verifique suas credenciais do Supabase.";
         } else if (invokeError.message?.includes("500")) {
@@ -129,14 +129,14 @@ export const GeminiTest = () => {
         <div className="text-xs text-muted-foreground space-y-2 p-3 bg-muted rounded-lg">
           <p className="font-semibold">Troubleshooting:</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Certifique-se de que a Edge Function <code className="bg-background px-1 rounded">ai-chat-quick-test</code> foi deployada no Supabase</li>
+            <li>Certifique-se de que a Edge Function <code className="bg-background px-1 rounded">ai-chat-quick</code> foi deployada no Supabase</li>
             <li>Verifique se a <code className="bg-background px-1 rounded">GEMINI_API_KEY</code> está configurada em Project Settings → Edge Functions → Secrets</li>
-            <li>Verifique os logs da Edge Function no Supabase Dashboard (Edge Functions → ai-chat-quick-test → Logs)</li>
-            <li>Esta função testa apenas a conexão com Gemini, sem RAG</li>
+            <li>Verifique os logs da Edge Function no Supabase Dashboard (Edge Functions → ai-chat-quick → Logs)</li>
+            <li>Esta função testa a conexão com Gemini com RAG</li>
           </ul>
           <p className="mt-2 font-semibold">Como fazer deploy:</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Use o Supabase CLI: <code className="bg-background px-1 rounded">supabase functions deploy ai-chat-quick-test</code></li>
+            <li>Use o Supabase CLI: <code className="bg-background px-1 rounded">supabase functions deploy ai-chat-quick</code></li>
             <li>Ou use o Supabase Dashboard: Edge Functions → Deploy new function</li>
           </ul>
         </div>
@@ -144,4 +144,3 @@ export const GeminiTest = () => {
     </Card>
   );
 };
-
