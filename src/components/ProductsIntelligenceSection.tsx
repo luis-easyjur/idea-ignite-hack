@@ -237,7 +237,7 @@ export const ProductsIntelligenceSection = () => {
         {/* Source Comparison */}
         <Card>
           <CardHeader>
-            <CardTitle>Agrofit vs Bioinsumos</CardTitle>
+            <CardTitle>Produtos por Categoria</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
