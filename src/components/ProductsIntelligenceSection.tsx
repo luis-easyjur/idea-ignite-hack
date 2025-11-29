@@ -65,8 +65,13 @@ export const ProductsIntelligenceSection = () => {
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Inteligência de Produtos Agrícolas</h2>
           <p className="text-muted-foreground">
-            Dados do Agrofit e Bioinsumos via Elasticsearch
+            Processando {data.totals.total.toLocaleString()} de {data.totals.totalAvailable.toLocaleString()} produtos disponíveis
           </p>
+          {data.totals.other > 0 && (
+            <Badge variant="outline" className="mt-1">
+              {data.totals.other} produtos não categorizados
+            </Badge>
+          )}
         </div>
       </div>
 

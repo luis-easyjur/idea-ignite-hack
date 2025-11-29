@@ -6,8 +6,10 @@ export interface ElasticProductStats {
   error?: string;
   totals: {
     total: number;
+    totalAvailable: number;
     agrofit: number;
     bioinsumos: number;
+    other: number;
     companies: number;
     cultures: number;
   };
