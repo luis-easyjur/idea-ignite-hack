@@ -5,11 +5,12 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Resource IDs conhecidos da CAPES
+// Resource IDs conhecidos da CAPES - Catálogo de Teses e Dissertações
 const RESOURCE_IDS = {
-  THESES_2021_2024: 'a5e72d15-0c0b-4fcb-9471-4fca804d4cff',
-  PRODUCTION_2021: '8e9bcb66-fdaf-4d8e-a906-a2c3ff2d3d60',
-  PRODUCTION_2020: '0f05c0c0-5e5c-4d5c-a4c4-3f3c0c0c0c0c'
+  THESES_2017: '902bd63b-137f-4090-89e9-cab94f12c41d',
+  THESES_2018: '638668a6-07da-4c7e-8aab-9044ae3cc753',
+  THESES_2019: '8f4f2bce-2744-460a-8f14-f1648c7a16df',
+  THESES_2020: 'e37df31a-f250-4405-8b21-ca7e5c7c1696',
 };
 
 interface CKANSearchParams {
@@ -55,7 +56,7 @@ Deno.serve(async (req) => {
     const searchQuery = body.q || '';
     const limit = parseInt(body.limit?.toString() || '10');
     const offset = parseInt(body.offset?.toString() || '0');
-    const resourceId = body.resource_id || RESOURCE_IDS.THESES_2021_2024;
+    const resourceId = body.resource_id || RESOURCE_IDS.THESES_2019; // Usa 2019 como padrão
     const area = body.area || '';
     const institution = body.institution || '';
     const year = body.year || '';
