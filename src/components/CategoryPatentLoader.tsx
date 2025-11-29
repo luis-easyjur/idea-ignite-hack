@@ -77,7 +77,7 @@ export function CategoryPatentLoader({ onLoadComplete }: CategoryPatentLoaderPro
           if (data?.results && data.results.length > 0) {
             console.log(`[CategoryLoader] Encontradas ${data.results.length} patentes para query: ${query}`);
             
-            // Upsert patents into database
+            // Upsert patents into database with date validation
             const { error: upsertError } = await supabase.from('patents').upsert(
               data.results.map((patent: any) => ({
                 patent_number: patent.patent_number,
@@ -86,10 +86,10 @@ export function CategoryPatentLoader({ onLoadComplete }: CategoryPatentLoaderPro
                 abstract: patent.abstract,
                 company: patent.company || 'Não informado',
                 inventors: patent.inventors || [],
-                filing_date: patent.filing_date,
-                priority_date: patent.priority_date,
-                publication_date: patent.publication_date,
-                grant_date: patent.grant_date,
+                filing_date: patent.filing_date || '1900-01-01', // Fallback obrigatório
+                priority_date: patent.priority_date || null,
+                publication_date: patent.publication_date || null,
+                grant_date: patent.grant_date || null,
                 status: patent.status,
                 category: cat,
                 google_patents_link: patent.google_patents_link,

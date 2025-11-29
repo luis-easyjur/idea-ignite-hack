@@ -27,7 +27,7 @@ export const DataSyncButton = () => {
       const duration = ((Date.now() - startTime) / 1000).toFixed(1);
       
       if (results.length > 0) {
-        // Save patents to database
+        // Save patents to database with date validation
         const { error: upsertError } = await supabase.from('patents').upsert(
           results.map((patent: any) => ({
             patent_number: patent.patent_number,
@@ -36,10 +36,10 @@ export const DataSyncButton = () => {
             abstract: patent.abstract,
             company: patent.company || 'Não informado',
             inventors: patent.inventors || [],
-            filing_date: patent.filing_date,
-            priority_date: patent.priority_date,
-            publication_date: patent.publication_date,
-            grant_date: patent.grant_date,
+            filing_date: patent.filing_date || '1900-01-01', // Fallback obrigatório
+            priority_date: patent.priority_date || null,
+            publication_date: patent.publication_date || null,
+            grant_date: patent.grant_date || null,
             status: patent.status,
             category: patent.category || 'biostimulants',
             google_patents_link: patent.google_patents_link,
