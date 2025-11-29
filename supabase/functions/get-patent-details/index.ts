@@ -94,6 +94,10 @@ serve(async (req) => {
     }
 
     console.log(`Fetching details for patent: ${patent_id}`);
+    
+    // Clean patent_id to get the patent number for database matching
+    const cleanPatentNumber = patent_id.replace('patent/', '').replace(/\/[a-z]{2}$/, '');
+    console.log(`Cleaned patent number for DB: ${cleanPatentNumber}`);
 
     // Call SearchAPI.io Google Patents Details endpoint
     const searchApiUrl = new URL('https://www.searchapi.io/api/v1/search');
@@ -111,12 +115,17 @@ serve(async (req) => {
 
     const data: PatentDetailsResponse = await apiResponse.json();
     console.log('Received patent details from API');
+    console.log('Description length:', data.description?.length || 0);
+    console.log('Classifications count:', data.classifications?.length || 0);
+    console.log('Claims count:', data.claims?.length || 0);
+    console.log('Images count:', data.images?.length || 0);
 
     // Extract and format the data
     const claimsText = data.claims?.map(c => `${c.num}. ${c.text}`).join('\n\n') || null;
     const allImages = data.images?.map(img => img.url) || [];
     
     // Update the patent record in the database
+    console.log(`Updating patent in database with number: ${cleanPatentNumber}`);
     const { data: updatedPatent, error: updateError } = await supabase
       .from('patents')
       .update({
@@ -136,7 +145,7 @@ serve(async (req) => {
         details_loaded_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
-      .eq('patent_number', patent_id.replace('patent/', '').replace('/en', ''))
+      .eq('patent_number', cleanPatentNumber)
       .select()
       .single();
 
