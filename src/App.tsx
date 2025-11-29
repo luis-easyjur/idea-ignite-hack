@@ -13,6 +13,7 @@ import Market from "./pages/Market";
 import Competitors from "./pages/Competitors";
 import Research from "./pages/Research";
 import Settings from "./pages/Settings";
+import Insights from "./pages/Insights";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -98,6 +99,17 @@ const App = () => (
               <ProtectedRoute>
                 <AppLayout>
                   <Settings />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/insights"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Insights />
                 </AppLayout>
               </ProtectedRoute>
             }

@@ -25,4 +25,5 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.search-patents-bigquery]
+[functions.insights-ai]
 verify_jwt = false

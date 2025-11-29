@@ -197,8 +197,13 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
 
       await saveMessage(conversationId, "user", textToSend);
 
-      const { data, error } = await supabase.functions.invoke("dashboard-ai-chat", {
-        body: { messages: [...messages, userMessage] }
+      // Usar nova Edge Function insights-ai que coleta contexto e chama API externa
+      const { data, error } = await supabase.functions.invoke("insights-ai", {
+        body: { 
+          query: textToSend,
+          messages: [...messages, userMessage],
+          conversation_history: messages.filter(m => m.role !== "system")
+        }
       });
 
       if (error) throw error;
@@ -214,7 +219,7 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
 
       const assistantMessage: Message = {
         role: "assistant",
-        content: data.response
+        content: data.response || "Desculpe, não foi possível obter uma resposta."
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -259,7 +264,7 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
               </div>
               <div>
                 <h3 className="font-bold text-foreground">Assistente IA</h3>
-                <p className="text-xs text-muted-foreground">Powered by Gemini</p>
+                <p className="text-xs text-muted-foreground">Inteligência Competitiva</p>
               </div>
             </div>
             <div className="flex items-center gap-1">

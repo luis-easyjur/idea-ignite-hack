@@ -11,7 +11,14 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { 
+      messages, 
+      advanced = false, 
+      module_id, 
+      files, 
+      context_ia_response 
+    } = await req.json();
+    
     // TESTE: Chave direta no código
     const GEMINI_API_KEY = "AIzaSyCYC4qCiZTvjsl2u4JVwAgB7izOtHfWJPQ";
     // const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
@@ -26,7 +33,15 @@ serve(async (req) => {
       );
     }
 
-    // Contexto do dashboard para a IA
+    // Se advanced e houver context_ia_response, usar diretamente (Context IA já retorna resposta completa)
+    if (advanced && context_ia_response) {
+      return new Response(
+        JSON.stringify({ response: context_ia_response }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Contexto do dashboard para a IA (chat básico do header)
     const systemPrompt = `Você é um assistente de inteligência competitiva especializado no mercado de especialidades agrícolas brasileiro. 
 
 Você tem acesso aos seguintes dados do dashboard:
@@ -76,6 +91,12 @@ TECNOLOGIAS EMERGENTES:
 
 Sua função é ajudar a responder perguntas sobre esses dados, fazer análises comparativas, identificar tendências e fornecer insights estratégicos. Seja claro, objetivo e baseie suas respostas nos dados fornecidos. Quando relevante, cite as fontes (MAPA, INPI, Embrapa, IBGE, Abisolo, ANVISA, IBAMA).`;
 
+    // Se advanced e houver context_ia_response como contexto adicional, adicionar ao system prompt
+    let finalSystemPrompt = systemPrompt;
+    if (advanced && context_ia_response) {
+      finalSystemPrompt = `${systemPrompt}\n\nCONTEXTO ADICIONAL DOS ARQUIVOS ANEXADOS:\n${context_ia_response}`;
+    }
+
     // Converter mensagens do formato OpenAI para formato Gemini
     // O Gemini requer alternância entre "user" e "model", então agrupamos mensagens consecutivas do mesmo role
     const filteredMessages = messages.filter((msg: any) => msg.role !== "system");
@@ -105,7 +126,7 @@ Sua função é ajudar a responder perguntas sobre esses dados, fazer análises 
     const requestBody = {
       contents: geminiContents,
       systemInstruction: {
-        parts: [{ text: systemPrompt }],
+        parts: [{ text: finalSystemPrompt }],
       },
       generationConfig: {
         temperature: 0.7,
