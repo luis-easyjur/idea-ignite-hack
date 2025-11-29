@@ -14,6 +14,7 @@ import { PatentDetailModal } from "@/components/PatentDetailModal";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { CategoryPatentLoader } from "@/components/CategoryPatentLoader";
+import { PatentTermsManager } from "@/components/PatentTermsManager";
 
 const Patents = () => {
   const [patents, setPatents] = useState<any[]>([]);
@@ -159,6 +160,8 @@ const Patents = () => {
           <CategoryPatentLoader onLoadComplete={fetchPatents} />
 
           <FilterBar onFilterChange={setFilters} />
+
+          <PatentTermsManager />
 
           <Collapsible open={showSearchForm} onOpenChange={setShowSearchForm} className="mb-6">
             <CollapsibleTrigger asChild>

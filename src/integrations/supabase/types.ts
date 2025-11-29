@@ -117,6 +117,45 @@ export type Database = {
           },
         ]
       }
+      patent_search_terms: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          last_searched_at: string | null
+          results_count: number | null
+          term: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_searched_at?: string | null
+          results_count?: number | null
+          term: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_searched_at?: string | null
+          results_count?: number | null
+          term?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       patents: {
         Row: {
           abstract: string | null
