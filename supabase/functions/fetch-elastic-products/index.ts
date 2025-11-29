@@ -61,6 +61,13 @@ serve(async (req) => {
     console.log('Documents fetched:', documents.length);
     console.log('Total available:', data.hits?.total?.value);
 
+    // Debug: Check which sources exist
+    const sourcesFound = new Set<string>();
+    documents.forEach((doc: any) => {
+      if (doc.source) sourcesFound.add(doc.source);
+    });
+    console.log('Sources found in documents:', Array.from(sourcesFound));
+
     // Process documents manually
     const companiesMap = new Map<string, number>();
     const culturesMap = new Map<string, number>();
@@ -72,13 +79,20 @@ serve(async (req) => {
     const formulationsMap = new Map<string, number>();
     let agrofitCount = 0;
     let bioinsumosCount = 0;
+    let otherCount = 0;
     let biologicalCount = 0;
     let organicCount = 0;
 
     documents.forEach((doc: any) => {
-      // Count sources
-      if (doc.source === 'agrofit') agrofitCount++;
-      if (doc.source === 'bioinsumos') bioinsumosCount++;
+      // Count sources (case-insensitive and trimmed)
+      const source = (doc.source || '').toLowerCase().trim();
+      if (source === 'agrofit') {
+        agrofitCount++;
+      } else if (source === 'bioinsumos') {
+        bioinsumosCount++;
+      } else {
+        otherCount++;
+      }
 
       // Count biological and organic products
       if (doc.raw_content?.produto_biologico) biologicalCount++;
@@ -197,13 +211,15 @@ serve(async (req) => {
 
     const result = {
       success: true,
-    totals: {
-      total: agrofitCount + bioinsumosCount,
-      agrofit: agrofitCount,
-      bioinsumos: bioinsumosCount,
-      companies: companiesMap.size,
-      cultures: culturesMap.size
-    },
+      totals: {
+        total: documents.length,
+        totalAvailable: data.hits?.total?.value || 0,
+        agrofit: agrofitCount,
+        bioinsumos: bioinsumosCount,
+        other: otherCount,
+        companies: companiesMap.size,
+        cultures: culturesMap.size
+      },
       companies,
       cultures,
       pests,
@@ -218,12 +234,13 @@ serve(async (req) => {
       },
       sourceComparison: [
         { name: 'Defensivos (Agrofit)', value: agrofitCount },
-        { name: 'Bioinsumos', value: bioinsumosCount }
+        { name: 'Bioinsumos', value: bioinsumosCount },
+        { name: 'Outros', value: otherCount }
       ]
     };
 
-    console.log('Processed - Agrofit:', agrofitCount, 'Bioinsumos:', bioinsumosCount);
-    console.log('Companies:', companies.length, 'Cultures:', cultures.length);
+    console.log('Processed - Agrofit:', agrofitCount, 'Bioinsumos:', bioinsumosCount, 'Other:', otherCount);
+    console.log('Companies:', companiesMap.size, 'Cultures:', culturesMap.size);
 
     return new Response(
       JSON.stringify(result),
