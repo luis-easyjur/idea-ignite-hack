@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { CAPESSearchParams, CAPESSearchResponse } from "@/types/capes";
-import { Study } from "@/types/research";
+import { CAPESSearchParams, CAPESSearchResponse, CAPESStudy } from "@/types/capes";
 
 export const useCAPESStudies = (params: CAPESSearchParams) => {
   return useQuery({
     queryKey: ['capes-studies', params],
-    queryFn: async (): Promise<{ studies: Study[]; total: number }> => {
+    queryFn: async (): Promise<{ studies: CAPESStudy[]; total: number }> => {
       console.log('Fetching CAPES studies with params:', params);
 
       // Enviar parâmetros como objeto JSON simples

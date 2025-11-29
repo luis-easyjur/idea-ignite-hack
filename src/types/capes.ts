@@ -22,10 +22,28 @@ export interface CAPESSearchParams {
   year?: string;
 }
 
+export interface CAPESStudy {
+  id: string;
+  titulo: string;
+  resumo?: string;
+  urlTextoCompleto?: string;
+  autor: string;
+  orientador?: string;
+  instituicao: string;
+  siglaUF: string;
+  programa: string;
+  areaConhecimento: string;
+  grandeArea: string;
+  ano: number;
+  tipo: 'DISSERTAÇÃO' | 'TESE';
+  palavrasChave: string[];
+  linhaPesquisa?: string;
+}
+
 export interface CAPESSearchResponse {
   success: boolean;
   data: {
-    studies: any[];
+    studies: CAPESStudy[];
     total: number;
     limit: number;
     offset: number;
