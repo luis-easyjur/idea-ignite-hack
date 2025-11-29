@@ -1,9 +1,11 @@
 import { Bell, Search, User, Bot, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { Badge } from "./ui/badge";
 import ubyagroLogo from "@/assets/ubyagro-logo.png";
 import { useState, useEffect } from "react";
 import { AIChatSidebar } from "./AIChatSidebar";
+import { AlertsPanel } from "./AlertsPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "./ui/use-toast";
@@ -18,6 +20,8 @@ import {
 
 export const Header = () => {
   const [chatOpen, setChatOpen] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const [unreadAlerts, setUnreadAlerts] = useState(0);
   const [userEmail, setUserEmail] = useState<string>("");
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -84,9 +88,18 @@ export const Header = () => {
               >
                 <Bot className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative"
+                onClick={() => setAlertsOpen(true)}
+              >
                 <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span>
+                {unreadAlerts > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                    {unreadAlerts}
+                  </Badge>
+                )}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -114,6 +127,11 @@ export const Header = () => {
       </header>
 
       <AIChatSidebar isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <AlertsPanel 
+        open={alertsOpen} 
+        onOpenChange={setAlertsOpen}
+        onUnreadCountChange={setUnreadAlerts}
+      />
     </>
   );
 };
