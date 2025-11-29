@@ -64,24 +64,35 @@ serve(async (req) => {
       if (doc.source === 'agrofit') agrofitCount++;
       if (doc.source === 'bioinsumos') bioinsumosCount++;
 
-      // Extract companies
-      const companies = doc.raw_content?.empresa_detentora || [];
+      // Extract companies - normalize to array
+      let companies = doc.raw_content?.empresa_detentora;
+      if (!companies) companies = [];
+      else if (!Array.isArray(companies)) companies = [companies];
+      
       companies.forEach((comp: any) => {
-        const name = comp?.nome;
+        const name = comp?.nome || (typeof comp === 'string' ? comp : null);
         if (name && name.trim() && name !== 'N/A') {
           companiesMap.set(name, (companiesMap.get(name) || 0) + 1);
         }
       });
 
-      // Extract cultures and pests from indicacao_uso
-      const indicacoes = doc.raw_content?.indicacao_uso || [];
+      // Extract cultures and pests from indicacao_uso - normalize to array
+      let indicacoes = doc.raw_content?.indicacao_uso;
+      if (!indicacoes) indicacoes = [];
+      else if (!Array.isArray(indicacoes)) indicacoes = [indicacoes];
+      
       indicacoes.forEach((ind: any) => {
         const cultura = ind?.cultura;
         if (cultura && cultura.trim() && cultura !== 'N/A') {
           culturesMap.set(cultura, (culturesMap.get(cultura) || 0) + 1);
         }
 
-        const pragas = ind?.praga_nome_comum || [];
+        // Normalize praga_nome_comum to array
+        let pragas = ind?.praga_nome_comum;
+        if (!pragas) pragas = [];
+        else if (typeof pragas === 'string') pragas = [pragas];
+        else if (!Array.isArray(pragas)) pragas = [];
+        
         pragas.forEach((praga: string) => {
           if (praga && praga.trim() && praga !== 'N/A') {
             pestsMap.set(praga, (pestsMap.get(praga) || 0) + 1);
@@ -89,8 +100,12 @@ serve(async (req) => {
         });
       });
 
-      // Extract categories
-      const categories = doc.raw_content?.classe_categoria_agronomica || [];
+      // Extract categories - normalize to array
+      let categories = doc.raw_content?.classe_categoria_agronomica;
+      if (!categories) categories = [];
+      else if (typeof categories === 'string') categories = [categories];
+      else if (!Array.isArray(categories)) categories = [categories];
+      
       categories.forEach((cat: string) => {
         if (cat && cat.trim() && cat !== 'N/A') {
           categoriesMap.set(cat, (categoriesMap.get(cat) || 0) + 1);
