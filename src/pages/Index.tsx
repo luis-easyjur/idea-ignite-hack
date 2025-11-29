@@ -33,7 +33,7 @@ const Index = () => {
         {/* Hero Section */}
         <div className="mb-8 animate-in">
           <h2 className="text-3xl font-bold text-foreground mb-2">
-            Inteligência Competitiva
+            Inteligência Competitiva MVP
           </h2>
           <p className="text-muted-foreground">
             Monitoramento em tempo real do mercado de Especialidades Agrícolas
