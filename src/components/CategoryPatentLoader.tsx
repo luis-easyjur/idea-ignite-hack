@@ -51,7 +51,7 @@ export function CategoryPatentLoader({ onLoadComplete }: CategoryPatentLoaderPro
       let totalQueries = 0;
       const categoriesToLoad = categoryId === 'all' ? categories.filter(c => c.id !== 'all').map(c => c.id as ProductCategory) : [categoryId as ProductCategory];
 
-      toast.info(`🔍 Buscando patentes reais do Google Patents...`, { duration: 2000 });
+      toast.info(`🔍 Buscando patentes brasileiras via BigQuery...`, { duration: 2000 });
 
       for (const cat of categoriesToLoad) {
         const queries = getCategoryQueries(cat);
@@ -60,12 +60,11 @@ export function CategoryPatentLoader({ onLoadComplete }: CategoryPatentLoaderPro
           totalQueries++;
           console.log(`[CategoryLoader] Query ${totalQueries}: ${query}`);
           
-          const { data, error } = await supabase.functions.invoke('search-google-patents', {
+          const { data, error } = await supabase.functions.invoke('search-patents-bigquery', {
             body: {
               query,
-              country: 'BR',
-              limit: 20,
               category: cat,
+              limit: 50,
             },
           });
 
@@ -118,11 +117,11 @@ export function CategoryPatentLoader({ onLoadComplete }: CategoryPatentLoaderPro
       setLastSync(new Date());
       
       if (totalResults > 0) {
-        toast.success(`✅ ${totalResults} patentes reais carregadas em ${duration}s!`, {
-          description: `${totalQueries} buscas realizadas no Google Patents`,
+        toast.success(`✅ ${totalResults} patentes brasileiras carregadas via BigQuery em ${duration}s!`, {
+          description: `${totalQueries} consultas realizadas no Google Patents Public Data`,
         });
       } else {
-        toast.warning(`Nenhuma patente encontrada nas ${totalQueries} buscas realizadas`);
+        toast.warning(`Nenhuma patente encontrada nas ${totalQueries} consultas ao BigQuery`);
       }
       
       onLoadComplete();
@@ -140,9 +139,9 @@ export function CategoryPatentLoader({ onLoadComplete }: CategoryPatentLoaderPro
     <Card className="p-6 mb-6">
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-semibold mb-2">📋 Carregar patentes por tema</h3>
+          <h3 className="text-lg font-semibold mb-2">📋 Carregar patentes brasileiras via BigQuery</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Busque automaticamente patentes do Google Patents por categoria de produto
+            Busque automaticamente patentes brasileiras reais do repositório oficial Google Patents Public Data
           </p>
         </div>
 
