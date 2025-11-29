@@ -31,7 +31,7 @@ const Research = () => {
     query: searchQuery,
     limit: itemsPerPage,
     offset: (currentPage - 1) * itemsPerPage,
-    resource_id: CAPES_RESOURCE_IDS.THESES_2021_2024,
+    resource_id: CAPES_RESOURCE_IDS.THESES_2019, // Usa dataset de 2019
   });
 
   // Reset para página 1 quando busca mudar

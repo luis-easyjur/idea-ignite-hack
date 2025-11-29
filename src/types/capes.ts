@@ -34,6 +34,9 @@ export interface CAPESSearchResponse {
 }
 
 export const CAPES_RESOURCE_IDS = {
-  THESES_2021_2024: 'a5e72d15-0c0b-4fcb-9471-4fca804d4cff',
-  PRODUCTION_2021: '8e9bcb66-fdaf-4d8e-a906-a2c3ff2d3d60',
+  // Catálogo de Teses e Dissertações 2017-2020
+  THESES_2017: '902bd63b-137f-4090-89e9-cab94f12c41d',
+  THESES_2018: '638668a6-07da-4c7e-8aab-9044ae3cc753',
+  THESES_2019: '8f4f2bce-2744-460a-8f14-f1648c7a16df',
+  THESES_2020: 'e37df31a-f250-4405-8b21-ca7e5c7c1696',
 } as const;
