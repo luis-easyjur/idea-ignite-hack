@@ -1,4 +1,4 @@
-project_id = "mtujvdqhuzjfbwlacupc"
+project_id = "ikwthbqubpwerygwbwzn"
 
 [functions.dashboard-ai-chat]
 verify_jwt = false
@@ -16,4 +16,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.ai-chat-quick]
+verify_jwt = false
+
+[functions.confirm-email]
 verify_jwt = false

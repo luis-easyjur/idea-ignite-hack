@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Header } from "@/components/Header";
 import { StatCard } from "@/components/StatCard";
 import { AlertItem } from "@/components/AlertItem";
 import { DataPillarCard } from "@/components/DataPillarCard";
 import { CorrelationTimeline } from "@/components/CorrelationTimeline";
 import { CompetitorMonitor } from "@/components/CompetitorMonitor";
 import { TrendForecast } from "@/components/TrendForecast";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { FilterBar, FilterState } from "@/components/FilterBar";
 import { ExportButton } from "@/components/ExportButton";
 import { DataSyncButton } from "@/components/DataSyncButton";
@@ -33,7 +35,10 @@ const Index = () => {
   const [filters, setFilters] = useState<FilterState>({});
 
   return (
-    <div className="min-h-screen bg-background">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <Header />
+      
       <main className="container mx-auto px-6 py-8">
         {/* Hero Section */}
         <div className="mb-8 animate-in flex items-center justify-between">
@@ -343,6 +348,7 @@ const Index = () => {
         </div>
       </main>
     </div>
+    </ProtectedRoute>
   );
 };
 

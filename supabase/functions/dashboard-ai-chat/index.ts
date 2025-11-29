@@ -12,10 +12,16 @@ serve(async (req) => {
 
   try {
     const { messages } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    if (!GEMINI_API_KEY) {
+      return new Response(
+        JSON.stringify({ 
+          error: "GEMINI_API_KEY não está configurada",
+          details: "Configure a variável GEMINI_API_KEY no Supabase Dashboard (Settings → Edge Functions → Secrets)"
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Contexto do dashboard para a IA
@@ -68,45 +74,78 @@ TECNOLOGIAS EMERGENTES:
 
 Sua função é ajudar a responder perguntas sobre esses dados, fazer análises comparativas, identificar tendências e fornecer insights estratégicos. Seja claro, objetivo e baseie suas respostas nos dados fornecidos. Quando relevante, cite as fontes (MAPA, INPI, Embrapa, IBGE, Abisolo, ANVISA, IBAMA).`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Converter mensagens do formato OpenAI para formato Gemini
+    const geminiContents = messages
+      .filter((msg: any) => msg.role !== "system") // Remover system messages (vai no systemInstruction)
+      .map((msg: any) => ({
+        role: msg.role === "assistant" ? "model" : "user",
+        parts: [{ text: msg.content }],
+      }));
+
+    const requestBody = {
+      contents: geminiContents,
+      systemInstruction: {
+        parts: [{ text: systemPrompt }],
+      },
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 2048,
+      },
+    };
+
+    const model = "gemini-2.0-flash-exp";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+
+    const response = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
-        stream: false,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Erro na resposta do Gemini:", response.status, errorData);
+
+      let errorMessage = "Erro ao conectar com a IA";
+      
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limite de requisições atingido. Tente novamente em alguns instantes." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        errorMessage = "Limite de requisições atingido. Tente novamente em alguns instantes.";
+      } else if (response.status === 400) {
+        errorMessage = `Erro na requisição: ${JSON.stringify(errorData)}`;
+      } else if (response.status === 401 || response.status === 403) {
+        errorMessage = "Erro de autenticação. Verifique se a GEMINI_API_KEY está correta.";
+      } else {
+        errorMessage = `Erro ${response.status}: ${JSON.stringify(errorData)}`;
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Créditos esgotados. Adicione créditos na sua conta Lovable." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+
       return new Response(
-        JSON.stringify({ error: "Erro ao conectar com a IA" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: errorMessage }),
+        { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
+
+    // Extrair resposta do formato Gemini
+    if (
+      !data.candidates ||
+      !data.candidates[0] ||
+      !data.candidates[0].content ||
+      !data.candidates[0].content.parts ||
+      !data.candidates[0].content.parts[0]
+    ) {
+      console.error("Formato de resposta inesperado:", data);
+      return new Response(
+        JSON.stringify({ error: "Formato de resposta inesperado da IA" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const aiResponse = data.candidates[0].content.parts[0].text;
 
     return new Response(
       JSON.stringify({ response: aiResponse }),

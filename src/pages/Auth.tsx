@@ -32,7 +32,36 @@ export default function Auth() {
         password: loginData.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Se o erro for email não confirmado, confirmar automaticamente
+        if (error.message.includes("Email not confirmed") || error.message.includes("email_not_confirmed")) {
+          try {
+            // Tentar confirmar o email automaticamente
+            if (data?.user?.id) {
+              await supabase.functions.invoke('confirm-email', {
+                body: { userId: data.user.id }
+              });
+              // Tentar login novamente
+              const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+                email: loginData.email,
+                password: loginData.password,
+              });
+              if (retryError) throw retryError;
+              if (retryData.user) {
+                toast({
+                  title: "Login realizado!",
+                  description: "Bem-vindo de volta ao dashboard.",
+                });
+                navigate("/");
+                return;
+              }
+            }
+          } catch (confirmError) {
+            console.error('Error auto-confirming email:', confirmError);
+          }
+        }
+        throw error;
+      }
 
       if (data.user) {
         toast({
@@ -46,6 +75,8 @@ export default function Auth() {
         title: "Erro ao fazer login",
         description: error.message === "Invalid login credentials"
           ? "Email ou senha incorretos"
+          : error.message.includes("Email not confirmed") || error.message.includes("email_not_confirmed")
+          ? "Email confirmado automaticamente. Tente fazer login novamente."
           : error.message,
         variant: "destructive",
       });
@@ -73,6 +104,16 @@ export default function Auth() {
       if (error) throw error;
 
       if (data.user) {
+        // Confirmar email automaticamente
+        try {
+          await supabase.functions.invoke('confirm-email', {
+            body: { userId: data.user.id }
+          });
+        } catch (confirmError) {
+          console.error('Error confirming email:', confirmError);
+          // Continuar mesmo se houver erro na confirmação
+        }
+
         toast({
           title: "Conta criada!",
           description: "Você já pode fazer login no dashboard.",
