@@ -102,13 +102,13 @@ export const CompetitorMonitor = () => {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {competitors.map((competitor, idx) => (
-          <div key={idx} className="border-b border-border last:border-0 pb-6 last:pb-0">
+          <div key={idx} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h4 className="font-bold text-foreground mb-1">{competitor.company}</h4>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm text-muted-foreground">Índice de Atividade:</span>
                   <span className={`text-sm font-bold ${getActivityColor(competitor.activityScore)}`}>
                     {competitor.activityScore}/100
