@@ -9,6 +9,9 @@ verify_jwt = false
 [functions.sync-patents-data]
 verify_jwt = false
 
+[functions.search-google-patents]
+verify_jwt = false
+
 [functions.data-scheduler]
 verify_jwt = false
 

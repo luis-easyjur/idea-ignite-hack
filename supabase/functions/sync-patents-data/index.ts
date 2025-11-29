@@ -5,15 +5,23 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface PatentResult {
-  patent_number: string;
+interface GooglePatentResult {
+  patent_id: string;
+  publication_number?: string;
   title: string;
-  abstract?: string;
-  filing_date: string;
+  snippet?: string;
+  filing_date?: string;
+  priority_date?: string;
+  publication_date?: string;
   grant_date?: string;
-  assignee: string;
+  assignee?: string;
+  inventor?: string;
   inventors?: string[];
-  status: string;
+  status?: string;
+  link?: string;
+  pdf_link?: string;
+  thumbnail?: string;
+  country_code?: string;
 }
 
 Deno.serve(async (req) => {
@@ -45,11 +53,21 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Search for agricultural patents in Brazil
+    // Enhanced search queries for Brazilian agricultural patents
     const queries = [
+      'bioestimulante agrícola Brasil',
       'biostimulant agricultural Brazil',
+      'defensivo biológico Brasil',
       'biological pesticide Brazil',
-      'agricultural specialty Brazil',
+      'nutrição foliar Brasil',
+      'foliar nutrition Brazil',
+      'biodefensivo Brasil',
+      'adjuvante agrícola Brasil',
+      'agricultural adjuvant Brazil',
+      'biofertilizante Brasil',
+      'biofertilizer Brazil',
+      'controle biológico pragas Brasil',
+      'biological pest control Brazil',
     ];
 
     let totalInserted = 0;
@@ -74,19 +92,35 @@ Deno.serve(async (req) => {
       console.log(`Found ${patents.length} patents for query: ${query}`);
 
       for (const patent of patents) {
+        // Extract inventors array
+        let inventorsList: string[] = [];
+        if (patent.inventor) {
+          inventorsList = [patent.inventor];
+        }
+        if (patent.inventors && Array.isArray(patent.inventors)) {
+          inventorsList = [...inventorsList, ...patent.inventors];
+        }
+
         const record = {
           patent_number: patent.patent_id || `TEMP-${Date.now()}-${Math.random()}`,
+          publication_number: patent.publication_number || patent.patent_id || null,
           title: patent.title || 'Título não disponível',
           abstract: patent.snippet || null,
           company: patent.assignee || 'Titular não informado',
-          inventors: patent.inventor ? [patent.inventor] : [],
+          inventors: inventorsList.length > 0 ? inventorsList : null,
           filing_date: patent.filing_date || new Date().toISOString().split('T')[0],
+          priority_date: patent.priority_date || null,
+          publication_date: patent.publication_date || null,
           grant_date: patent.grant_date || null,
-          expiry_date: patent.expiry_date || null,
-          status: patent.status || 'Active',
+          expiry_date: calculateExpiryDate(patent.filing_date, patent.grant_date),
+          status: patent.status || (patent.grant_date ? 'Granted' : 'Pending'),
           category: mapPatentCategory(query),
           inpi_link: patent.pdf_link || null,
           google_patents_link: patent.link || null,
+          thumbnail_url: patent.thumbnail || null,
+          pdf_url: patent.pdf_link || null,
+          language: query.includes('Brasil') ? 'pt' : 'en',
+          country_status: patent.country_code ? { [patent.country_code]: patent.status || 'Active' } : {},
         };
 
         // Try to update first, then insert if not exists
@@ -132,9 +166,26 @@ Deno.serve(async (req) => {
 });
 
 function mapPatentCategory(query: string): 'foliar_nutrition' | 'biostimulants' | 'biodefensives' | 'adjuvants' | 'biofertilizers' {
-  if (query.includes('biostimulant')) return 'biostimulants';
-  if (query.includes('biological') || query.includes('pesticide')) return 'biodefensives';
-  if (query.includes('fertilizer')) return 'biofertilizers';
-  if (query.includes('adjuvant')) return 'adjuvants';
+  const lowerQuery = query.toLowerCase();
+  if (lowerQuery.includes('biostimul') || lowerQuery.includes('bioestimul')) return 'biostimulants';
+  if (lowerQuery.includes('biologic') || lowerQuery.includes('pesticide') || lowerQuery.includes('defensiv') || lowerQuery.includes('controle')) return 'biodefensives';
+  if (lowerQuery.includes('fertiliz') || lowerQuery.includes('biofertil')) return 'biofertilizers';
+  if (lowerQuery.includes('adjuvant') || lowerQuery.includes('adjuvante')) return 'adjuvants';
+  if (lowerQuery.includes('foliar') || lowerQuery.includes('nutrição')) return 'foliar_nutrition';
   return 'foliar_nutrition';
+}
+
+function calculateExpiryDate(filingDate?: string, grantDate?: string): string | null {
+  if (!filingDate) return null;
+  
+  try {
+    const filing = new Date(filingDate);
+    // Patents typically expire 20 years from filing date
+    const expiry = new Date(filing);
+    expiry.setFullYear(expiry.getFullYear() + 20);
+    return expiry.toISOString().split('T')[0];
+  } catch (error) {
+    console.error('Error calculating expiry date:', error);
+    return null;
+  }
 }
