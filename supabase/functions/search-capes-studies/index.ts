@@ -50,14 +50,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const searchQuery = url.searchParams.get('q') || '';
-    const limit = parseInt(url.searchParams.get('limit') || '10');
-    const offset = parseInt(url.searchParams.get('offset') || '0');
-    const resourceId = url.searchParams.get('resource_id') || RESOURCE_IDS.THESES_2021_2024;
-    const area = url.searchParams.get('area') || '';
-    const institution = url.searchParams.get('institution') || '';
-    const year = url.searchParams.get('year') || '';
+    // Ler parâmetros do body da requisição
+    const body = await req.json();
+    const searchQuery = body.q || '';
+    const limit = parseInt(body.limit?.toString() || '10');
+    const offset = parseInt(body.offset?.toString() || '0');
+    const resourceId = body.resource_id || RESOURCE_IDS.THESES_2021_2024;
+    const area = body.area || '';
+    const institution = body.institution || '';
+    const year = body.year || '';
 
     console.log('Searching CAPES API:', { searchQuery, limit, offset, resourceId, area, institution, year });
 
@@ -102,6 +103,11 @@ Deno.serve(async (req) => {
       total: data.result.total,
       records: data.result.records.length
     });
+
+    // Log do primeiro registro para debug dos campos
+    if (data.result.records.length > 0) {
+      console.log('Primeiro registro CAPES completo:', JSON.stringify(data.result.records[0], null, 2));
+    }
 
     // Mapear dados para formato compatível com Study
     const mappedStudies = data.result.records.map((record, index) => ({

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Search, BookOpen, Loader2 } from "lucide-react";
 import { Study } from "@/types/research";
 import { StudyCard } from "@/components/research/StudyCard";
@@ -18,13 +19,14 @@ import {
 } from "@/components/ui/pagination";
 
 const Research = () => {
+  const [inputValue, setInputValue] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
   const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Query CAPES API
+  // Query CAPES API - só dispara quando searchQuery muda
   const { data: capesData, isLoading, error } = useCAPESStudies({
     query: searchQuery,
     limit: itemsPerPage,
@@ -36,6 +38,17 @@ const Research = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
+
+  const handleSearch = () => {
+    setSearchQuery(inputValue);
+    setCurrentPage(1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   const studies = capesData?.studies || [];
   const totalRecords = capesData?.total || 0;
@@ -104,14 +117,25 @@ const Research = () => {
           {/* Campo de Busca */}
           <Card>
             <CardContent className="pt-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                <Input
-                  placeholder="Buscar por título, autor, palavra-chave..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-12 text-base"
-                />
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                  <Input
+                    placeholder="Buscar por título, autor, palavra-chave..."
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="pl-12 h-12 text-base"
+                  />
+                </div>
+                <Button
+                  onClick={handleSearch}
+                  size="lg"
+                  className="h-12 px-8"
+                >
+                  <Search className="h-5 w-5 mr-2" />
+                  Buscar
+                </Button>
               </div>
               <div className="mt-3 text-sm text-muted-foreground text-center">
                 {totalRecords > 0 && `${totalRecords.toLocaleString('pt-BR')} estudos encontrados`}
