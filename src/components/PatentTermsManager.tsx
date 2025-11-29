@@ -21,6 +21,8 @@ interface SearchTerm {
   last_searched_at: string | null;
   results_count: number;
   created_at: string;
+  start_date?: string;
+  end_date?: string;
 }
 
 const categories = [
@@ -32,6 +34,12 @@ const categories = [
   { value: "custom", label: "Personalizado" },
 ];
 
+// Default to last 5 years for BigQuery optimization
+const defaultStartDate = new Date(new Date().setFullYear(new Date().getFullYear() - 5))
+  .toISOString()
+  .split('T')[0];
+const defaultEndDate = new Date().toISOString().split('T')[0];
+
 export function PatentTermsManager() {
   const [terms, setTerms] = useState<SearchTerm[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,6 +50,8 @@ export function PatentTermsManager() {
   const [newTerm, setNewTerm] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [newDescription, setNewDescription] = useState("");
+  const [newStartDate, setNewStartDate] = useState(defaultStartDate);
+  const [newEndDate, setNewEndDate] = useState(defaultEndDate);
 
   useEffect(() => {
     fetchTerms();
@@ -74,6 +84,11 @@ export function PatentTermsManager() {
       return;
     }
 
+    if (!newStartDate || !newEndDate) {
+      toast.error("Selecione o período de busca");
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -93,6 +108,8 @@ export function PatentTermsManager() {
       setNewTerm("");
       setNewCategory("");
       setNewDescription("");
+      setNewStartDate(defaultStartDate);
+      setNewEndDate(defaultEndDate);
       setShowAddForm(false);
       fetchTerms();
     } catch (error) {
@@ -108,53 +125,52 @@ export function PatentTermsManager() {
       let source = "";
       let searchSuccess = false;
 
-      // Try BigQuery first
-      const bigQueryResult = await supabase.functions.invoke("search-patents-bigquery", {
-        body: { query: searchTerm },
-      });
+      // First, check local database cache
+      const { data: cachedPatents, error: cacheError } = await supabase
+        .from("patents")
+        .select("*")
+        .or(`title.ilike.%${searchTerm}%,abstract.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%,patent_number.ilike.%${searchTerm}%`)
+        .limit(50);
 
-      // Check if BigQuery succeeded
-      if (!bigQueryResult.error && !bigQueryResult.data?.error) {
-        patents = bigQueryResult.data?.results || [];
-        source = "BigQuery";
+      if (!cacheError && cachedPatents && cachedPatents.length > 0) {
+        patents = cachedPatents;
+        source = "Cache local";
         searchSuccess = true;
+        console.log(`Found ${patents.length} patents in local cache`);
       } else {
-        console.log("BigQuery failed:", bigQueryResult.error || bigQueryResult.data?.error);
+        // If not in cache, query BigQuery with optimized parameters
+        const term = terms.find(t => t.id === termId);
+        const startDate = term?.start_date || defaultStartDate;
+        const endDate = term?.end_date || defaultEndDate;
         
-        // Try Google Patents API as fallback
-        toast.info("Tentando fonte alternativa de dados...");
-        const googleResult = await supabase.functions.invoke("search-google-patents", {
-          body: { query: searchTerm },
+        // Convert YYYY-MM-DD to YYYYMMDD
+        const formattedStartDate = startDate.replace(/-/g, '');
+        const formattedEndDate = endDate.replace(/-/g, '');
+        
+        console.log(`Querying BigQuery with date range: ${formattedStartDate} - ${formattedEndDate}`);
+        
+        const bigQueryResult = await supabase.functions.invoke("search-patents-bigquery", {
+          body: { 
+            query: searchTerm,
+            startDate: formattedStartDate,
+            endDate: formattedEndDate,
+            limit: 50
+          },
         });
-        
-        if (!googleResult.error && googleResult.data?.success) {
-          patents = googleResult.data?.results || [];
-          source = "Google Patents API";
+
+        // Check if BigQuery succeeded
+        if (!bigQueryResult.error && !bigQueryResult.data?.error) {
+          patents = bigQueryResult.data?.results || [];
+          source = "BigQuery (otimizado)";
           searchSuccess = true;
         } else {
-          console.log("Google Patents API failed:", googleResult.error || googleResult.data?.error);
-          
-          // If both APIs failed, search existing database
-          toast.info("Buscando em registros existentes...");
-          const { data: dbPatents, error: dbError } = await supabase
-            .from("patents")
-            .select("*")
-            .or(`title.ilike.%${searchTerm}%,abstract.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%`)
-            .limit(100);
-
-          if (!dbError && dbPatents && dbPatents.length > 0) {
-            patents = dbPatents;
-            source = "Base de dados local";
-            searchSuccess = true;
-          }
+          console.log("BigQuery failed:", bigQueryResult.error || bigQueryResult.data?.error);
+          toast.error("Erro ao buscar no BigQuery. Usando cache local apenas.");
         }
       }
 
       if (!searchSuccess || patents.length === 0) {
-        toast.warning(
-          "Limite de buscas atingido. Configure as credenciais das APIs ou tente novamente mais tarde.",
-          { duration: 5000 }
-        );
+        toast.warning("Nenhuma patente encontrada para este termo.");
         
         // Update search term with zero results
         await supabase
@@ -169,8 +185,9 @@ export function PatentTermsManager() {
         return;
       }
       
-      // Update patents in database (only if from external sources)
-      if (source !== "Base de dados local") {
+      // Update patents in database (only if from external sources, not cache)
+      if (source !== "Cache local") {
+        console.log(`Updating ${patents.length} patents in local database`);
         for (const patent of patents) {
           await supabase.from("patents").upsert({
             patent_number: patent.patent_number,
@@ -181,6 +198,10 @@ export function PatentTermsManager() {
             category: patent.category || "biostimulants",
             abstract: patent.abstract,
             inventors: patent.inventors,
+            grant_date: patent.grant_date,
+            publication_date: patent.publication_date,
+            priority_date: patent.priority_date,
+            application_number: patent.application_number,
           }, {
             onConflict: "patent_number"
           });
@@ -297,6 +318,27 @@ export function PatentTermsManager() {
                   rows={2}
                 />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Data Inicial</label>
+                  <Input
+                    type="date"
+                    value={newStartDate}
+                    onChange={(e) => setNewStartDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Data Final</label>
+                  <Input
+                    type="date"
+                    value={newEndDate}
+                    onChange={(e) => setNewEndDate(e.target.value)}
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                💡 Período menor = menos dados escaneados no BigQuery
+              </p>
               <div className="flex gap-2">
                 <Button onClick={handleAddTerm} size="sm">
                   Salvar Termo
