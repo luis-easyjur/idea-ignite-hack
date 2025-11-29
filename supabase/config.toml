@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.confirm-email]
 verify_jwt = false
+
+[functions.search-patents-bigquery]
+verify_jwt = false

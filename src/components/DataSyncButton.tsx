@@ -10,44 +10,56 @@ export const DataSyncButton = () => {
   const handleSync = async () => {
     setSyncing(true);
     const startTime = Date.now();
-    toast.info("🔄 Buscando patentes reais da API...", { duration: 3000 });
+    toast.info("🔄 Buscando patentes brasileiras via BigQuery...", { duration: 3000 });
 
     try {
-      // Call the data scheduler function
-      const { data, error } = await supabase.functions.invoke('data-scheduler');
+      // Call the BigQuery search function
+      const { data, error } = await supabase.functions.invoke('search-patents-bigquery', {
+        body: {
+          query: 'agricultura sustentável',
+          limit: 100,
+        },
+      });
 
       if (error) throw error;
 
-      const results = data?.results || {};
+      const results = data?.results || [];
       const duration = ((Date.now() - startTime) / 1000).toFixed(1);
       
-      // Patent results
-      if (results.patents?.success) {
-        const { inserted, updated } = results.patents;
-        const total = inserted + updated;
-        
-        if (total > 0) {
-          toast.success(
-            `✅ Patentes: ${inserted} novas, ${updated} atualizadas (${total} total em ${duration}s)`,
-            { duration: 5000 }
-          );
-        } else {
-          toast.info(`ℹ️ Nenhuma patente nova encontrada (${duration}s)`, { duration: 4000 });
-        }
-      } else if (results.patents?.message) {
-        toast.warning(`⚠️ Patentes: ${results.patents.message}`);
-      }
-      
-      // AGROFIT results
-      if (results.agrofit?.success) {
-        toast.success(`✅ MAPA: ${results.agrofit.inserted} novos, ${results.agrofit.updated} atualizados`);
-      } else if (results.agrofit?.error) {
-        console.error('AGROFIT sync failed:', results.agrofit.error);
-      }
+      if (results.length > 0) {
+        // Save patents to database
+        const { error: upsertError } = await supabase.from('patents').upsert(
+          results.map((patent: any) => ({
+            patent_number: patent.patent_number,
+            publication_number: patent.publication_number,
+            title: patent.title,
+            abstract: patent.abstract,
+            company: patent.company || 'Não informado',
+            inventors: patent.inventors || [],
+            filing_date: patent.filing_date,
+            priority_date: patent.priority_date,
+            publication_date: patent.publication_date,
+            grant_date: patent.grant_date,
+            status: patent.status,
+            category: patent.category || 'biostimulants',
+            google_patents_link: patent.google_patents_link,
+            language: 'pt',
+          })),
+          { onConflict: 'patent_number' }
+        );
 
-      // Reload the page to show updated data
-      if (results.patents?.success && (results.patents.inserted > 0 || results.patents.updated > 0)) {
+        if (upsertError) {
+          throw upsertError;
+        }
+
+        toast.success(
+          `✅ ${results.length} patentes brasileiras sincronizadas do BigQuery em ${duration}s!`,
+          { duration: 5000 }
+        );
+        
         setTimeout(() => window.location.reload(), 2000);
+      } else {
+        toast.info(`ℹ️ Nenhuma patente encontrada no BigQuery (${duration}s)`, { duration: 4000 });
       }
     } catch (error) {
       console.error('Sync error:', error);
