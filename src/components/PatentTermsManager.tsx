@@ -104,9 +104,31 @@ export function PatentTermsManager() {
   const handleSearch = async (termId: string, searchTerm: string) => {
     setSearching(termId);
     try {
-      const { data, error } = await supabase.functions.invoke("search-patents-bigquery", {
+      // Try BigQuery first
+      let data, error;
+      let source = "BigQuery";
+      
+      const bigQueryResult = await supabase.functions.invoke("search-patents-bigquery", {
         body: { query: searchTerm },
       });
+
+      // Check if BigQuery failed due to quota
+      if (bigQueryResult.error || bigQueryResult.data?.error?.includes("Quota exceeded")) {
+        console.log("BigQuery quota exceeded, falling back to Google Patents API");
+        toast.info("Usando fonte alternativa de dados...");
+        
+        // Fallback to Google Patents API
+        const googleResult = await supabase.functions.invoke("search-google-patents", {
+          body: { query: searchTerm },
+        });
+        
+        data = googleResult.data;
+        error = googleResult.error;
+        source = "Google Patents API";
+      } else {
+        data = bigQueryResult.data;
+        error = bigQueryResult.error;
+      }
 
       if (error) throw error;
 
@@ -133,11 +155,11 @@ export function PatentTermsManager() {
         })
         .eq("id", termId);
 
-      toast.success(`Busca concluída! ${patents.length} patentes encontradas`);
+      toast.success(`Busca concluída via ${source}! ${patents.length} patentes encontradas`);
       fetchTerms();
     } catch (error) {
       console.error("Error searching patents:", error);
-      toast.error("Erro ao buscar patentes");
+      toast.error("Erro ao buscar patentes. Tente novamente mais tarde.");
     } finally {
       setSearching(null);
     }

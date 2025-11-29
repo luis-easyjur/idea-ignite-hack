@@ -59,7 +59,7 @@ export const InsightsChat = ({ onInsightGenerated }: InsightsChatProps) => {
         body: { 
           query: textToSend,
           messages: [...messages, userMessage],
-          conversation_history: messages.filter(m => m.role !== "system")
+          conversation_history: messages
         }
       });
 

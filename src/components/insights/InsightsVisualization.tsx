@@ -4,6 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { InsightCard, Insight } from "./InsightCard";
+
+export type { Insight };
 import { Download, Filter, Sparkles, TrendingUp, AlertTriangle } from "lucide-react";
 import {
   Select,
