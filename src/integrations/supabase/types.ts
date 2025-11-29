@@ -53,6 +53,80 @@ export type Database = {
         }
         Relationships: []
       }
+      competitor_research: {
+        Row: {
+          activity_score: number | null
+          competitor_id: string | null
+          id: string
+          research_type: string | null
+          researched_at: string | null
+          result_json: Json | null
+          sources: string[] | null
+        }
+        Insert: {
+          activity_score?: number | null
+          competitor_id?: string | null
+          id?: string
+          research_type?: string | null
+          researched_at?: string | null
+          result_json?: Json | null
+          sources?: string[] | null
+        }
+        Update: {
+          activity_score?: number | null
+          competitor_id?: string | null
+          id?: string
+          research_type?: string | null
+          researched_at?: string | null
+          result_json?: Json | null
+          sources?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_research_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitors: {
+        Row: {
+          cnpj: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          notes: string | null
+          segment: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          cnpj?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          notes?: string | null
+          segment?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          cnpj?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          notes?: string | null
+          segment?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string

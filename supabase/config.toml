@@ -30,3 +30,6 @@ verify_jwt = false
 [functions.search-patents-bigquery]
 [functions.insights-ai]
 verify_jwt = false
+
+[functions.research-competitor]
+verify_jwt = false
