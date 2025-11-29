@@ -27,10 +27,26 @@ export interface ElasticProductStats {
     name: string;
     count: number;
   }>;
-  ingredients?: Array<{
+  ingredients: Array<{
     name: string;
     count: number;
   }>;
+  chemicalGroups: Array<{
+    name: string;
+    count: number;
+  }>;
+  toxicityLevels: Array<{
+    name: string;
+    count: number;
+  }>;
+  formulations: Array<{
+    name: string;
+    count: number;
+  }>;
+  biologicalProducts: {
+    total: number;
+    organic: number;
+  };
   sourceComparison: Array<{
     name: string;
     value: number;

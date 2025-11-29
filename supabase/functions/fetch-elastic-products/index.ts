@@ -56,25 +56,58 @@ serve(async (req) => {
     const culturesMap = new Map<string, number>();
     const pestsMap = new Map<string, number>();
     const categoriesMap = new Map<string, number>();
+    const ingredientsMap = new Map<string, number>();
+    const chemicalGroupsMap = new Map<string, number>();
+    const toxicityMap = new Map<string, number>();
+    const formulationsMap = new Map<string, number>();
     let agrofitCount = 0;
     let bioinsumosCount = 0;
+    let biologicalCount = 0;
+    let organicCount = 0;
 
     documents.forEach((doc: any) => {
       // Count sources
       if (doc.source === 'agrofit') agrofitCount++;
       if (doc.source === 'bioinsumos') bioinsumosCount++;
 
-      // Extract companies - normalize to array
-      let companies = doc.raw_content?.empresa_detentora;
-      if (!companies) companies = [];
-      else if (!Array.isArray(companies)) companies = [companies];
+      // Count biological and organic products
+      if (doc.raw_content?.produto_biologico) biologicalCount++;
+      if (doc.raw_content?.produto_agricultura_organica) organicCount++;
+
+      // Extract companies from titular_registro (correct field)
+      const titularRegistro = doc.raw_content?.titular_registro;
+      if (titularRegistro && typeof titularRegistro === 'string' && titularRegistro.trim() && titularRegistro !== 'N/A') {
+        companiesMap.set(titularRegistro, (companiesMap.get(titularRegistro) || 0) + 1);
+      }
+
+      // Extract ingredients
+      let ingredientesDetalhados = doc.raw_content?.ingrediente_ativo_detalhado;
+      if (!ingredientesDetalhados) ingredientesDetalhados = [];
+      else if (!Array.isArray(ingredientesDetalhados)) ingredientesDetalhados = [ingredientesDetalhados];
       
-      companies.forEach((comp: any) => {
-        const name = comp?.nome || (typeof comp === 'string' ? comp : null);
-        if (name && name.trim() && name !== 'N/A') {
-          companiesMap.set(name, (companiesMap.get(name) || 0) + 1);
+      ingredientesDetalhados.forEach((ing: any) => {
+        const ingrediente = ing?.ingrediente_ativo;
+        if (ingrediente && ingrediente.trim() && ingrediente !== 'N/A') {
+          ingredientsMap.set(ingrediente, (ingredientsMap.get(ingrediente) || 0) + 1);
+        }
+
+        const grupoQuimico = ing?.grupo_quimico;
+        if (grupoQuimico && grupoQuimico.trim() && grupoQuimico !== 'N/A') {
+          chemicalGroupsMap.set(grupoQuimico, (chemicalGroupsMap.get(grupoQuimico) || 0) + 1);
         }
       });
+
+      // Extract toxicity classification
+      const toxicity = doc.raw_content?.classificacao_toxicologica;
+      if (toxicity && typeof toxicity === 'string' && toxicity.trim()) {
+        toxicityMap.set(toxicity, (toxicityMap.get(toxicity) || 0) + 1);
+      }
+
+      // Extract formulation
+      const formulacao = doc.raw_content?.formulacao;
+      if (formulacao && typeof formulacao === 'string' && formulacao.trim()) {
+        formulationsMap.set(formulacao, (formulationsMap.get(formulacao) || 0) + 1);
+      }
 
       // Extract cultures and pests from indicacao_uso - normalize to array
       let indicacoes = doc.raw_content?.indicacao_uso;
@@ -133,6 +166,25 @@ serve(async (req) => {
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
 
+    const ingredients = Array.from(ingredientsMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 15);
+
+    const chemicalGroups = Array.from(chemicalGroupsMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    const toxicityLevels = Array.from(toxicityMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
+    const formulations = Array.from(formulationsMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
     const result = {
       success: true,
       totals: {
@@ -146,6 +198,14 @@ serve(async (req) => {
       cultures,
       pests,
       categories,
+      ingredients,
+      chemicalGroups,
+      toxicityLevels,
+      formulations,
+      biologicalProducts: {
+        total: biologicalCount,
+        organic: organicCount
+      },
       sourceComparison: [
         { name: 'Defensivos (Agrofit)', value: agrofitCount },
         { name: 'Bioinsumos', value: bioinsumosCount }
