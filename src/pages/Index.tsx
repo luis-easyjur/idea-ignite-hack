@@ -29,6 +29,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MarketEvolutionChart } from "@/components/MarketEvolutionChart";
 import { RegionalGrowthChart } from "@/components/RegionalGrowthChart";
+import { PatentsDashboardSection } from "@/components/PatentsDashboardSection";
 
 const Index = () => {
   const [filters, setFilters] = useState<FilterState>({});
@@ -163,6 +164,11 @@ const Index = () => {
           <div>
             <CorrelationTimeline />
           </div>
+        </div>
+
+        {/* Patents Intelligence Section */}
+        <div className="mb-8">
+          <PatentsDashboardSection />
         </div>
 
         {/* Charts Section */}
