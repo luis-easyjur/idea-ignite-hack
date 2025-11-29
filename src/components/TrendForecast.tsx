@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, TrendingUp, Lightbulb, Sparkles, Target } from "lucide-react";
+import { Brain, TrendingUp, Lightbulb, Sparkles, Target, ExternalLink } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { DataSourceBadge } from "./DataSourceBadge";
 
@@ -18,7 +18,8 @@ const opportunities = [
     impact: "Alto",
     description: "Tendência crescente em publicações científicas sobre nano-formulações",
     source: "23 artigos científicos + 5 patentes recentes",
-    dataSources: ["Embrapa" as const, "INPI" as const]
+    dataSources: ["Embrapa" as const, "INPI" as const],
+    url: "https://www.embrapa.br/busca-de-noticias/-/noticia/nanotecnologia"
   },
   {
     title: "Biofertilizantes para Cana-de-Açúcar",
@@ -26,7 +27,8 @@ const opportunities = [
     impact: "Alto",
     description: "Gap de mercado identificado no Centro-Sul",
     source: "Análise de mercado + dados MAPA",
-    dataSources: ["IBGE" as const, "MAPA" as const]
+    dataSources: ["IBGE" as const, "MAPA" as const],
+    url: "https://www.gov.br/agricultura/pt-br/assuntos/insumos-agropecuarios"
   },
   {
     title: "Adjuvantes Sustentáveis",
@@ -34,7 +36,8 @@ const opportunities = [
     impact: "Médio",
     description: "Pressão regulatória favorece produtos eco-friendly",
     source: "Normas IBAMA + tendências ESG",
-    dataSources: ["IBAMA" as const, "MAPA" as const]
+    dataSources: ["IBAMA" as const, "MAPA" as const],
+    url: "https://www.gov.br/ibama/pt-br"
   },
 ];
 
@@ -43,19 +46,22 @@ const emergingTechs = [
     tech: "RNA Interferência (RNAi)",
     area: "Biodefensivos",
     maturity: "Emergente",
-    timeline: "2-3 anos"
+    timeline: "2-3 anos",
+    url: "https://www.embrapa.br/busca-de-noticias/-/noticia/biotecnologia"
   },
   {
     tech: "CRISPR para Bioinsumos",
     area: "Bioestimulantes",
     maturity: "Pesquisa",
-    timeline: "3-5 anos"
+    timeline: "3-5 anos",
+    url: "https://www.embrapa.br/biotecnologia"
   },
   {
     tech: "IA para Formulação Personalizada",
     area: "Nutrição Foliar",
     maturity: "Desenvolvimento",
-    timeline: "1-2 anos"
+    timeline: "1-2 anos",
+    url: "https://www.embrapa.br/agricultura-digital"
   },
 ];
 
@@ -142,6 +148,17 @@ export const TrendForecast = () => {
                     {opp.dataSources.map((source, idx) => (
                       <DataSourceBadge key={idx} source={source} size="sm" />
                     ))}
+                    {opp.url && (
+                      <a 
+                        href={opp.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline ml-2"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Referência
+                      </a>
+                    )}
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-border">
                     <span className="text-xs text-muted-foreground">Confiança da IA</span>
@@ -172,7 +189,19 @@ export const TrendForecast = () => {
             {emergingTechs.map((tech, idx) => (
               <div key={idx} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors">
                 <div className="flex-1">
-                  <h4 className="font-semibold text-foreground mb-1">{tech.tech}</h4>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-semibold text-foreground">{tech.tech}</h4>
+                    {tech.url && (
+                      <a 
+                        href={tech.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground">{tech.area}</p>
                 </div>
                 <div className="flex items-center gap-4">

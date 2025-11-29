@@ -120,10 +120,11 @@ function mapStatus(situacao: string): 'approved' | 'under_analysis' | 'pre_regis
   return 'pre_registered';
 }
 
-function mapCategory(ingrediente: string): 'biostimulant' | 'biological' | 'fertilizer' | 'specialty' | 'conventional_pesticide' {
+function mapCategory(ingrediente: string): 'foliar_nutrition' | 'biostimulants' | 'biodefensives' | 'adjuvants' | 'biofertilizers' {
   const ing = ingrediente?.toLowerCase() || '';
-  if (ing.includes('bio') || ing.includes('orgân')) return 'biological';
-  if (ing.includes('estimul')) return 'biostimulant';
-  if (ing.includes('fertil') || ing.includes('nutri')) return 'fertilizer';
-  return 'specialty';
+  if (ing.includes('estimul')) return 'biostimulants';
+  if (ing.includes('bio') && ing.includes('defens')) return 'biodefensives';
+  if (ing.includes('fertil')) return 'biofertilizers';
+  if (ing.includes('adjuv')) return 'adjuvants';
+  return 'foliar_nutrition';
 }

@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, TrendingUp, FileText, Shield } from "lucide-react";
+import { Building2, TrendingUp, FileText, Shield, ExternalLink } from "lucide-react";
 import { DataSourceBadge } from "./DataSourceBadge";
 
 interface CompetitorActivity {
@@ -11,6 +11,7 @@ interface CompetitorActivity {
     description: string;
     date: string;
     source?: "MAPA" | "INPI" | "Abisolo" | "IBGE";
+    url?: string;
   }[];
 }
 
@@ -129,9 +130,19 @@ export const CompetitorMonitor = () => {
                     {getMoveIcon(move.type)}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <p className="text-foreground">{move.description}</p>
                       {move.source && <DataSourceBadge source={move.source} size="sm" />}
+                      {move.url && (
+                        <a 
+                          href={move.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-primary hover:underline"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
                     </div>
                     <span className="text-xs text-muted-foreground">há {move.date}</span>
                   </div>
