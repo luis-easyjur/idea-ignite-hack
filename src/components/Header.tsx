@@ -50,18 +50,18 @@ export const Header = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between gap-4 flex-1">
-        <div className="flex-1 max-w-xl">
+      <div className="flex items-center gap-6 flex-1">
+        <div className="flex-1 max-w-2xl">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por molécula, empresa ou tecnologia..."
-              className="pl-10 bg-background"
+              placeholder="Pesquisar ID, nome ou descrição..."
+              className="pl-11 h-10 bg-muted/30 border-muted-foreground/20 focus-visible:bg-background"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 border-l pl-4 border-border/50">
           <Button 
             variant="ghost" 
             size="icon" 

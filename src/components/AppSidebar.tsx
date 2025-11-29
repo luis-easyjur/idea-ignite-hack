@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, Beaker, TrendingUp, Building2, Bot, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, Beaker, TrendingUp, Building2, Bot, Settings, LogOut, ChevronLeft } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,10 +13,11 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+
 
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -46,18 +47,18 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border/50">
-      <SidebarContent>
+    <Sidebar collapsible="icon" className="border-r-0 shadow-sm">
+      <SidebarContent className="bg-sidebar-background">
         <SidebarGroup>
-          <SidebarGroupLabel className="h-16 flex items-center gap-2 px-4">
+          <SidebarGroupLabel className="h-16 flex items-center gap-2 px-4 bg-sidebar-background">
             {open && (
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                   <span className="text-primary-foreground font-bold text-sm">UB</span>
                 </div>
                 <div>
-                  <h2 className="text-sm font-semibold">UBYAGRO</h2>
-                  <p className="text-xs text-muted-foreground">Intelligence</p>
+                  <h2 className="text-sm font-semibold text-sidebar-foreground">UBYAGRO</h2>
+                  <p className="text-xs text-sidebar-foreground/60">Intelligence</p>
                 </div>
               </div>
             )}
@@ -68,7 +69,7 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
             )}
           </SidebarGroupLabel>
           
-          <SidebarGroupContent className="px-2">
+          <SidebarGroupContent className="px-2 mt-2">
             <SidebarMenu>
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
@@ -76,8 +77,8 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
                     <NavLink
                       to={item.url}
                       end={item.url === "/"}
-                      className="flex items-center gap-3 hover:bg-accent/50 transition-colors"
-                      activeClassName="bg-accent text-accent-foreground font-medium"
+                      className="flex items-center gap-3 hover:bg-sidebar-accent transition-colors rounded-md text-sidebar-foreground/80"
+                      activeClassName="bg-sidebar-accent text-sidebar-foreground font-medium"
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -89,13 +90,15 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <Separator className="my-2" />
-
-        <SidebarGroup>
+        <SidebarGroup className="mt-auto">
           <SidebarGroupContent className="px-2">
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={onOpenChat} tooltip="Assistente IA">
+                <SidebarMenuButton 
+                  onClick={onOpenChat} 
+                  tooltip="Assistente IA"
+                  className="text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                >
                   <Bot className="h-4 w-4" />
                   <span>Assistente IA</span>
                 </SidebarMenuButton>
@@ -105,8 +108,8 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
                 <SidebarMenuButton asChild tooltip="Configurações">
                   <NavLink
                     to="/settings"
-                    className="flex items-center gap-3 hover:bg-accent/50 transition-colors"
-                    activeClassName="bg-accent text-accent-foreground font-medium"
+                    className="flex items-center gap-3 hover:bg-sidebar-accent transition-colors rounded-md text-sidebar-foreground/80"
+                    activeClassName="bg-sidebar-accent text-sidebar-foreground font-medium"
                   >
                     <Settings className="h-4 w-4" />
                     <span>Configurações</span>
@@ -118,15 +121,21 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-2">
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-3"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-4 w-4" />
-          {open && <span>Sair</span>}
-        </Button>
+      <SidebarFooter className="p-2 bg-sidebar-background border-t border-sidebar-border">
+        <div className="flex items-center justify-between gap-2">
+          <Button
+            variant="ghost"
+            className="flex-1 justify-start gap-3 text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            {open && <span>Sair</span>}
+          </Button>
+          
+          <SidebarTrigger className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent">
+            <ChevronLeft className={`h-4 w-4 transition-transform ${!open ? 'rotate-180' : ''}`} />
+          </SidebarTrigger>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
