@@ -44,15 +44,22 @@ export function CategoryPatentLoader({ onLoadComplete }: CategoryPatentLoaderPro
 
   const loadPatentsByCategory = async (categoryId: ProductCategory | 'all') => {
     setLoadingCategory(categoryId);
+    const startTime = Date.now();
 
     try {
       let totalResults = 0;
+      let totalQueries = 0;
       const categoriesToLoad = categoryId === 'all' ? categories.filter(c => c.id !== 'all').map(c => c.id as ProductCategory) : [categoryId as ProductCategory];
+
+      toast.info(`🔍 Buscando patentes reais do Google Patents...`, { duration: 2000 });
 
       for (const cat of categoriesToLoad) {
         const queries = getCategoryQueries(cat);
         
         for (const query of queries) {
+          totalQueries++;
+          console.log(`[CategoryLoader] Query ${totalQueries}: ${query}`);
+          
           const { data, error } = await supabase.functions.invoke('search-google-patents', {
             body: {
               query,
@@ -64,13 +71,16 @@ export function CategoryPatentLoader({ onLoadComplete }: CategoryPatentLoaderPro
 
           if (error) {
             console.error(`Erro ao buscar patentes para ${cat}:`, error);
+            toast.error(`Erro na busca: ${cat}`);
             continue;
           }
 
-          if (data?.results) {
+          if (data?.results && data.results.length > 0) {
+            console.log(`[CategoryLoader] Encontradas ${data.results.length} patentes para query: ${query}`);
+            
             // Upsert patents into database
-            for (const patent of data.results) {
-              await supabase.from('patents').upsert({
+            const { error: upsertError } = await supabase.from('patents').upsert(
+              data.results.map((patent: any) => ({
                 patent_number: patent.patent_number,
                 publication_number: patent.publication_number,
                 title: patent.title,
@@ -87,21 +97,40 @@ export function CategoryPatentLoader({ onLoadComplete }: CategoryPatentLoaderPro
                 pdf_url: patent.pdf_url,
                 thumbnail_url: patent.thumbnail_url,
                 language: 'pt',
-              }, {
-                onConflict: 'patent_number',
-              });
+              })),
+              { onConflict: 'patent_number' }
+            );
+
+            if (upsertError) {
+              console.error('Erro ao salvar patentes:', upsertError);
+              toast.error('Erro ao salvar patentes no banco');
+            } else {
+              totalResults += data.results.length;
+              console.log(`[CategoryLoader] ${data.results.length} patentes salvas no banco`);
             }
-            totalResults += data.results.length;
+          } else {
+            console.log(`[CategoryLoader] Nenhuma patente encontrada para: ${query}`);
           }
         }
       }
 
+      const duration = ((Date.now() - startTime) / 1000).toFixed(1);
       setLastSync(new Date());
-      toast.success(`${totalResults} patentes carregadas com sucesso!`);
+      
+      if (totalResults > 0) {
+        toast.success(`✅ ${totalResults} patentes reais carregadas em ${duration}s!`, {
+          description: `${totalQueries} buscas realizadas no Google Patents`,
+        });
+      } else {
+        toast.warning(`Nenhuma patente encontrada nas ${totalQueries} buscas realizadas`);
+      }
+      
       onLoadComplete();
     } catch (error) {
       console.error('Erro ao carregar patentes:', error);
-      toast.error('Erro ao carregar patentes do Google Patents');
+      toast.error('Erro ao carregar patentes do Google Patents', {
+        description: error instanceof Error ? error.message : 'Erro desconhecido',
+      });
     } finally {
       setLoadingCategory(null);
     }
