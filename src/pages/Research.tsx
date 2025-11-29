@@ -2,16 +2,11 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Calendar, Unlock, TrendingUp } from "lucide-react";
+import { Search, BookOpen, Unlock, TrendingUp } from "lucide-react";
 import { mockStudies } from "@/data/research-studies";
-import { AuthorList } from "@/components/research/AuthorList";
-import { ImpactMetrics } from "@/components/research/ImpactMetrics";
-import { TopicHierarchy } from "@/components/research/TopicHierarchy";
-import { AbstractSection } from "@/components/research/AbstractSection";
-import { SDGBadges } from "@/components/research/SDGBadges";
-import { LocationLinks } from "@/components/research/LocationLinks";
-import { translateType, translateOAStatus, oaStatusColors, formatDate } from "@/lib/research-utils";
+import { Study } from "@/types/research";
+import { StudyCard } from "@/components/research/StudyCard";
+import { StudyDetailModal } from "@/components/research/StudyDetailModal";
 import {
   Pagination,
   PaginationContent,
@@ -29,6 +24,8 @@ const Research = () => {
   const [typeFilter, setTypeFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Reset para página 1 quando filtros mudarem
   useEffect(() => {
@@ -99,6 +96,11 @@ const Research = () => {
     }
 
     return pages;
+  };
+
+  const handleViewDetails = (study: Study) => {
+    setSelectedStudy(study);
+    setIsModalOpen(true);
   };
 
   // Extrair anos únicos
@@ -290,135 +292,13 @@ const Research = () => {
         </Card>
 
         {/* Lista de Estudos */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           {paginatedStudies.map((study) => (
-            <Card key={study.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="space-y-4">
-                <div className="flex flex-wrap gap-2 items-start justify-between">
-                  <div className="flex-1 space-y-2">
-                    <div className="flex flex-wrap gap-2 items-center">
-                      <Badge variant="default" className={oaStatusColors[study.open_access.oa_status]}>
-                        {translateOAStatus(study.open_access.oa_status)}
-                      </Badge>
-                      <Badge variant="outline">
-                        {translateType(study.type)}
-                      </Badge>
-                      <Badge variant="secondary" className="gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {study.publication_year}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-2xl leading-tight hover:text-primary transition-colors cursor-pointer">
-                      {study.title}
-                    </CardTitle>
-                    {study.title !== study.display_name && (
-                      <CardDescription className="text-sm italic">
-                        {study.display_name}
-                      </CardDescription>
-                    )}
-                  </div>
-                </div>
-
-                {/* Autores */}
-                <AuthorList authorships={study.authorships} />
-
-                {/* Métricas de Impacto */}
-                <ImpactMetrics
-                  citedByCount={study.cited_by_count}
-                  fwci={study.fwci}
-                  citationPercentile={study.citation_normalized_percentile}
-                />
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                {/* Abstract */}
-                {study.abstract_inverted_index && (
-                  <div>
-                    <h4 className="font-semibold mb-2">Resumo</h4>
-                    <AbstractSection abstractInvertedIndex={study.abstract_inverted_index} />
-                  </div>
-                )}
-
-                {/* Hierarquia de Tópicos */}
-                {study.primary_topic && (
-                  <div>
-                    <h4 className="font-semibold mb-2">Classificação</h4>
-                    <TopicHierarchy topic={study.primary_topic} showScore />
-                  </div>
-                )}
-
-                {/* Palavras-chave */}
-                {study.keywords && study.keywords.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold mb-2">Palavras-chave</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {study.keywords.slice(0, 8).map((keyword) => (
-                        <Badge key={keyword.id} variant="secondary" className="text-xs">
-                          {keyword.display_name}
-                          <span className="ml-1 text-muted-foreground">
-                            ({(keyword.score * 100).toFixed(0)}%)
-                          </span>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Termos MeSH */}
-                {study.mesh && study.mesh.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold mb-2">Termos MeSH</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {study.mesh
-                        .filter((m) => m.is_major_topic)
-                        .slice(0, 5)
-                        .map((mesh, i) => (
-                          <Badge key={i} variant="outline" className="text-xs">
-                            {mesh.descriptor_name}
-                          </Badge>
-                        ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* ODS */}
-                {study.sustainable_development_goals &&
-                  study.sustainable_development_goals.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold mb-2">
-                        Objetivos de Desenvolvimento Sustentável
-                      </h4>
-                      <SDGBadges sdgs={study.sustainable_development_goals} />
-                    </div>
-                  )}
-
-                {/* Links */}
-                <div className="pt-4 border-t">
-                  <LocationLinks
-                    primaryLocation={study.primary_location}
-                    locations={study.locations}
-                    doi={study.doi}
-                  />
-                </div>
-
-                {/* Metadata adicional */}
-                <div className="text-xs text-muted-foreground pt-2 border-t flex flex-wrap gap-4">
-                  <span>Publicado em: {formatDate(study.publication_date)}</span>
-                  {study.referenced_works_count && (
-                    <span>Referências: {study.referenced_works_count}</span>
-                  )}
-                  {study.apc_paid && (
-                    <span>
-                      APC: {study.apc_paid.currency} {study.apc_paid.value.toLocaleString()}
-                    </span>
-                  )}
-                  <span>
-                    Colaboração: {study.institutions_distinct_count} instituições,{" "}
-                    {study.countries_distinct_count} países
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+            <StudyCard
+              key={study.id}
+              study={study}
+              onViewDetails={() => handleViewDetails(study)}
+            />
           ))}
 
           {filteredStudies.length === 0 && (
@@ -435,6 +315,13 @@ const Research = () => {
             </Card>
           )}
         </div>
+
+        {/* Study Detail Modal */}
+        <StudyDetailModal
+          study={selectedStudy}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+        />
 
         {/* Paginação */}
         {filteredStudies.length > 0 && totalPages > 1 && (
