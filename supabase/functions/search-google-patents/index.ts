@@ -67,6 +67,7 @@ Deno.serve(async (req) => {
     }
 
     console.log('Search query:', searchQuery);
+    console.log('Search parameters:', { country, page, limit });
 
     // SearchAPI Google Patents endpoint
     const searchUrl = new URL('https://www.searchapi.io/api/v1/search');
@@ -95,12 +96,21 @@ Deno.serve(async (req) => {
     const data = await response.json();
     const patents = data.organic_results || [];
 
-    console.log(`Found ${patents.length} patents`);
+    console.log(`Found ${patents.length} patents from SearchAPI`);
+    console.log('First patent example:', patents[0]);
 
     // Format results
-    const formattedResults = patents.map((patent: any) => ({
-      patent_number: patent.patent_id,
-      publication_number: patent.publication_number || patent.patent_id,
+    const formattedResults = patents.map((patent: any) => {
+      // Extract clean patent number from patent_id format: "patent/XX123456/pt"
+      const cleanPatentNumber = patent.patent_id
+        ?.replace('patent/', '')
+        ?.replace(/\/[a-z]{2}$/, '') || patent.patent_id;
+      
+      console.log(`Processing patent: ${patent.patent_id} -> ${cleanPatentNumber}`);
+      
+      return {
+        patent_number: cleanPatentNumber,
+        publication_number: patent.publication_number || cleanPatentNumber,
       title: patent.title,
       abstract: patent.snippet,
       company: patent.assignee,
@@ -115,7 +125,8 @@ Deno.serve(async (req) => {
       thumbnail_url: patent.thumbnail,
       country_code: patent.country_code,
       category: category || 'biostimulants',
-    }));
+    };
+    });
 
     return new Response(
       JSON.stringify({
