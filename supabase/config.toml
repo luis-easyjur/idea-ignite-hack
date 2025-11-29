@@ -1,5 +1,8 @@
 project_id = "ikwthbqubpwerygwbwzn"
 
+[functions.analyze-study-ai]
+verify_jwt = false
+
 [functions.dashboard-ai-chat]
 verify_jwt = false
 
