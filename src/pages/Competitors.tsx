@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Building2, TrendingUp, Package, Users, Plus, RefreshCw } from "lucide-react";
+import { Building2, TrendingUp, Package, Users, Plus, RefreshCw, Boxes } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CompetitorMonitor } from "@/components/CompetitorMonitor";
 import { AddCompetitorModal } from "@/components/AddCompetitorModal";
 import { MarketResearchPanel } from "@/components/MarketResearchPanel";
+import { ProductsPanel } from "@/components/ProductsPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -114,9 +115,13 @@ const Competitors = () => {
       </div>
 
       <Tabs defaultValue="competitors" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="competitors">Monitor de Concorrentes</TabsTrigger>
           <TabsTrigger value="research">Deep Research de Mercado</TabsTrigger>
+          <TabsTrigger value="products">
+            <Boxes className="h-4 w-4 mr-2" />
+            Produtos
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="competitors">
@@ -125,6 +130,10 @@ const Competitors = () => {
 
         <TabsContent value="research">
           <MarketResearchPanel />
+        </TabsContent>
+
+        <TabsContent value="products">
+          <ProductsPanel />
         </TabsContent>
       </Tabs>
 
