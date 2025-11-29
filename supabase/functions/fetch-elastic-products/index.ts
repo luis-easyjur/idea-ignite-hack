@@ -24,7 +24,17 @@ serve(async (req) => {
     // Fetch documents with source filter - get 1000 docs for better stats
     const query = {
       size: 1000,
-      _source: ["source", "raw_content.empresa_detentora", "raw_content.indicacao_uso", "raw_content.classe_categoria_agronomica"]
+      _source: [
+        "source",
+        "raw_content.titular_registro",
+        "raw_content.indicacao_uso",
+        "raw_content.classe_categoria_agronomica",
+        "raw_content.ingrediente_ativo_detalhado",
+        "raw_content.classificacao_toxicologica",
+        "raw_content.formulacao",
+        "raw_content.produto_biologico",
+        "raw_content.produto_agricultura_organica"
+      ]
     };
 
     const response = await fetch(
@@ -187,13 +197,13 @@ serve(async (req) => {
 
     const result = {
       success: true,
-      totals: {
-        total: agrofitCount + bioinsumosCount,
-        agrofit: agrofitCount,
-        bioinsumos: bioinsumosCount,
-        companies: companies.length,
-        cultures: cultures.length
-      },
+    totals: {
+      total: agrofitCount + bioinsumosCount,
+      agrofit: agrofitCount,
+      bioinsumos: bioinsumosCount,
+      companies: companiesMap.size,
+      cultures: culturesMap.size
+    },
       companies,
       cultures,
       pests,
