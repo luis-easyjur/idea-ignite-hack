@@ -47,6 +47,7 @@ const Index = () => {
             changeType="positive"
             icon={FileText}
             iconColor="bg-chart-2/10"
+            source="MAPA"
           />
           <StatCard
             title="Patentes Monitoradas"
@@ -55,6 +56,7 @@ const Index = () => {
             changeType="positive"
             icon={Shield}
             iconColor="bg-chart-3/10"
+            source="INPI"
           />
           <StatCard
             title="Artigos Científicos"
@@ -63,6 +65,7 @@ const Index = () => {
             changeType="positive"
             icon={FlaskConical}
             iconColor="bg-chart-4/10"
+            source="Embrapa"
           />
           <StatCard
             title="Crescimento Mercado"
@@ -71,6 +74,7 @@ const Index = () => {
             changeType="positive"
             icon={TrendingUp}
             iconColor="bg-chart-1/10"
+            source="IBGE"
           />
         </div>
 
@@ -91,6 +95,7 @@ const Index = () => {
                   time="2h atrás"
                   type="regulatory"
                   priority="high"
+                  source="MAPA"
                 />
                 <AlertItem
                   title="Patente aprovada - Adjuvante inovador"
@@ -98,6 +103,7 @@ const Index = () => {
                   time="5h atrás"
                   type="patent"
                   priority="high"
+                  source="INPI"
                 />
                 <AlertItem
                   title="Publicação científica relevante"
@@ -105,6 +111,7 @@ const Index = () => {
                   time="1d atrás"
                   type="science"
                   priority="medium"
+                  source="Embrapa"
                 />
                 <AlertItem
                   title="Crescimento de mercado - Nordeste"
@@ -112,6 +119,7 @@ const Index = () => {
                   time="2d atrás"
                   type="market"
                   priority="medium"
+                  source="IBGE"
                 />
               </div>
             </Card>
@@ -160,6 +168,7 @@ const Index = () => {
                     { label: "Mercado Total", value: "R$ 2.8B" },
                     { label: "Crescimento", value: "+15.3%" }
                   ]}
+                  sources={["IBGE", "Abisolo"]}
                 />
                 
                 <DataPillarCard
@@ -171,6 +180,7 @@ const Index = () => {
                     { label: "Registros 2024", value: "142" },
                     { label: "Pendentes", value: "38" }
                   ]}
+                  sources={["MAPA", "ANVISA", "IBAMA"]}
                 />
                 
                 <DataPillarCard
@@ -182,6 +192,7 @@ const Index = () => {
                     { label: "Patentes Ativas", value: "234" },
                     { label: "Vencendo 2025", value: "12" }
                   ]}
+                  sources={["INPI"]}
                 />
                 
                 <DataPillarCard
@@ -193,6 +204,7 @@ const Index = () => {
                     { label: "Papers 2024", value: "89" },
                     { label: "Alto Impacto", value: "23" }
                   ]}
+                  sources={["Embrapa"]}
                 />
               </div>
             </TabsContent>

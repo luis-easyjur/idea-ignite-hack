@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Brain, TrendingUp, Lightbulb, Sparkles, Target } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { DataSourceBadge } from "./DataSourceBadge";
 
 const projectionData = [
   { year: '2024', nutrição: 2.8, bioestimulantes: 1.9, biodefensivos: 1.5, adjuvantes: 0.9, biofertilizantes: 0.7 },
@@ -16,21 +17,24 @@ const opportunities = [
     confidence: 92,
     impact: "Alto",
     description: "Tendência crescente em publicações científicas sobre nano-formulações",
-    source: "23 artigos científicos + 5 patentes recentes"
+    source: "23 artigos científicos + 5 patentes recentes",
+    dataSources: ["Embrapa" as const, "INPI" as const]
   },
   {
     title: "Biofertilizantes para Cana-de-Açúcar",
     confidence: 88,
     impact: "Alto",
     description: "Gap de mercado identificado no Centro-Sul",
-    source: "Análise de mercado + dados MAPA"
+    source: "Análise de mercado + dados MAPA",
+    dataSources: ["IBGE" as const, "MAPA" as const]
   },
   {
     title: "Adjuvantes Sustentáveis",
     confidence: 85,
     impact: "Médio",
     description: "Pressão regulatória favorece produtos eco-friendly",
-    source: "Normas IBAMA + tendências ESG"
+    source: "Normas IBAMA + tendências ESG",
+    dataSources: ["IBAMA" as const, "MAPA" as const]
   },
 ];
 
@@ -95,8 +99,12 @@ export const TrendForecast = () => {
           <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
             <div className="flex items-start gap-2">
               <Sparkles className="h-5 w-5 text-primary mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-foreground">Insight da IA</p>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm font-semibold text-foreground">Insight da IA</p>
+                  <DataSourceBadge source="IBGE" size="sm" />
+                  <DataSourceBadge source="Abisolo" size="sm" />
+                </div>
                 <p className="text-sm text-muted-foreground">Bioestimulantes apresentam maior potencial de crescimento (79% até 2027), seguidos por biodefensivos (100%) e biofertilizantes (114%).</p>
               </div>
             </div>
@@ -129,7 +137,12 @@ export const TrendForecast = () => {
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">{opp.description}</p>
-                  <p className="text-xs text-muted-foreground italic">Fonte: {opp.source}</p>
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <p className="text-xs text-muted-foreground italic">Fontes:</p>
+                    {opp.dataSources.map((source, idx) => (
+                      <DataSourceBadge key={idx} source={source} size="sm" />
+                    ))}
+                  </div>
                   <div className="flex items-center justify-between pt-2 border-t border-border">
                     <span className="text-xs text-muted-foreground">Confiança da IA</span>
                     <span className="text-lg font-bold text-primary">{opp.confidence}%</span>
