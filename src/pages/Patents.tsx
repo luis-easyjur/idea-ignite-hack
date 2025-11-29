@@ -3,7 +3,7 @@ import { FileText, Calendar, TrendingDown, Building2, Search as SearchIcon } fro
 import { StatCard } from "@/components/StatCard";
 import { FilterBar, FilterState } from "@/components/FilterBar";
 import { ExportButton } from "@/components/ExportButton";
-import { DataSyncButton } from "@/components/DataSyncButton";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ import { PatentSearchForm } from "@/components/PatentSearchForm";
 import { PatentDetailModal } from "@/components/PatentDetailModal";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { CategoryPatentLoader } from "@/components/CategoryPatentLoader";
+
 import { PatentTermsManager } from "@/components/PatentTermsManager";
 
 const Patents = () => {
@@ -112,10 +112,7 @@ const Patents = () => {
                 Monitoramento de propriedade intelectual no setor
               </p>
             </div>
-            <div className="flex gap-2">
-              <DataSyncButton />
-              <ExportButton data={filteredPatents} filename="patentes" />
-            </div>
+            <ExportButton data={filteredPatents} filename="patentes" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -157,7 +154,7 @@ const Patents = () => {
             />
           </div>
 
-          <CategoryPatentLoader onLoadComplete={fetchPatents} />
+          
 
           <FilterBar onFilterChange={setFilters} />
 
