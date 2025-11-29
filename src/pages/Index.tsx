@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { StatCard } from "@/components/StatCard";
+import { usePatentStats } from "@/hooks/usePatentStats";
 import { AlertItem } from "@/components/AlertItem";
 import { DataPillarCard } from "@/components/DataPillarCard";
 import { CorrelationTimeline } from "@/components/CorrelationTimeline";
@@ -31,6 +32,7 @@ import { RegionalGrowthChart } from "@/components/RegionalGrowthChart";
 
 const Index = () => {
   const [filters, setFilters] = useState<FilterState>({});
+  const { data: patentStats } = usePatentStats();
 
   return (
     <ProtectedRoute>
@@ -77,15 +79,19 @@ const Index = () => {
             iconColor="bg-chart-2/10"
             source="MAPA"
           />
-          <StatCard
-            title="Patentes Monitoradas"
-            value="156"
-            change="+8 novas patentes"
-            changeType="positive"
-            icon={Shield}
-            iconColor="bg-chart-3/10"
-            source="INPI"
-          />
+          <Link to="/patents" className="block transition-transform hover:scale-[1.02]">
+            <StatCard
+              title="Patentes Monitoradas"
+              value={patentStats?.total?.toString() || "0"}
+              change={patentStats?.newLast7Days 
+                ? `+${patentStats.newLast7Days} novas esta semana` 
+                : "Dados atualizados"}
+              changeType="positive"
+              icon={Shield}
+              iconColor="bg-chart-3/10"
+              source="INPI"
+            />
+          </Link>
           <StatCard
             title="Artigos Científicos"
             value="89"
