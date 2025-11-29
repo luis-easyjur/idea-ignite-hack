@@ -172,7 +172,7 @@ export const ProductsIntelligenceSection = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>Empresas Detentoras</span>
+              <span>Top Concorrentes Detentores</span>
               <Badge variant="outline">{data.companies.length} empresas</Badge>
             </CardTitle>
           </CardHeader>
