@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
-import { Send, Bot, User, Loader2 } from "lucide-react";
+import { Send, Bot, User, Loader2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
 
@@ -12,12 +11,12 @@ interface Message {
   content: string;
 }
 
-interface DashboardAIChatProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+interface AIChatSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export const DashboardAIChat = ({ open, onOpenChange }: DashboardAIChatProps) => {
+export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -86,21 +85,42 @@ export const DashboardAIChat = ({ open, onOpenChange }: DashboardAIChatProps) =>
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl h-[600px] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Bot className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <DialogTitle>Assistente de Inteligência Competitiva</DialogTitle>
-              <p className="text-sm text-muted-foreground">Powered by Gemini AI</p>
-            </div>
-          </div>
-        </DialogHeader>
+  if (!isOpen) return null;
 
+  return (
+    <>
+      {/* Overlay */}
+      <div 
+        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+        onClick={onClose}
+      />
+      
+      {/* Sidebar */}
+      <div className="fixed right-0 top-0 h-full w-full sm:w-96 bg-card border-l border-border z-50 flex flex-col shadow-xl">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-border">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Bot className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-bold text-foreground">Assistente IA</h3>
+                <p className="text-xs text-muted-foreground">Powered by Gemini</p>
+              </div>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={onClose}
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Messages */}
         <ScrollArea className="flex-1 px-6" ref={scrollRef}>
           <div className="space-y-4 py-4">
             {messages.map((message, idx) => (
@@ -142,13 +162,14 @@ export const DashboardAIChat = ({ open, onOpenChange }: DashboardAIChatProps) =>
           </div>
         </ScrollArea>
 
-        <div className="px-6 py-4 border-t">
+        {/* Input */}
+        <div className="px-6 py-4 border-t border-border">
           <div className="flex gap-2">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Faça uma pergunta sobre os dados do dashboard..."
+              placeholder="Faça uma pergunta..."
               disabled={isLoading}
               className="flex-1"
             />
@@ -161,10 +182,10 @@ export const DashboardAIChat = ({ open, onOpenChange }: DashboardAIChatProps) =>
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            Pressione Enter para enviar, Shift+Enter para nova linha
+            Enter para enviar • Shift+Enter para nova linha
           </p>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </>
   );
 };
