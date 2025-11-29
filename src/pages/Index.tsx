@@ -5,6 +5,7 @@ import { DataPillarCard } from "@/components/DataPillarCard";
 import { CorrelationTimeline } from "@/components/CorrelationTimeline";
 import { CompetitorMonitor } from "@/components/CompetitorMonitor";
 import { TrendForecast } from "@/components/TrendForecast";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { 
   TrendingUp, 
   FileText, 
@@ -24,8 +25,9 @@ import { RegionalGrowthChart } from "@/components/RegionalGrowthChart";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <Header />
       
       <main className="container mx-auto px-6 py-8">
         {/* Hero Section */}
@@ -311,6 +313,7 @@ const Index = () => {
         </div>
       </main>
     </div>
+    </ProtectedRoute>
   );
 };
 
