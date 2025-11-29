@@ -141,7 +141,7 @@ export const ProductsIntelligenceSection = () => {
         {/* Top Cultures Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Produtos por Cultura</CardTitle>
+            <CardTitle>Quantidade de produtos por cultura</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
