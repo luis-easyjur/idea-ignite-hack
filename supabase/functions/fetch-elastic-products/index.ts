@@ -21,9 +21,20 @@ serve(async (req) => {
 
     console.log('Fetching product data from Elasticsearch...');
 
-    // Fetch documents with source filter - get 1000 docs for better stats
+    // Query Elasticsearch - Filter only agricultural products (agrofit and bioinsumos)
     const query = {
       size: 1000,
+      query: {
+        bool: {
+          filter: [
+            {
+              terms: { 
+                source: ["agrofit", "bioinsumos"] 
+              }
+            }
+          ]
+        }
+      },
       _source: [
         "source",
         "raw_content.titular_registro",
@@ -79,7 +90,6 @@ serve(async (req) => {
     const formulationsMap = new Map<string, number>();
     let agrofitCount = 0;
     let bioinsumosCount = 0;
-    let otherCount = 0;
     let biologicalCount = 0;
     let organicCount = 0;
 
@@ -90,8 +100,6 @@ serve(async (req) => {
         agrofitCount++;
       } else if (source === 'bioinsumos') {
         bioinsumosCount++;
-      } else {
-        otherCount++;
       }
 
       // Count biological and organic products
@@ -216,7 +224,7 @@ serve(async (req) => {
         totalAvailable: data.hits?.total?.value || 0,
         agrofit: agrofitCount,
         bioinsumos: bioinsumosCount,
-        other: otherCount,
+        other: 0,
         companies: companiesMap.size,
         cultures: culturesMap.size
       },
@@ -234,12 +242,11 @@ serve(async (req) => {
       },
       sourceComparison: [
         { name: 'Defensivos (Agrofit)', value: agrofitCount },
-        { name: 'Bioinsumos', value: bioinsumosCount },
-        { name: 'Outros', value: otherCount }
+        { name: 'Bioinsumos', value: bioinsumosCount }
       ]
     };
 
-    console.log('Processed - Agrofit:', agrofitCount, 'Bioinsumos:', bioinsumosCount, 'Other:', otherCount);
+    console.log('Processed - Agrofit:', agrofitCount, 'Bioinsumos:', bioinsumosCount);
     console.log('Companies:', companiesMap.size, 'Cultures:', culturesMap.size);
 
     return new Response(
