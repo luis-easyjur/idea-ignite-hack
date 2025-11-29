@@ -45,7 +45,26 @@ export function PatentTermsManager() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [bigQueryQuotaExceeded, setBigQueryQuotaExceeded] = useState(false);
+  
+  // Check localStorage for quota status
+  const checkQuotaStatus = () => {
+    const quotaStatus = localStorage.getItem('bigquery_quota_exceeded');
+    if (quotaStatus) {
+      const { exceeded, month, year } = JSON.parse(quotaStatus);
+      const now = new Date();
+      // Check if we're in a new month (quota resets on 1st)
+      if (now.getMonth() === month && now.getFullYear() === year) {
+        return exceeded;
+      } else {
+        // New month, clear the flag
+        localStorage.removeItem('bigquery_quota_exceeded');
+        return false;
+      }
+    }
+    return false;
+  };
+  
+  const [bigQueryQuotaExceeded, setBigQueryQuotaExceeded] = useState(checkQuotaStatus());
   
   // Form state
   const [newTerm, setNewTerm] = useState("");
@@ -59,6 +78,17 @@ export function PatentTermsManager() {
     const now = new Date();
     const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     return nextMonth.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+  };
+  
+  // Save quota exceeded status to localStorage
+  const markQuotaExceeded = () => {
+    const now = new Date();
+    localStorage.setItem('bigquery_quota_exceeded', JSON.stringify({
+      exceeded: true,
+      month: now.getMonth(),
+      year: now.getFullYear()
+    }));
+    setBigQueryQuotaExceeded(true);
   };
 
   useEffect(() => {
@@ -177,9 +207,9 @@ export function PatentTermsManager() {
           
           // Check if it's a quota exceeded error
           if (errorMsg && errorMsg.includes("Quota exceeded")) {
-            setBigQueryQuotaExceeded(true);
+            markQuotaExceeded();
             toast.error(
-              `Quota mensal do BigQuery excedida (1TB). Reset em ${getNextQuotaReset()}. Usando apenas cache local.`,
+              `Quota mensal do BigQuery excedida (1TB). Reset em ${getNextQuotaReset()}. Usando apenas cache local até lá.`,
               { duration: 6000 }
             );
           } else {
@@ -187,7 +217,8 @@ export function PatentTermsManager() {
           }
         }
       } else {
-        toast.info(`BigQuery indisponível até ${getNextQuotaReset()}. Usando cache local.`);
+        // Quota exceeded from previous sessions
+        console.log(`BigQuery quota exceeded. Using local cache only. Resets: ${getNextQuotaReset()}`);
       }
 
       if (!searchSuccess || patents.length === 0) {
@@ -295,8 +326,9 @@ export function PatentTermsManager() {
                 Gerencie seus termos de busca e execute buscas automáticas
               </CardDescription>
               {bigQueryQuotaExceeded && (
-                <div className="mt-2 text-sm text-amber-600 dark:text-amber-400 flex items-center gap-2">
-                  ⚠️ BigQuery indisponível (quota excedida). Reset: {getNextQuotaReset()}
+                <div className="mt-2 p-2 text-sm bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 rounded-md border border-amber-200 dark:border-amber-800">
+                  ⚠️ <strong>BigQuery indisponível</strong> (quota mensal de 1TB excedida). 
+                  Usando apenas cache local com 126 patentes BR. Reset: <strong>{getNextQuotaReset()}</strong>
                 </div>
               )}
             </div>
