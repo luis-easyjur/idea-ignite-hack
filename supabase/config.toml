@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.data-scheduler]
 verify_jwt = false
+
+[functions.ai-chat-quick-test]
+verify_jwt = false
+
+[functions.ai-chat-quick]
+verify_jwt = false

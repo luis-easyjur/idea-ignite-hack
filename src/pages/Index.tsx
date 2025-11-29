@@ -27,6 +27,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MarketEvolutionChart } from "@/components/MarketEvolutionChart";
 import { RegionalGrowthChart } from "@/components/RegionalGrowthChart";
+import { GeminiTest } from "@/components/GeminiTest";
 
 const Index = () => {
   const [filters, setFilters] = useState<FilterState>({});
@@ -171,6 +172,11 @@ const Index = () => {
         {/* AI Trend Forecast Section */}
         <div className="mb-8">
           <TrendForecast />
+        </div>
+
+        {/* Gemini Test Section - TEMPORÁRIO */}
+        <div className="mb-8">
+          <GeminiTest />
         </div>
 
         {/* Data Pillars Section */}
