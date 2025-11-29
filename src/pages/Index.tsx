@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { StatCard } from "@/components/StatCard";
 import { AlertItem } from "@/components/AlertItem";
@@ -6,6 +8,9 @@ import { CorrelationTimeline } from "@/components/CorrelationTimeline";
 import { CompetitorMonitor } from "@/components/CompetitorMonitor";
 import { TrendForecast } from "@/components/TrendForecast";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { FilterBar, FilterState } from "@/components/FilterBar";
+import { ExportButton } from "@/components/ExportButton";
+import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, 
   FileText, 
@@ -16,7 +21,8 @@ import {
   Sprout,
   Bug,
   Droplets,
-  Wheat
+  Wheat,
+  ArrowRight
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +30,8 @@ import { MarketEvolutionChart } from "@/components/MarketEvolutionChart";
 import { RegionalGrowthChart } from "@/components/RegionalGrowthChart";
 
 const Index = () => {
+  const [filters, setFilters] = useState<FilterState>({});
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
@@ -31,14 +39,33 @@ const Index = () => {
       
       <main className="container mx-auto px-6 py-8">
         {/* Hero Section */}
-        <div className="mb-8 animate-in">
-          <h2 className="text-3xl font-bold text-foreground mb-2">
-            Inteligência Competitiva MVP
-          </h2>
-          <p className="text-muted-foreground">
-            Monitoramento em tempo real do mercado de Especialidades Agrícolas
-          </p>
+        <div className="mb-8 animate-in flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-foreground mb-2">
+              Inteligência Competitiva MVP
+            </h2>
+            <p className="text-muted-foreground">
+              Monitoramento em tempo real do mercado de Especialidades Agrícolas
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link to="/regulatory">
+              <Button variant="outline">
+                Inteligência Regulatória
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+            <Link to="/patents">
+              <Button variant="outline">
+                Análise de Patentes
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+            <ExportButton filename="dashboard" />
+          </div>
         </div>
+
+        <FilterBar onFilterChange={setFilters} />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

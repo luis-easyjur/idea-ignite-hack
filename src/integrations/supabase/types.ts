@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      alerts: {
+        Row: {
+          alert_type: Database["public"]["Enums"]["alert_type"]
+          created_at: string
+          description: string | null
+          id: string
+          is_read: boolean
+          metadata: Json | null
+          priority: Database["public"]["Enums"]["alert_priority"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_type: Database["public"]["Enums"]["alert_type"]
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          priority?: Database["public"]["Enums"]["alert_priority"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: Database["public"]["Enums"]["alert_type"]
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          priority?: Database["public"]["Enums"]["alert_priority"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -78,6 +117,60 @@ export type Database = {
           },
         ]
       }
+      patents: {
+        Row: {
+          abstract: string | null
+          category: Database["public"]["Enums"]["product_category"]
+          company: string
+          created_at: string
+          expiry_date: string | null
+          filing_date: string
+          google_patents_link: string | null
+          grant_date: string | null
+          id: string
+          inpi_link: string | null
+          inventors: string[] | null
+          patent_number: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          abstract?: string | null
+          category: Database["public"]["Enums"]["product_category"]
+          company: string
+          created_at?: string
+          expiry_date?: string | null
+          filing_date: string
+          google_patents_link?: string | null
+          grant_date?: string | null
+          id?: string
+          inpi_link?: string | null
+          inventors?: string[] | null
+          patent_number: string
+          status: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          abstract?: string | null
+          category?: Database["public"]["Enums"]["product_category"]
+          company?: string
+          created_at?: string
+          expiry_date?: string | null
+          filing_date?: string
+          google_patents_link?: string | null
+          grant_date?: string | null
+          id?: string
+          inpi_link?: string | null
+          inventors?: string[] | null
+          patent_number?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -105,6 +198,90 @@ export type Database = {
         }
         Relationships: []
       }
+      regulatory_records: {
+        Row: {
+          active_ingredients: string[] | null
+          approval_date: string | null
+          category: Database["public"]["Enums"]["product_category"]
+          company: string
+          created_at: string
+          id: string
+          mapa_link: string | null
+          notes: string | null
+          product_name: string
+          registration_number: string | null
+          status: Database["public"]["Enums"]["regulatory_status"]
+          submission_date: string | null
+          target_crops: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          active_ingredients?: string[] | null
+          approval_date?: string | null
+          category: Database["public"]["Enums"]["product_category"]
+          company: string
+          created_at?: string
+          id?: string
+          mapa_link?: string | null
+          notes?: string | null
+          product_name: string
+          registration_number?: string | null
+          status: Database["public"]["Enums"]["regulatory_status"]
+          submission_date?: string | null
+          target_crops?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          active_ingredients?: string[] | null
+          approval_date?: string | null
+          category?: Database["public"]["Enums"]["product_category"]
+          company?: string
+          created_at?: string
+          id?: string
+          mapa_link?: string | null
+          notes?: string | null
+          product_name?: string
+          registration_number?: string | null
+          status?: Database["public"]["Enums"]["regulatory_status"]
+          submission_date?: string | null
+          target_crops?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          data: Json | null
+          file_url: string | null
+          filters: Json | null
+          id: string
+          report_type: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          file_url?: string | null
+          filters?: Json | null
+          id?: string
+          report_type: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          file_url?: string | null
+          filters?: Json | null
+          id?: string
+          report_type?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -113,7 +290,26 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      alert_priority: "low" | "medium" | "high" | "critical"
+      alert_type:
+        | "regulatory_approval"
+        | "patent_expiry"
+        | "competitor_launch"
+        | "market_change"
+        | "new_publication"
+        | "price_change"
+      product_category:
+        | "foliar_nutrition"
+        | "biostimulants"
+        | "biodefensives"
+        | "adjuvants"
+        | "biofertilizers"
+      regulatory_status:
+        | "pre_registered"
+        | "under_analysis"
+        | "approved"
+        | "rejected"
+        | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -240,6 +436,30 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      alert_priority: ["low", "medium", "high", "critical"],
+      alert_type: [
+        "regulatory_approval",
+        "patent_expiry",
+        "competitor_launch",
+        "market_change",
+        "new_publication",
+        "price_change",
+      ],
+      product_category: [
+        "foliar_nutrition",
+        "biostimulants",
+        "biodefensives",
+        "adjuvants",
+        "biofertilizers",
+      ],
+      regulatory_status: [
+        "pre_registered",
+        "under_analysis",
+        "approved",
+        "rejected",
+        "suspended",
+      ],
+    },
   },
 } as const
