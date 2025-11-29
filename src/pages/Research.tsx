@@ -22,21 +22,29 @@ const Research = () => {
   const [inputValue, setInputValue] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(20);
+  const [itemsPerPage] = useState(50); // Aumentado para 50 itens por página
   const [selectedStudy, setSelectedStudy] = useState<CAPESStudy | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Query CAPES API - só dispara quando searchQuery muda
+  // Query CAPES API - busca automática dos últimos 2 anos com limite de 500
   const { data: capesData, isLoading, error } = useCAPESStudies({
     query: searchQuery,
-    limit: itemsPerPage,
-    offset: (currentPage - 1) * itemsPerPage,
-    resource_id: CAPES_RESOURCE_IDS.THESES_2019, // Usa dataset de 2019
+    limit: isInitialLoad ? 500 : itemsPerPage, // 500 no load inicial, 50 após busca
+    offset: isInitialLoad ? 0 : (currentPage - 1) * itemsPerPage,
+    multiYear: isInitialLoad, // Busca múltiplos anos no load inicial
   });
+
+  // Carregar estudos automaticamente ao montar o componente
+  useEffect(() => {
+    // Dispara busca vazia = carrega todos os estudos dos últimos 2 anos
+    setSearchQuery('');
+  }, []);
 
   // Reset para página 1 quando busca mudar
   useEffect(() => {
     setCurrentPage(1);
+    setIsInitialLoad(false); // Após primeira busca, desativa modo inicial
   }, [searchQuery]);
 
   const handleSearch = () => {

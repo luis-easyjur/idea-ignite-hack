@@ -17,6 +17,7 @@ export const useCAPESStudies = (params: CAPESSearchParams) => {
       if (params.area) requestBody.area = params.area;
       if (params.institution) requestBody.institution = params.institution;
       if (params.year) requestBody.year = params.year;
+      if (params.multiYear !== undefined) requestBody.multiYear = params.multiYear;
 
       const { data, error } = await supabase.functions.invoke<CAPESSearchResponse>(
         'search-capes-studies',
