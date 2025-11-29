@@ -82,33 +82,7 @@ export const ProductsIntelligenceSection = () => {
       </div>
 
       {/* Quick Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Sprout className="h-4 w-4 text-primary" />
-              Defensivos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.totals.agrofit.toLocaleString()}</div>
-            <Badge variant="secondary" className="mt-1">Agrofit</Badge>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Leaf className="h-4 w-4 text-green-500" />
-              Bioinsumos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.totals.bioinsumos.toLocaleString()}</div>
-            <Badge variant="secondary" className="mt-1">Registrados</Badge>
-          </CardContent>
-        </Card>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -231,40 +205,6 @@ export const ProductsIntelligenceSection = () => {
                 );
               })()}
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Source Comparison */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Produtos por Categoria</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={data.sourceComparison}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {data.sourceComparison.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))' 
-                  }}
-                />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
           </CardContent>
         </Card>
 
@@ -475,14 +415,26 @@ export const ProductsIntelligenceSection = () => {
             <CardTitle>Categorias de Produtos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {data.categories.map((category) => (
-                <div key={category.name} className="p-4 border rounded-lg">
-                  <div className="text-sm font-medium mb-1">{category.name}</div>
-                  <div className="text-2xl font-bold text-primary">{category.count}</div>
-                </div>
-              ))}
-            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={data.categories} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis type="number" className="fill-muted-foreground" />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={150}
+                  fontSize={11}
+                  className="fill-muted-foreground"
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))' 
+                  }}
+                />
+                <Bar dataKey="count" fill="hsl(var(--primary))" />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       )}
