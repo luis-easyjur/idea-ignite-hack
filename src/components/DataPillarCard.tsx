@@ -2,6 +2,7 @@ import { Card } from "./ui/card";
 import { LucideIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
+import { DataSourceBadge } from "./DataSourceBadge";
 
 interface DataPillarCardProps {
   title: string;
@@ -9,9 +10,10 @@ interface DataPillarCardProps {
   icon: LucideIcon;
   stats: Array<{ label: string; value: string }>;
   color: string;
+  sources?: Array<"MAPA" | "INPI" | "Abisolo" | "IBGE" | "Embrapa" | "ANVISA" | "IBAMA">;
 }
 
-export const DataPillarCard = ({ title, description, icon: Icon, stats, color }: DataPillarCardProps) => {
+export const DataPillarCard = ({ title, description, icon: Icon, stats, color, sources }: DataPillarCardProps) => {
   return (
     <Card className="p-6 hover:shadow-lg transition-all duration-300 animate-in border-l-4" style={{ borderLeftColor: `hsl(var(${color}))` }}>
       <div className="flex items-start gap-4 mb-4">
@@ -20,7 +22,14 @@ export const DataPillarCard = ({ title, description, icon: Icon, stats, color }:
         </div>
         <div className="flex-1">
           <h3 className="text-lg font-bold text-foreground mb-1">{title}</h3>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="text-sm text-muted-foreground mb-2">{description}</p>
+          {sources && sources.length > 0 && (
+            <div className="flex items-center gap-1 flex-wrap">
+              {sources.map((source, idx) => (
+                <DataSourceBadge key={idx} source={source} size="sm" />
+              ))}
+            </div>
+          )}
         </div>
       </div>
       

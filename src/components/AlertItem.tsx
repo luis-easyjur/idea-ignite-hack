@@ -1,6 +1,7 @@
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
 import { Clock } from "lucide-react";
+import { DataSourceBadge } from "./DataSourceBadge";
 
 interface AlertItemProps {
   title: string;
@@ -8,9 +9,10 @@ interface AlertItemProps {
   time: string;
   type: "regulatory" | "market" | "patent" | "science";
   priority: "high" | "medium" | "low";
+  source?: "MAPA" | "INPI" | "Abisolo" | "IBGE" | "Embrapa" | "ANVISA" | "IBAMA";
 }
 
-export const AlertItem = ({ title, description, time, type, priority }: AlertItemProps) => {
+export const AlertItem = ({ title, description, time, type, priority, source }: AlertItemProps) => {
   const typeColors = {
     regulatory: "bg-chart-2/10 text-chart-2 border-chart-2/20",
     market: "bg-chart-1/10 text-chart-1 border-chart-1/20",
@@ -41,13 +43,14 @@ export const AlertItem = ({ title, description, time, type, priority }: AlertIte
     <Card className="p-4 hover:shadow-md transition-shadow duration-300 animate-in">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <Badge variant="outline" className={typeColors[type]}>
               {typeLabels[type]}
             </Badge>
             <Badge variant="outline" className={priorityColors[priority]}>
               {priorityLabels[priority]}
             </Badge>
+            {source && <DataSourceBadge source={source} size="sm" />}
           </div>
           <h4 className="font-semibold text-foreground mb-1">{title}</h4>
           <p className="text-sm text-muted-foreground">{description}</p>
