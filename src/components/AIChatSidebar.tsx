@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
-import { Send, Bot, User, Loader2, X } from "lucide-react";
+import { Badge } from "./ui/badge";
+import { Send, Bot, User, Loader2, X, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
 
@@ -15,6 +16,17 @@ interface AIChatSidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const quickSuggestions = [
+  "Quais especialidades têm maior potencial de crescimento?",
+  "Como a Stoller está performando comparada aos concorrentes?",
+  "Quais são as principais oportunidades em biofertilizantes?",
+  "Qual o crescimento esperado para bioestimulantes até 2027?",
+  "Quais tecnologias emergentes devo acompanhar?",
+  "Qual concorrente está mais ativo no mercado?",
+  "Quais regiões apresentam maior crescimento?",
+  "Quais são os principais registros recentes no MAPA?",
+];
 
 export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
   const [messages, setMessages] = useState<Message[]>([
@@ -34,10 +46,11 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
     }
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (messageText?: string) => {
+    const textToSend = messageText || input.trim();
+    if (!textToSend || isLoading) return;
 
-    const userMessage: Message = { role: "user", content: input };
+    const userMessage: Message = { role: "user", content: textToSend };
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
@@ -84,6 +97,8 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
       sendMessage();
     }
   };
+
+  const showSuggestions = messages.length === 1; // Only show when there's just the welcome message
 
   if (!isOpen) return null;
 
@@ -149,6 +164,29 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
                 )}
               </div>
             ))}
+            
+            {/* Quick Suggestions */}
+            {showSuggestions && !isLoading && (
+              <div className="space-y-3 animate-in fade-in-50 duration-500">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Sparkles className="h-3 w-3" />
+                  <span>Perguntas sugeridas:</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {quickSuggestions.map((suggestion, idx) => (
+                    <Badge
+                      key={idx}
+                      variant="outline"
+                      className="cursor-pointer hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-colors text-xs py-1.5 px-3"
+                      onClick={() => sendMessage(suggestion)}
+                    >
+                      {suggestion}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             {isLoading && (
               <div className="flex gap-3 justify-start">
                 <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
@@ -173,7 +211,7 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
               disabled={isLoading}
               className="flex-1"
             />
-            <Button onClick={sendMessage} disabled={isLoading || !input.trim()}>
+            <Button onClick={() => sendMessage()} disabled={isLoading || !input.trim()}>
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
