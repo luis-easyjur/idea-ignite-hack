@@ -32,11 +32,16 @@ export const MarketResearchPanel = () => {
       return;
     }
 
-    setReports((data || []) as MarketResearchReport[]);
+    const typedReports = (data || []).map(report => ({
+      ...report,
+      result_json: report.result_json as any,
+    })) as MarketResearchReport[];
+
+    setReports(typedReports);
     
     // Select first report by default
-    if (data && data.length > 0 && !selectedReport) {
-      setSelectedReport(data[0] as MarketResearchReport);
+    if (typedReports.length > 0 && !selectedReport) {
+      setSelectedReport(typedReports[0]);
     }
   };
 
