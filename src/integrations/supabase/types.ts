@@ -121,51 +121,78 @@ export type Database = {
         Row: {
           abstract: string | null
           category: Database["public"]["Enums"]["product_category"]
+          claims: string | null
           company: string
+          country_status: Json | null
           created_at: string
           expiry_date: string | null
+          figures: Json | null
           filing_date: string
           google_patents_link: string | null
           grant_date: string | null
           id: string
           inpi_link: string | null
           inventors: string[] | null
+          language: string | null
           patent_number: string
+          pdf_url: string | null
+          priority_date: string | null
+          publication_date: string | null
+          publication_number: string | null
           status: string
+          thumbnail_url: string | null
           title: string
           updated_at: string
         }
         Insert: {
           abstract?: string | null
           category: Database["public"]["Enums"]["product_category"]
+          claims?: string | null
           company: string
+          country_status?: Json | null
           created_at?: string
           expiry_date?: string | null
+          figures?: Json | null
           filing_date: string
           google_patents_link?: string | null
           grant_date?: string | null
           id?: string
           inpi_link?: string | null
           inventors?: string[] | null
+          language?: string | null
           patent_number: string
+          pdf_url?: string | null
+          priority_date?: string | null
+          publication_date?: string | null
+          publication_number?: string | null
           status: string
+          thumbnail_url?: string | null
           title: string
           updated_at?: string
         }
         Update: {
           abstract?: string | null
           category?: Database["public"]["Enums"]["product_category"]
+          claims?: string | null
           company?: string
+          country_status?: Json | null
           created_at?: string
           expiry_date?: string | null
+          figures?: Json | null
           filing_date?: string
           google_patents_link?: string | null
           grant_date?: string | null
           id?: string
           inpi_link?: string | null
           inventors?: string[] | null
+          language?: string | null
           patent_number?: string
+          pdf_url?: string | null
+          priority_date?: string | null
+          publication_date?: string | null
+          publication_number?: string | null
           status?: string
+          thumbnail_url?: string | null
           title?: string
           updated_at?: string
         }

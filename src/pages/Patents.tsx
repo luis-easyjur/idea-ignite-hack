@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FileText, Calendar, TrendingDown, Building2 } from "lucide-react";
+import { FileText, Calendar, TrendingDown, Building2, Search as SearchIcon } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { FilterBar, FilterState } from "@/components/FilterBar";
 import { ExportButton } from "@/components/ExportButton";
@@ -9,12 +9,19 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SourceLink } from "@/components/SourceLink";
+import { PatentSearchForm } from "@/components/PatentSearchForm";
+import { PatentDetailModal } from "@/components/PatentDetailModal";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const Patents = () => {
   const [patents, setPatents] = useState<any[]>([]);
   const [filteredPatents, setFilteredPatents] = useState<any[]>([]);
   const [filters, setFilters] = useState<FilterState>({});
   const [loading, setLoading] = useState(true);
+  const [selectedPatent, setSelectedPatent] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showSearchForm, setShowSearchForm] = useState(false);
 
   useEffect(() => {
     fetchPatents();
@@ -150,6 +157,18 @@ const Patents = () => {
 
           <FilterBar onFilterChange={setFilters} />
 
+          <Collapsible open={showSearchForm} onOpenChange={setShowSearchForm} className="mb-6">
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="w-full mb-4">
+                <SearchIcon className="mr-2 h-4 w-4" />
+                {showSearchForm ? "Ocultar" : "Mostrar"} Busca Avançada
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <PatentSearchForm onSearchComplete={fetchPatents} />
+            </CollapsibleContent>
+          </Collapsible>
+
           <Tabs defaultValue="all" className="space-y-6">
             <TabsList>
               <TabsTrigger value="all">Todas</TabsTrigger>
@@ -233,8 +252,8 @@ const Patents = () => {
                           </div>
                         )}
                         
-                        {(patent.inpi_link || patent.google_patents_link) && (
-                          <div className="mt-4 pt-4 border-t flex gap-2 flex-wrap">
+                        <div className="mt-4 pt-4 border-t flex gap-2 flex-wrap items-center justify-between">
+                          <div className="flex gap-2 flex-wrap">
                             {patent.inpi_link && (
                               <SourceLink url={patent.inpi_link} label="Ver no INPI" source="INPI" />
                             )}
@@ -242,7 +261,17 @@ const Patents = () => {
                               <SourceLink url={patent.google_patents_link} label="Ver no Google Patents" />
                             )}
                           </div>
-                        )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedPatent(patent);
+                              setIsModalOpen(true);
+                            }}
+                          >
+                            Ver detalhes →
+                          </Button>
+                        </div>
                       </Card>
                     );
                   })}
@@ -316,6 +345,12 @@ const Patents = () => {
               })}
             </TabsContent>
           </Tabs>
+
+          <PatentDetailModal
+            patent={selectedPatent}
+            open={isModalOpen}
+            onOpenChange={setIsModalOpen}
+          />
         </main>
       </div>
   );
