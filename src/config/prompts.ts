@@ -4,6 +4,7 @@
  */
 
 export const PROMPT_IDS = {
+  BASIC: import.meta.env.VITE_PROMPT_BASIC_ID || '',
   GENERAL: import.meta.env.VITE_PROMPT_GENERAL_ID || '',
   MARKET: import.meta.env.VITE_PROMPT_MARKET_ID || '',
   REGULATORY: import.meta.env.VITE_PROMPT_REGULATORY_ID || '',
@@ -30,25 +31,25 @@ export const MODULE_OPTIONS: ModuleOption[] = [
   {
     value: 'market',
     label: 'Dados de Mercado',
-    description: 'Market Intelligence - IBGE, Abisolo, Conab',
+    description: 'Market Intelligence: Tamanho de mercado, crescimento regional, comportamento por cultura (Cana, Milho, etc.). Fontes: Abisolo, IBGE, Conab',
     promptId: PROMPT_IDS.MARKET,
   },
   {
     value: 'regulatory',
     label: 'Dados Regulatórios',
-    description: 'Regulatory Intelligence - MAPA, ANVISA, IBAMA',
+    description: 'Regulatory Intelligence: Novos registros no MAPA, alterações ANVISA/IBAMA, monitoramento de moléculas. Fontes: MAPA, ANVISA, IBAMA',
     promptId: PROMPT_IDS.REGULATORY,
   },
   {
     value: 'patents',
     label: 'Propriedade Intelectual',
-    description: 'Patentes - INPI, WIPO',
+    description: 'Patentes: Patentes de concorrentes, vencimentos, royalties, liberdade de operação (FTO). Fontes: INPI, WIPO',
     promptId: PROMPT_IDS.PATENTS,
   },
   {
     value: 'science',
     label: 'Dados Científicos',
-    description: 'Science & Tech - Artigos científicos',
+    description: 'Science & Tech: Artigos de alto impacto sobre novas tecnologias e moléculas. Identifica tendências de P&D',
     promptId: PROMPT_IDS.SCIENCE,
   },
 ];

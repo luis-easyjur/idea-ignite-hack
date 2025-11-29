@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { InsightsChat } from "@/components/insights/InsightsChat";
-import { InsightsVisualization, Insight } from "@/components/insights/InsightsVisualization";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Insight } from "@/components/insights/InsightsVisualization";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Brain, Sparkles } from "lucide-react";
 
 const Insights = () => {
   const [insights, setInsights] = useState<Insight[]>([]);
@@ -26,71 +24,11 @@ const Insights = () => {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
-        <main className="container mx-auto px-6 py-8">
-          {/* Header */}
-          <div className="mb-8 animate-in">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Brain className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">
-                  Insights Estratégicos
-                </h1>
-                <p className="text-muted-foreground">
-                  Análise avançada com IA integrando dados de todos os módulos
-                </p>
-              </div>
-            </div>
+        <main className="w-full max-w-4xl mx-auto px-4 py-6">
+          {/* Chat Centralizado */}
+          <div className="h-[calc(100vh-3rem)] flex flex-col">
+            <InsightsChat onInsightGenerated={handleInsightGenerated} />
           </div>
-
-          {/* Main Content - Layout Híbrido */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Chat Section - Left Column */}
-            <div className="lg:col-span-1">
-              <InsightsChat onInsightGenerated={handleInsightGenerated} />
-            </div>
-
-            {/* Visualization Section - Right Columns */}
-            <div className="lg:col-span-2">
-              <InsightsVisualization 
-                insights={insights} 
-                onInsightSelect={handleInsightSelect}
-              />
-            </div>
-          </div>
-
-          {/* Info Card */}
-          <Card className="mt-8">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
-                <CardTitle>Como funciona</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div>
-                  <h4 className="font-semibold mb-2">1. Faça uma pergunta</h4>
-                  <p className="text-muted-foreground">
-                    Use o chat para fazer perguntas ou solicitar análises sobre qualquer aspecto do mercado.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-2">2. Análise com contexto completo</h4>
-                  <p className="text-muted-foreground">
-                    A IA analisa dados de todos os módulos: Regulatory, Patents, Market, Competitors e Research.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-2">3. Insights gerados</h4>
-                  <p className="text-muted-foreground">
-                    Os insights aparecem automaticamente na visualização, organizados por tipo e impacto.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Insight Detail Dialog */}
           <Dialog open={!!selectedInsight} onOpenChange={(open) => !open && setSelectedInsight(null)}>

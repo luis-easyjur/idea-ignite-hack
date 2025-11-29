@@ -1,103 +1,73 @@
 /**
- * Utilitários para integração com Context IA API
+ * Utilitários para integração com IA de Insights
  */
 
-export interface ContextIAFile {
-  name: string;
-  content: string | ArrayBuffer;
-  type: string;
-  size: number;
-}
-
-export interface ContextIAResponse {
-  response: string;
-  metadata?: any;
+/**
+ * Payload JSON para envio à IA de Insights (modo avançado)
+ */
+export interface InsightsPayloadData {
+  userPrompt: string;
+  contextoAiPromptId: string;
+  moduleType: string;
+  advanced: boolean;
 }
 
 /**
- * Converte um arquivo File para base64
+ * Payload JSON para envio à IA Básica (chat do header)
  */
-export async function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        // Remove o prefixo data:type;base64,
-        const base64 = reader.result.split(',')[1];
-        resolve(base64);
-      } else {
-        reject(new Error('Failed to convert file to base64'));
-      }
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+export interface BasicPayloadData {
+  userPrompt: string;
+  contextoAiPromptId: string;
+  advanced: boolean;
 }
 
 /**
- * Envia arquivos e contexto para Context IA
+ * Prepara o FormData para envio à IA de Insights
  * @param files Array de arquivos para enviar
- * @param userContext Contexto adicional do usuário
- * @param promptId ID do prompt a ser usado (opcional)
- * @returns Resposta da API Context IA
+ * @param userPrompt Prompt/mensagem do usuário
+ * @param contextoAiPromptId ID do prompt do ContextoAI (do módulo selecionado)
+ * @param moduleType Tipo do módulo selecionado
+ * @returns FormData pronto para envio
  */
-export async function sendToContextIA(
+export function prepareInsightsPayload(
   files: File[],
-  userContext: string,
-  promptId?: string
-): Promise<ContextIAResponse> {
-  const apiUrl = import.meta.env.VITE_CONTEXT_IA_API_URL;
-  const apiKey = import.meta.env.VITE_CONTEXT_IA_API_KEY;
+  userPrompt: string,
+  contextoAiPromptId: string,
+  moduleType: string
+): FormData {
+  const formData = new FormData();
 
-  if (!apiUrl) {
-    throw new Error('VITE_CONTEXT_IA_API_URL não está configurada');
-  }
-
-  // Construir URL com id_prompt se fornecido
-  let url = `${apiUrl}/chat`;
-  if (promptId) {
-    url += `?id_prompt=${encodeURIComponent(promptId)}`;
-  }
-
-  // Preparar arquivos para envio
-  const fileData = await Promise.all(
-    files.map(async (file) => ({
-      name: file.name,
-      content: await fileToBase64(file),
-      type: file.type,
-      size: file.size,
-    }))
-  );
-
-  // Preparar payload
-  const payload = {
-    files: fileData,
-    context: userContext,
-  };
-
-  // Headers
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  if (apiKey) {
-    headers['Authorization'] = `Bearer ${apiKey}`;
-    headers['X-API-Key'] = apiKey;
-  }
-
-  // Fazer requisição
-  const response = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(payload),
+  // Adicionar arquivos ao FormData
+  files.forEach((file) => {
+    formData.append('files', file);
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Context IA API error: ${response.status} ${response.statusText} - ${errorText}`);
-  }
+  // Adicionar dados JSON como string
+  const payloadData: InsightsPayloadData = {
+    userPrompt,
+    contextoAiPromptId,
+    moduleType,
+    advanced: true,
+  };
 
-  const data = await response.json();
-  return data;
+  formData.append('data', JSON.stringify(payloadData));
+
+  return formData;
 }
 
+/**
+ * Prepara o payload básico para envio à IA (chat do header)
+ * @param userPrompt Prompt/mensagem do usuário
+ * @param contextoAiPromptId ID do prompt básico do ContextoAI
+ * @returns Objeto JSON pronto para envio
+ */
+export function prepareBasicPayload(
+  userPrompt: string,
+  contextoAiPromptId: string
+): BasicPayloadData {
+  return {
+    userPrompt,
+    contextoAiPromptId,
+    advanced: false,
+  };
+}

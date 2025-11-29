@@ -2,11 +2,18 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { Send, Bot, User, Loader2, Sparkles } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Send, Bot, User, Loader2, Paperclip, FileText, X, Layers } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Insight } from "./InsightCard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { prepareInsightsPayload } from "@/lib/contextIA";
+import { MODULE_OPTIONS, ModuleType, getPromptId } from "@/config/prompts";
 
 interface Message {
   role: "user" | "assistant";
@@ -17,32 +24,69 @@ interface InsightsChatProps {
   onInsightGenerated?: (insight: Insight) => void;
 }
 
-const quickSuggestions = [
-  "Analise as principais tendências do mercado",
-  "Quais são as oportunidades em bioestimulantes?",
-  "Identifique riscos regulatórios recentes",
-  "Compare o desempenho dos principais concorrentes",
-  "Quais tecnologias emergentes devo acompanhar?",
-  "Analise o crescimento por região",
-];
+const STORAGE_KEY = "insights-selected-module";
 
 export const InsightsChat = ({ onInsightGenerated }: InsightsChatProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Olá! Sou seu assistente de insights estratégicos. Posso analisar dados de todos os módulos (Regulatory, Patents, Market, Competitors, Research) e gerar insights profundos com raciocínio avançado. Como posso ajudar?"
+      content: "Olá! Sou seu assistente de insights estratégicos. Como posso ajudar?"
     }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Carregar módulo selecionado do localStorage
+  const [selectedModule, setSelectedModule] = useState<ModuleType>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved && MODULE_OPTIONS.some(m => m.value === saved)) {
+        return saved as ModuleType;
+      }
+    }
+    return "general";
+  });
+  
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Salvar módulo selecionado no localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, selectedModule);
+    }
+  }, [selectedModule]);
+
+  const selectedModuleLabel = MODULE_OPTIONS.find(m => m.value === selectedModule)?.label || 'Módulo';
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setAttachedFiles((prev) => [...prev, ...files]);
+    // Limpar o input para permitir selecionar o mesmo arquivo novamente
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+  };
 
   const sendMessage = async (messageText?: string) => {
     const textToSend = messageText || input.trim();
@@ -54,52 +98,45 @@ export const InsightsChat = ({ onInsightGenerated }: InsightsChatProps) => {
     setIsLoading(true);
 
     try {
-      // Usar Edge Function insights-ai que coleta contexto completo
-      const { data, error } = await supabase.functions.invoke("insights-ai", {
-        body: { 
-          query: textToSend,
-          messages: [...messages, userMessage],
-          conversation_history: messages
-        }
+      // Obter o ID do prompt do ContextoAI baseado no módulo selecionado
+      const contextoAiPromptId = getPromptId(selectedModule);
+
+      // Preparar o FormData para envio à IA
+      const formData = prepareInsightsPayload(
+        attachedFiles,
+        textToSend,
+        contextoAiPromptId,
+        selectedModule
+      );
+
+      // Log dos dados do payload no console para debug
+      const payloadData = {
+        userPrompt: textToSend,
+        contextoAiPromptId,
+        moduleType: selectedModule,
+        advanced: true,
+        filesCount: attachedFiles.length,
+        files: attachedFiles.map(f => ({ name: f.name, type: f.type, size: f.size }))
+      };
+      console.log("Payload enviado:", payloadData);
+
+      // Enviar para endpoint de teste temporariamente
+      const response = await fetch("https://teste.com.br", {
+        method: "POST",
+        body: formData, // FormData já define o Content-Type com boundary
       });
 
-      if (error) throw error;
-
-      if (data?.error) {
-        toast({
-          title: "Erro",
-          description: data.error,
-          variant: "destructive"
-        });
-        return;
-      }
-
+      // Por enquanto, apenas simular uma resposta já que é endpoint de teste
+      // Em produção, isso será substituído pela chamada real à IA
       const assistantMessage: Message = {
         role: "assistant",
-        content: data.response || "Desculpe, não foi possível gerar uma análise."
+        content: "Payload enviado com sucesso! Verifique o console do navegador e a aba Network para ver os detalhes do payload."
       };
 
       setMessages(prev => [...prev, assistantMessage]);
 
-      // Tentar extrair insights estruturados da resposta (se a API retornar)
-      if (data.metadata?.insights && Array.isArray(data.metadata.insights)) {
-        data.metadata.insights.forEach((insight: any) => {
-          // Garantir que o insight tenha a estrutura correta
-          const formattedInsight: Insight = {
-            id: insight.id || `insight-${Date.now()}-${Math.random()}`,
-            title: insight.title || "Insight Gerado",
-            description: insight.description || insight.content || "",
-            type: insight.type || "recommendation",
-            confidence: insight.confidence,
-            impact: insight.impact,
-            category: insight.category,
-            sources: insight.sources,
-            createdAt: insight.createdAt || new Date().toISOString(),
-            metadata: insight.metadata
-          };
-          onInsightGenerated?.(formattedInsight);
-        });
-      }
+      // Limpar arquivos após envio
+      setAttachedFiles([]);
     } catch (error) {
       console.error("Error sending message:", error);
       toast({
@@ -119,108 +156,184 @@ export const InsightsChat = ({ onInsightGenerated }: InsightsChatProps) => {
     }
   };
 
-  const showSuggestions = messages.length === 1;
+  const isEmpty = messages.length === 1;
 
   return (
-    <div className="flex flex-col h-full bg-card border border-border rounded-lg">
-      <div className="px-6 py-4 border-b border-border">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Bot className="h-5 w-5 text-primary" />
+    <div className="flex flex-col h-full max-w-3xl mx-auto w-full">
+      <div className="flex-1 flex flex-col min-h-0">
+        <ScrollArea className="flex-1 px-4" ref={scrollRef}>
+          <div className="space-y-6 py-8">
+            {isEmpty ? (
+              <div className="flex flex-col items-center justify-center min-h-full px-4">
+                <div className="flex flex-col items-center justify-center space-y-6 text-center max-w-lg mb-8">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                    <Bot className="h-10 w-10 text-primary" />
+                  </div>
+                  <div className="space-y-3">
+                    <h3 className="text-2xl font-semibold text-foreground">
+                      Insights Estratégicos
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Análise avançada com IA integrando dados de todos os módulos
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              messages.map((message, idx) => (
+                <div
+                  key={idx}
+                  className={`flex gap-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  {message.role === "assistant" && (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1">
+                      <Bot className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[80%] ${
+                      message.role === "user"
+                        ? "text-right"
+                        : "text-left"
+                    }`}
+                  >
+                    <p className="text-[15px] leading-relaxed whitespace-pre-wrap text-foreground">
+                      {message.content}
+                    </p>
+                  </div>
+                  {message.role === "user" && (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1">
+                      <User className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+            
+            {isLoading && (
+              <div className="flex gap-4 justify-start">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1">
+                  <Bot className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                </div>
+              </div>
+            )}
           </div>
-          <div>
-            <h3 className="font-bold text-foreground">Análise com IA</h3>
-            <p className="text-xs text-muted-foreground">Insights estratégicos com raciocínio avançado</p>
-          </div>
-        </div>
+        </ScrollArea>
       </div>
 
-      <ScrollArea className="flex-1 px-6" ref={scrollRef}>
-        <div className="space-y-4 py-4">
-          {messages.map((message, idx) => (
-            <div
-              key={idx}
-              className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
-            >
-              {message.role === "assistant" && (
-                <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-primary" />
-                </div>
-              )}
+      <div className="px-4 py-4 space-y-3">
+        {/* Arquivos anexados - estilo Gemini */}
+        {attachedFiles.length > 0 && (
+          <div className="flex flex-wrap gap-2 max-w-2xl mx-auto">
+            {attachedFiles.map((file, index) => (
               <div
-                className={`max-w-[85%] rounded-lg px-4 py-2 ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
-                }`}
+                key={index}
+                className="group flex items-center gap-2 px-3 py-2 bg-muted/50 hover:bg-muted rounded-lg border border-border/50 transition-colors"
               >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-              </div>
-              {message.role === "user" && (
-                <div className="flex-shrink-0 w-8 h-8 bg-secondary/10 rounded-full flex items-center justify-center">
-                  <User className="h-4 w-4 text-secondary" />
+                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-medium text-foreground truncate max-w-[200px]">
+                    {file.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatFileSize(file.size)}
+                  </span>
                 </div>
-              )}
-            </div>
-          ))}
-          
-          {showSuggestions && !isLoading && (
-            <div className="space-y-3 animate-in fade-in-50 duration-500">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Sparkles className="h-3 w-3" />
-                <span>Perguntas sugeridas:</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => removeFile(index)}
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {quickSuggestions.map((suggestion, idx) => (
-                  <Badge
-                    key={idx}
-                    variant="outline"
-                    className="cursor-pointer hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-colors text-xs py-1.5 px-3"
-                    onClick={() => sendMessage(suggestion)}
-                  >
-                    {suggestion}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {isLoading && (
-            <div className="flex gap-3 justify-start">
-              <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <Bot className="h-4 w-4 text-primary" />
-              </div>
-              <div className="bg-muted rounded-lg px-4 py-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-              </div>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
+            ))}
+          </div>
+        )}
 
-      <div className="px-6 py-4 border-t border-border">
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Faça uma pergunta ou solicite uma análise..."
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <Button onClick={() => sendMessage()} disabled={isLoading || !input.trim()}>
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
+        {/* Input area */}
+        <div className="max-w-2xl mx-auto">
+          <div className="relative flex items-center gap-2 bg-background border border-border/50 rounded-full shadow-sm focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleFileSelect}
+            />
+            
+            {/* Seletor de módulo dentro do input */}
+            <Select value={selectedModule} onValueChange={(value) => setSelectedModule(value as ModuleType)}>
+              <SelectTrigger className="border-0 bg-transparent hover:bg-transparent focus:ring-0 focus:ring-offset-0 h-auto w-auto px-3 py-0 gap-1.5 shadow-none [&>span]:text-xs [&>span]:text-muted-foreground [&>span]:max-w-[120px] [&>span]:truncate">
+                <Layers className="h-4 w-4 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Módulo">
+                  {selectedModuleLabel}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {MODULE_OPTIONS.map((module) => (
+                  <SelectItem 
+                    key={module.value} 
+                    value={module.value} 
+                    className="hover:bg-primary hover:text-primary-foreground group data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground py-3"
+                  >
+                    <div className="flex flex-col w-full">
+                      <span className="font-medium group-hover:text-primary-foreground">{module.label}</span>
+                      <span className="text-xs text-muted-foreground group-hover:text-primary-foreground/80 mt-0.5">
+                        {module.description}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Separador visual */}
+            <div className="h-6 w-px bg-border/50" />
+
+            {/* Input de texto */}
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Digite uma mensagem..."
+              disabled={isLoading}
+              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 py-4 text-[15px]"
+            />
+
+            {/* Botões de ação */}
+            <div className="flex items-center gap-1 pr-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLoading}
+                title="Anexar arquivos"
+                className="rounded-full h-8 w-8 shrink-0"
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
+              <Button 
+                onClick={() => sendMessage()} 
+                disabled={isLoading || !input.trim()}
+                size="icon"
+                className="rounded-full h-8 w-8 shrink-0"
+                variant={input.trim() ? "default" : "ghost"}
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-2">
-          Enter para enviar • Shift+Enter para nova linha
-        </p>
       </div>
     </div>
   );
 };
-

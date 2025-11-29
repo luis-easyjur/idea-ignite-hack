@@ -6,6 +6,8 @@ import { Badge } from "./ui/badge";
 import { Send, Bot, User, Loader2, X, Sparkles, Plus, MessageSquare, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
+import { prepareBasicPayload } from "@/lib/contextIA";
+import { PROMPT_IDS } from "@/config/prompts";
 
 interface Message {
   role: "user" | "assistant";
@@ -197,33 +199,37 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
 
       await saveMessage(conversationId, "user", textToSend);
 
-      // Usar nova Edge Function insights-ai que coleta contexto e chama API externa
-      const { data, error } = await supabase.functions.invoke("insights-ai", {
-        body: { 
-          query: textToSend,
-          messages: [...messages, userMessage],
-          conversation_history: messages
-        }
-      });
+      // Obter o ID do prompt básico
+      const basicPromptId = PROMPT_IDS.BASIC;
 
-      if (error) throw error;
-
-      if (data?.error) {
-        toast({
-          title: "Erro",
-          description: data.error,
-          variant: "destructive"
-        });
-        return;
+      if (!basicPromptId) {
+        throw new Error('VITE_PROMPT_BASIC_ID não está configurado');
       }
 
+      // Preparar o payload básico para envio à IA
+      const payload = prepareBasicPayload(textToSend, basicPromptId);
+
+      // Log do payload no console para debug
+      console.log("Payload básico enviado:", payload);
+
+      // Enviar para endpoint de teste temporariamente
+      const response = await fetch("https://teste.com.br", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // Por enquanto, apenas simular uma resposta já que é endpoint de teste
+      // Em produção, isso será substituído pela chamada real à IA
       const assistantMessage: Message = {
         role: "assistant",
-        content: data.response || "Desculpe, não foi possível obter uma resposta."
+        content: "Payload básico enviado com sucesso! Verifique o console do navegador e a aba Network para ver os detalhes do payload."
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      await saveMessage(conversationId, "assistant", data.response);
+      await saveMessage(conversationId, "assistant", assistantMessage.content);
       await loadConversations();
     } catch (error) {
       console.error("Error sending message:", error);
