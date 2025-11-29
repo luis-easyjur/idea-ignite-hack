@@ -159,6 +159,42 @@ export type Database = {
           },
         ]
       }
+      market_research_reports: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          key_findings: string[] | null
+          prompt: string
+          result_json: Json | null
+          sources: string[] | null
+          summary: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          key_findings?: string[] | null
+          prompt: string
+          result_json?: Json | null
+          sources?: string[] | null
+          summary?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          key_findings?: string[] | null
+          prompt?: string
+          result_json?: Json | null
+          sources?: string[] | null
+          summary?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string

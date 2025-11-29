@@ -33,3 +33,6 @@ verify_jwt = false
 
 [functions.research-competitor]
 verify_jwt = false
+
+[functions.market-deep-research]
+verify_jwt = false
