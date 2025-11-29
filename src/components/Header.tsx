@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import ubyagroLogo from "@/assets/ubyagro-logo.png";
 import { useState } from "react";
-import { DashboardAIChat } from "./DashboardAIChat";
+import { AIChatSidebar } from "./AIChatSidebar";
 
 export const Header = () => {
   const [chatOpen, setChatOpen] = useState(false);
@@ -57,7 +57,7 @@ export const Header = () => {
         </div>
       </header>
 
-      <DashboardAIChat open={chatOpen} onOpenChange={setChatOpen} />
+      <AIChatSidebar isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </>
   );
 };
