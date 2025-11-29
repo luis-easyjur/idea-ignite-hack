@@ -13,6 +13,7 @@ import { PatentSearchForm } from "@/components/PatentSearchForm";
 import { PatentDetailModal } from "@/components/PatentDetailModal";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { CategoryPatentLoader } from "@/components/CategoryPatentLoader";
 
 const Patents = () => {
   const [patents, setPatents] = useState<any[]>([]);
@@ -154,6 +155,8 @@ const Patents = () => {
               source="INPI"
             />
           </div>
+
+          <CategoryPatentLoader onLoadComplete={fetchPatents} />
 
           <FilterBar onFilterChange={setFilters} />
 

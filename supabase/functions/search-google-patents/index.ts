@@ -15,6 +15,7 @@ interface SearchParams {
   status?: 'granted' | 'pending' | 'all';
   page?: number;
   limit?: number;
+  category?: 'foliar_nutrition' | 'biostimulants' | 'biodefensives' | 'adjuvants' | 'biofertilizers';
 }
 
 Deno.serve(async (req) => {
@@ -30,7 +31,7 @@ Deno.serve(async (req) => {
       throw new Error('SEARCHAPI_KEY not configured');
     }
 
-    const { query, country, after_date, before_date, assignee, inventor, status, page = 1, limit = 20 }: SearchParams = 
+    const { query, country, after_date, before_date, assignee, inventor, status, page = 1, limit = 20, category }: SearchParams = 
       await req.json();
 
     if (!query && !assignee && !inventor) {
@@ -113,6 +114,7 @@ Deno.serve(async (req) => {
       pdf_url: patent.pdf_link,
       thumbnail_url: patent.thumbnail,
       country_code: patent.country_code,
+      category: category || 'biostimulants',
     }));
 
     return new Response(
