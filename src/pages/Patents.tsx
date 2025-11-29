@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { FileText, Calendar, TrendingDown, Building2 } from "lucide-react";
-import { Header } from "@/components/Header";
 import { StatCard } from "@/components/StatCard";
 import { FilterBar, FilterState } from "@/components/FilterBar";
 import { ExportButton } from "@/components/ExportButton";
 import { DataSyncButton } from "@/components/DataSyncButton";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -94,11 +92,8 @@ const Patents = () => {
   };
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-background">
-        <Header />
-        
-        <main className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="min-h-screen bg-background">
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h2 className="text-3xl font-bold text-foreground mb-2">
@@ -323,7 +318,6 @@ const Patents = () => {
           </Tabs>
         </main>
       </div>
-    </ProtectedRoute>
   );
 };
 
