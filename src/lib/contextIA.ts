@@ -16,9 +16,14 @@ export interface InsightsPayloadData {
  * Payload JSON para envio à IA Básica (chat do header)
  */
 export interface BasicPayloadData {
-  userPrompt: string;
-  contextoAiPromptId: string;
-  advanced: boolean;
+  query: string;
+  collection_name: string;
+  rag_mode: string;
+  model_name: string;
+  deep_research: boolean;
+  top_k: number;
+  prompt_id: number;
+  id: string;
 }
 
 /**
@@ -57,17 +62,27 @@ export function prepareInsightsPayload(
 
 /**
  * Prepara o payload básico para envio à IA (chat do header)
- * @param userPrompt Prompt/mensagem do usuário
- * @param contextoAiPromptId ID do prompt básico do ContextoAI
+ * @param query Prompt/mensagem do usuário
+ * @param promptId ID do prompt básico do ContextoAI (será convertido para número)
+ * @param sessionId Hash da sessão do chat
  * @returns Objeto JSON pronto para envio
  */
 export function prepareBasicPayload(
-  userPrompt: string,
-  contextoAiPromptId: string
+  query: string,
+  promptId: string,
+  sessionId: string
 ): BasicPayloadData {
+  // Converter promptId para número, ou usar 0 se não for válido
+  const promptIdNumber = promptId ? parseInt(promptId, 10) : 0;
+  
   return {
-    userPrompt,
-    contextoAiPromptId,
-    advanced: false,
+    query,
+    collection_name: "ubyagro-knowledge",
+    rag_mode: "hybrid",
+    model_name: "gemini-2.0-flash",
+    deep_research: false,
+    top_k: 50,
+    prompt_id: isNaN(promptIdNumber) ? 0 : promptIdNumber,
+    id: sessionId,
   };
 }

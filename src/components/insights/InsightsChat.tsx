@@ -109,19 +109,13 @@ export const InsightsChat = ({ onInsightGenerated }: InsightsChatProps) => {
         selectedModule
       );
 
-      // Log dos dados do payload no console para debug
-      const payloadData = {
-        userPrompt: textToSend,
-        contextoAiPromptId,
-        moduleType: selectedModule,
-        advanced: true,
-        filesCount: attachedFiles.length,
-        files: attachedFiles.map(f => ({ name: f.name, type: f.type, size: f.size }))
-      };
-      console.log("Payload enviado:", payloadData);
+      // Obter a URL da API da variável de ambiente
+      const apiUrl = import.meta.env.VITE_CONTEXT_IA_API_URL || "https://ubyagro-api.onrender.com";
+      // TODO: Definir o endpoint correto para insights (modo avançado)
+      const apiEndpoint = `${apiUrl.replace(/\/$/, "")}/insights`; // Ajustar conforme necessário
 
-      // Enviar para endpoint de teste temporariamente
-      const response = await fetch("https://teste.com.br", {
+      // Enviar para o endpoint da API
+      const response = await fetch(apiEndpoint, {
         method: "POST",
         body: formData, // FormData já define o Content-Type com boundary
       });

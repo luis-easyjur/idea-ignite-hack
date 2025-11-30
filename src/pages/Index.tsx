@@ -31,6 +31,7 @@ import { MarketEvolutionChart } from "@/components/MarketEvolutionChart";
 import { RegionalGrowthChart } from "@/components/RegionalGrowthChart";
 import { PatentsDashboardSection } from "@/components/PatentsDashboardSection";
 import { ProductsIntelligenceSection } from "@/components/ProductsIntelligenceSection";
+import { ProductLaunchChart } from "@/components/ProductLaunchChart";
 
 const Index = () => {
   const [filters, setFilters] = useState<FilterState>({});
@@ -181,6 +182,11 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <MarketEvolutionChart />
           <RegionalGrowthChart />
+        </div>
+
+        {/* Product Launch Chart */}
+        <div className="mb-8">
+          <ProductLaunchChart />
         </div>
 
         {/* Competitor Monitor Section */}

@@ -48,6 +48,7 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [chatSessionId, setChatSessionId] = useState<string>(() => crypto.randomUUID());
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -179,6 +180,8 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
     ]);
     setCurrentConversationId(null);
     setShowHistory(false);
+    // Resetar o hash da sessão ao iniciar um novo chat
+    setChatSessionId(crypto.randomUUID());
   };
 
   const sendMessage = async (messageText?: string) => {
@@ -207,13 +210,14 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
       }
 
       // Preparar o payload básico para envio à IA
-      const payload = prepareBasicPayload(textToSend, basicPromptId);
+      const payload = prepareBasicPayload(textToSend, basicPromptId, chatSessionId);
 
-      // Log do payload no console para debug
-      console.log("Payload básico enviado:", payload);
+      // Obter a URL da API da variável de ambiente
+      const apiUrl = import.meta.env.VITE_CONTEXT_IA_API_URL || "https://ubyagro-api.onrender.com";
+      const apiEndpoint = `${apiUrl.replace(/\/$/, "")}/chat`;
 
-      // Enviar para endpoint de teste temporariamente
-      const response = await fetch("https://teste.com.br", {
+      // Enviar para o endpoint da API
+      const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -221,11 +225,19 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
         body: JSON.stringify(payload),
       });
 
-      // Por enquanto, apenas simular uma resposta já que é endpoint de teste
-      // Em produção, isso será substituído pela chamada real à IA
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: "Erro desconhecido" }));
+        throw new Error(errorData.message || `Erro na API: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      
+      // Extrair a resposta da IA - a API retorna "answer"
+      const aiResponse = responseData.answer || responseData.response || responseData.text || responseData.message || responseData.content || "Desculpe, não foi possível obter uma resposta.";
+
       const assistantMessage: Message = {
         role: "assistant",
-        content: "Payload básico enviado com sucesso! Verifique o console do navegador e a aba Network para ver os detalhes do payload."
+        content: aiResponse
       };
 
       setMessages(prev => [...prev, assistantMessage]);
