@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { CAPESSearchParams, CAPESSearchResponse, CAPESStudy } from "@/types/capes";
+import { generateMockQualis } from "@/lib/qualis-utils";
 
 export const useCAPESStudies = (params: CAPESSearchParams) => {
   return useQuery({
@@ -38,8 +39,14 @@ export const useCAPESStudies = (params: CAPESSearchParams) => {
 
       console.log('CAPES studies fetched:', data.data.total, 'total results');
 
+      // Adicionar classificação Qualis mockada a cada estudo
+      const studiesWithQualis = data.data.studies.map(study => ({
+        ...study,
+        qualis: generateMockQualis(study)
+      }));
+
       return {
-        studies: data.data.studies,
+        studies: studiesWithQualis,
         total: data.data.total,
       };
     },

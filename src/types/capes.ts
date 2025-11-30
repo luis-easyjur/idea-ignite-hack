@@ -23,6 +23,8 @@ export interface CAPESSearchParams {
   multiYear?: boolean;
 }
 
+export type QualisClassification = 'A1' | 'A2' | 'B1' | 'B2' | 'B3' | 'B4' | 'C';
+
 export interface CAPESStudy {
   id: string;
   titulo: string;
@@ -39,6 +41,7 @@ export interface CAPESStudy {
   tipo: 'DISSERTAÇÃO' | 'TESE';
   palavrasChave: string[];
   linhaPesquisa?: string;
+  qualis?: QualisClassification;
 }
 
 export interface CAPESSearchResponse {
