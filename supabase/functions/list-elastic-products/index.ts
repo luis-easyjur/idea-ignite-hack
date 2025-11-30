@@ -5,9 +5,8 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400',
 };
 
-const ELASTICSEARCH_URL = Deno.env.get('ELASTIC_HOST') || 'https://elastic.easyjur.com';
+const ELASTICSEARCH_URL = 'https://elastic.easyjur.com/ubyagro-intelligence/_search';
 const ELASTICSEARCH_API_KEY = Deno.env.get('ELASTIC_API_KEY') || '';
-const ELASTICSEARCH_INDEX = Deno.env.get('ELASTIC_INDEX') || 'ubyagro-intelligence';
 
 interface ProductFilters {
   search?: string;
@@ -114,7 +113,7 @@ Deno.serve(async (req) => {
       ]
     };
 
-    const response = await fetch(`${ELASTICSEARCH_URL}/${ELASTICSEARCH_INDEX}/_search`, {
+    const response = await fetch(ELASTICSEARCH_URL, {
       method: 'POST',
       headers: {
         'Authorization': `ApiKey ${ELASTICSEARCH_API_KEY}`,
