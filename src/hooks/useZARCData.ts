@@ -108,3 +108,15 @@ export function useZARCTopObtentores() {
     staleTime: 5 * 60 * 1000,
   });
 }
+
+export function useZARCMunicipiosDetalhadosUF(uf: string) {
+  return useQuery({
+    queryKey: ['zarc', 'municipios_detalhados_uf', uf],
+    queryFn: async () => {
+      const result = await fetchZARCData<{ aggregations: { municipios: { buckets: AggregationBucket[] } } }>('municipios_detalhados_uf', uf);
+      return result.aggregations?.municipios?.buckets || [];
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: !!uf,
+  });
+}
