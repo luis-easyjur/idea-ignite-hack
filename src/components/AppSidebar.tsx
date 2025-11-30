@@ -3,7 +3,7 @@ import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import ubyfolLogo from "@/assets/logo_ubyfol.png";
+import ubygroLogo from "@/assets/ubygro-logo.png";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -92,8 +92,8 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
           {open ? (
             <>
               <img 
-                src={ubyfolLogo} 
-                alt="Ubyfol" 
+                src={ubygroLogo} 
+                alt="UBYGRO Grupo" 
                 className="h-9 w-auto"
               />
               <SidebarTrigger className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent">
