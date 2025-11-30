@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { ZARCMinasGeraisMap } from "./ZARCMinasGeraisMap";
 
 const COLORS = [
   'hsl(142, 50%, 40%)', // Green
@@ -82,19 +83,30 @@ export const ZARCMinasGeraisChart = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col lg:flex-row gap-6 items-center">
-          <div className="w-full lg:w-1/2">
-            <ResponsiveContainer width="100%" height={350}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Mapa de MG */}
+          <div className="lg:col-span-1">
+            <div className="bg-muted/30 rounded-lg p-2 h-[300px]">
+              <ZARCMinasGeraisMap />
+            </div>
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              Minas Gerais em destaque
+            </p>
+          </div>
+
+          {/* Gráfico de Pizza */}
+          <div className="lg:col-span-1">
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={70}
-                  outerRadius={120}
+                  innerRadius={50}
+                  outerRadius={90}
                   paddingAngle={2}
                   dataKey="value"
-                  label={({ name, percentage }) => `${percentage}%`}
+                  label={({ percentage }) => `${percentage}%`}
                   labelLine={false}
                 >
                   {chartData.map((_, index) => (
@@ -112,17 +124,24 @@ export const ZARCMinasGeraisChart = () => {
                     name,
                   ]}
                 />
-                <Legend
-                  layout="vertical"
-                  align="right"
-                  verticalAlign="middle"
-                  wrapperStyle={{ fontSize: '12px' }}
-                />
               </PieChart>
             </ResponsiveContainer>
+            <div className="flex flex-wrap justify-center gap-2 mt-2">
+              {chartData.slice(0, 5).map((item, index) => (
+                <div key={item.name} className="flex items-center gap-1 text-xs">
+                  <div 
+                    className="w-2 h-2 rounded-full" 
+                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                  />
+                  <span className="text-muted-foreground">{item.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="w-full lg:w-1/2 space-y-3">
-            <h4 className="font-semibold text-sm">Insights para Estratégia de Produtos</h4>
+
+          {/* Insights */}
+          <div className="lg:col-span-1 space-y-3">
+            <h4 className="font-semibold text-sm">Insights Estratégicos</h4>
             <ul className="text-sm text-muted-foreground space-y-2">
               <li className="flex items-start gap-2">
                 <span className="text-green-500 font-bold">•</span>
@@ -141,6 +160,24 @@ export const ZARCMinasGeraisChart = () => {
                 Priorizar P&D de bioestimulantes para culturas líderes
               </li>
             </ul>
+
+            {/* Top 5 culturas em lista */}
+            <div className="mt-4 pt-4 border-t border-border/50">
+              <h5 className="text-xs font-semibold mb-2">Top 5 Culturas</h5>
+              <div className="space-y-1">
+                {chartData.slice(0, 5).map((item, index) => (
+                  <div key={item.name} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">{index + 1}.</span>
+                      <span>{item.name}</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                      {item.percentage}%
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </CardContent>
