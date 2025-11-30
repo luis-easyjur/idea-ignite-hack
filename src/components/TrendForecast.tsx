@@ -3,222 +3,94 @@ import { Badge } from "@/components/ui/badge";
 import { Brain, TrendingUp, Lightbulb, Sparkles, Target, ExternalLink } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { DataSourceBadge } from "./DataSourceBadge";
-
-const projectionData = [
-  { year: '2024', nutrição: 2.8, bioestimulantes: 1.9, biodefensivos: 1.5, adjuvantes: 0.9, biofertilizantes: 0.7 },
-  { year: '2025', nutrição: 3.1, bioestimulantes: 2.3, biodefensivos: 1.9, adjuvantes: 1.0, biofertilizantes: 0.9 },
-  { year: '2026', nutrição: 3.4, bioestimulantes: 2.8, biodefensivos: 2.4, adjuvantes: 1.2, biofertilizantes: 1.2 },
-  { year: '2027', nutrição: 3.7, bioestimulantes: 3.4, biodefensivos: 3.0, adjuvantes: 1.4, biofertilizantes: 1.5 },
-];
-
-const opportunities = [
-  {
-    title: "Bioestimulantes com Nanotecnologia",
-    confidence: 92,
-    impact: "Alto",
-    description: "Tendência crescente em publicações científicas sobre nano-formulações",
-    source: "23 artigos científicos + 5 patentes recentes",
-    dataSources: ["Embrapa" as const, "INPI" as const],
-    url: "https://www.embrapa.br/busca-de-noticias/-/noticia/nanotecnologia"
-  },
-  {
-    title: "Biofertilizantes para Cana-de-Açúcar",
-    confidence: 88,
-    impact: "Alto",
-    description: "Gap de mercado identificado no Centro-Sul",
-    source: "Análise de mercado + dados MAPA",
-    dataSources: ["IBGE" as const, "MAPA" as const],
-    url: "https://www.gov.br/agricultura/pt-br/assuntos/insumos-agropecuarios"
-  },
-  {
-    title: "Adjuvantes Sustentáveis",
-    confidence: 85,
-    impact: "Médio",
-    description: "Pressão regulatória favorece produtos eco-friendly",
-    source: "Normas IBAMA + tendências ESG",
-    dataSources: ["IBAMA" as const, "MAPA" as const],
-    url: "https://www.gov.br/ibama/pt-br"
-  },
-];
-
-const emergingTechs = [
-  {
-    tech: "RNA Interferência (RNAi)",
-    area: "Biodefensivos",
-    maturity: "Emergente",
-    timeline: "2-3 anos",
-    url: "https://www.embrapa.br/busca-de-noticias/-/noticia/biotecnologia"
-  },
-  {
-    tech: "CRISPR para Bioinsumos",
-    area: "Bioestimulantes",
-    maturity: "Pesquisa",
-    timeline: "3-5 anos",
-    url: "https://www.embrapa.br/biotecnologia"
-  },
-  {
-    tech: "IA para Formulação Personalizada",
-    area: "Nutrição Foliar",
-    maturity: "Desenvolvimento",
-    timeline: "1-2 anos",
-    url: "https://www.embrapa.br/agricultura-digital"
-  },
-];
-
+const projectionData = [{
+  year: '2024',
+  nutrição: 2.8,
+  bioestimulantes: 1.9,
+  biodefensivos: 1.5,
+  adjuvantes: 0.9,
+  biofertilizantes: 0.7
+}, {
+  year: '2025',
+  nutrição: 3.1,
+  bioestimulantes: 2.3,
+  biodefensivos: 1.9,
+  adjuvantes: 1.0,
+  biofertilizantes: 0.9
+}, {
+  year: '2026',
+  nutrição: 3.4,
+  bioestimulantes: 2.8,
+  biodefensivos: 2.4,
+  adjuvantes: 1.2,
+  biofertilizantes: 1.2
+}, {
+  year: '2027',
+  nutrição: 3.7,
+  bioestimulantes: 3.4,
+  biodefensivos: 3.0,
+  adjuvantes: 1.4,
+  biofertilizantes: 1.5
+}];
+const opportunities = [{
+  title: "Bioestimulantes com Nanotecnologia",
+  confidence: 92,
+  impact: "Alto",
+  description: "Tendência crescente em publicações científicas sobre nano-formulações",
+  source: "23 artigos científicos + 5 patentes recentes",
+  dataSources: ["Embrapa" as const, "INPI" as const],
+  url: "https://www.embrapa.br/busca-de-noticias/-/noticia/nanotecnologia"
+}, {
+  title: "Biofertilizantes para Cana-de-Açúcar",
+  confidence: 88,
+  impact: "Alto",
+  description: "Gap de mercado identificado no Centro-Sul",
+  source: "Análise de mercado + dados MAPA",
+  dataSources: ["IBGE" as const, "MAPA" as const],
+  url: "https://www.gov.br/agricultura/pt-br/assuntos/insumos-agropecuarios"
+}, {
+  title: "Adjuvantes Sustentáveis",
+  confidence: 85,
+  impact: "Médio",
+  description: "Pressão regulatória favorece produtos eco-friendly",
+  source: "Normas IBAMA + tendências ESG",
+  dataSources: ["IBAMA" as const, "MAPA" as const],
+  url: "https://www.gov.br/ibama/pt-br"
+}];
+const emergingTechs = [{
+  tech: "RNA Interferência (RNAi)",
+  area: "Biodefensivos",
+  maturity: "Emergente",
+  timeline: "2-3 anos",
+  url: "https://www.embrapa.br/busca-de-noticias/-/noticia/biotecnologia"
+}, {
+  tech: "CRISPR para Bioinsumos",
+  area: "Bioestimulantes",
+  maturity: "Pesquisa",
+  timeline: "3-5 anos",
+  url: "https://www.embrapa.br/biotecnologia"
+}, {
+  tech: "IA para Formulação Personalizada",
+  area: "Nutrição Foliar",
+  maturity: "Desenvolvimento",
+  timeline: "1-2 anos",
+  url: "https://www.embrapa.br/agricultura-digital"
+}];
 export const TrendForecast = () => {
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Projeção de Crescimento */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Brain className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <CardTitle>Projeção de Mercado 2024-2027</CardTitle>
-              <p className="text-sm text-muted-foreground">Previsão baseada em IA e dados históricos (em bilhões R$)</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={projectionData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="year" className="text-xs" />
-              <YAxis className="text-xs" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px'
-                }}
-              />
-              <Legend />
-              <Line type="monotone" dataKey="bioestimulantes" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Bioestimulantes" />
-              <Line type="monotone" dataKey="biodefensivos" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Biodefensivos" />
-              <Line type="monotone" dataKey="nutrição" stroke="hsl(var(--chart-3))" strokeWidth={2} name="Nutrição Foliar" />
-              <Line type="monotone" dataKey="biofertilizantes" stroke="hsl(var(--chart-4))" strokeWidth={2} name="Biofertilizantes" />
-              <Line type="monotone" dataKey="adjuvantes" stroke="hsl(var(--chart-5))" strokeWidth={2} name="Adjuvantes" />
-            </LineChart>
-          </ResponsiveContainer>
-          <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
-            <div className="flex items-start gap-2">
-              <Sparkles className="h-5 w-5 text-primary mt-0.5" />
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="text-sm font-semibold text-foreground">Insight da IA</p>
-                  <DataSourceBadge source="IBGE" size="sm" />
-                  <DataSourceBadge source="Abisolo" size="sm" />
-                </div>
-                <p className="text-sm text-muted-foreground">Bioestimulantes apresentam maior potencial de crescimento (79% até 2027), seguidos por biodefensivos (100%) e biofertilizantes (114%).</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
+        
+        
       </Card>
 
       {/* Oportunidades Identificadas */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-warning/10 rounded-lg">
-              <Target className="h-5 w-5 text-warning" />
-            </div>
-            <div>
-              <CardTitle>Oportunidades Identificadas</CardTitle>
-              <p className="text-sm text-muted-foreground">Gaps de mercado e tendências emergentes</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {opportunities.map((opp, idx) => (
-              <div key={idx} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-start justify-between">
-                    <h4 className="font-bold text-foreground flex-1">{opp.title}</h4>
-                    <Badge variant={opp.impact === "Alto" ? "default" : "secondary"} className="ml-2">
-                      {opp.impact}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{opp.description}</p>
-                  <div className="flex items-center gap-1 flex-wrap">
-                    <p className="text-xs text-muted-foreground italic">Fontes:</p>
-                    {opp.dataSources.map((source, idx) => (
-                      <DataSourceBadge key={idx} source={source} size="sm" />
-                    ))}
-                    {opp.url && (
-                      <a 
-                        href={opp.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline ml-2"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                        Referência
-                      </a>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-border">
-                    <span className="text-xs text-muted-foreground">Confiança da IA</span>
-                    <span className="text-lg font-bold text-primary">{opp.confidence}%</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      
 
       {/* Tecnologias Emergentes */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-secondary/10 rounded-lg">
-              <Lightbulb className="h-5 w-5 text-secondary" />
-            </div>
-            <div>
-              <CardTitle>Tecnologias Emergentes</CardTitle>
-              <p className="text-sm text-muted-foreground">Inovações com potencial disruptivo</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {emergingTechs.map((tech, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-semibold text-foreground">{tech.tech}</h4>
-                    {tech.url && (
-                      <a 
-                        href={tech.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-primary hover:underline"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">{tech.area}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground mb-1">Maturidade</p>
-                    <Badge variant="outline">{tech.maturity}</Badge>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground mb-1">Timeline</p>
-                    <span className="text-sm font-semibold text-foreground">{tech.timeline}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
+        
+        
       </Card>
-    </div>
-  );
+    </div>;
 };

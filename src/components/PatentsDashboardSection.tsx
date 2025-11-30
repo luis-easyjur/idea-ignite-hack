@@ -6,35 +6,28 @@ import { Skeleton } from "./ui/skeleton";
 import { usePatentDashboardStats } from "@/hooks/usePatentDashboardStats";
 import { PatentYearChart } from "./PatentYearChart";
 import { TopCompaniesCard } from "./TopCompaniesCard";
-
 export const PatentsDashboardSection = () => {
-  const { data: stats, isLoading } = usePatentDashboardStats();
-
+  const {
+    data: stats,
+    isLoading
+  } = usePatentDashboardStats();
   if (isLoading) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <Skeleton className="h-12 w-64" />
         <div className="grid gap-4 md:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (!stats) return null;
-
   const categoryLabels: Record<string, string> = {
     foliar_nutrition: "Nutrição Foliar",
     biostimulants: "Bioestimulantes",
     biodefensives: "Biodefensivos",
     adjuvants: "Adjuvantes",
-    biofertilizers: "Biofertilizantes",
+    biofertilizers: "Biofertilizantes"
   };
-
-  return (
-    <div className="space-y-6 animate-in fade-in-50 duration-500">
+  return <div className="space-y-6 animate-in fade-in-50 duration-500">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -77,7 +70,7 @@ export const PatentsDashboardSection = () => {
               <p className="text-sm font-medium text-muted-foreground mb-2">Patentes Concedidas</p>
               <h3 className="text-3xl font-bold text-foreground">{stats.granted}</h3>
               <p className="text-xs text-success mt-2">
-                {stats.total > 0 ? Math.round((stats.granted / stats.total) * 100) : 0}% do total
+                {stats.total > 0 ? Math.round(stats.granted / stats.total * 100) : 0}% do total
               </p>
             </div>
             <div className="p-3 rounded-lg bg-success/10">
@@ -99,20 +92,7 @@ export const PatentsDashboardSection = () => {
           </div>
         </Card>
 
-        <Card className="p-6 hover:shadow-lg transition-shadow duration-300">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-2">Top Inventores</p>
-              <h3 className="text-3xl font-bold text-foreground">{stats.topInventors.length}</h3>
-              <p className="text-xs text-muted-foreground mt-2">
-                {stats.topInventors[0]?.name.split(' ').slice(0, 2).join(' ')} lidera
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-chart-2/10">
-              <Users className="h-6 w-6 text-chart-2" />
-            </div>
-          </div>
-        </Card>
+        
       </div>
 
       {/* Charts Row */}
@@ -122,57 +102,9 @@ export const PatentsDashboardSection = () => {
       </div>
 
       {/* Insights Cards */}
-      <Card className="p-6 bg-gradient-to-br from-chart-3/5 to-transparent border-chart-3/20">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Award className="h-5 w-5 text-chart-3" />
-          Insights Rápidos
-        </h3>
-        <div className="grid gap-3 md:grid-cols-3">
-          <div className="p-4 rounded-lg bg-background/80 backdrop-blur-sm border">
-            <p className="text-sm text-muted-foreground mb-1">Documentação</p>
-            <p className="text-base font-semibold">
-              {stats.abstractPercentage}% com resumo completo
-            </p>
-          </div>
-          {stats.peakYear && (
-            <div className="p-4 rounded-lg bg-background/80 backdrop-blur-sm border">
-              <p className="text-sm text-muted-foreground mb-1">Ano de pico</p>
-              <p className="text-base font-semibold">
-                {stats.peakYear.year} com {stats.peakYear.count} depósitos
-              </p>
-            </div>
-          )}
-          {stats.topInventors[0] && (
-            <div className="p-4 rounded-lg bg-background/80 backdrop-blur-sm border">
-              <p className="text-sm text-muted-foreground mb-1">Inventor destaque</p>
-              <p className="text-base font-semibold truncate">
-                {stats.topInventors[0].name} ({stats.topInventors[0].count})
-              </p>
-            </div>
-          )}
-        </div>
-      </Card>
+      
 
       {/* Categories Distribution */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Distribuição por Categoria</h3>
-        <div className="grid gap-3 md:grid-cols-5">
-          {stats.categories.map((cat) => (
-            <div
-              key={cat.category}
-              className="p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-            >
-              <p className="text-xs text-muted-foreground mb-1">
-                {categoryLabels[cat.category] || cat.category}
-              </p>
-              <p className="text-2xl font-bold">{cat.count}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {Math.round((cat.count / stats.total) * 100)}%
-              </p>
-            </div>
-          ))}
-        </div>
-      </Card>
-    </div>
-  );
+      
+    </div>;
 };
