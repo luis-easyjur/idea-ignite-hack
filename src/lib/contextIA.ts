@@ -67,6 +67,52 @@ export function prepareInsightsPayload(
  * @param sessionId Hash da sessão do chat
  * @returns Objeto JSON pronto para envio
  */
+/**
+ * Envia dados para o Context IA (API externa)
+ * @param files Array de arquivos para enviar
+ * @param userPrompt Prompt do usuário
+ * @param promptId ID do prompt (opcional)
+ * @returns Promise com a resposta do servidor
+ */
+export async function sendToContextIA(
+  files: File[],
+  userPrompt: string,
+  promptId?: string
+): Promise<{ response: string }> {
+  const formData = prepareInsightsPayload(
+    files,
+    userPrompt,
+    promptId || "",
+    "general"
+  );
+
+  const apiUrl = import.meta.env.VITE_CONTEXT_IA_API_URL;
+  const apiUser = import.meta.env.VITE_CONTEXT_IA_API_USER;
+  const apiPassword = import.meta.env.VITE_CONTEXT_IA_API_PASSWORD;
+
+  if (!apiUrl || !apiUser || !apiPassword) {
+    throw new Error("Configurações da API Context IA não encontradas");
+  }
+
+  // Fazer autenticação básica
+  const authHeader = "Basic " + btoa(`${apiUser}:${apiPassword}`);
+
+  const response = await fetch(`${apiUrl}/api/chat`, {
+    method: "POST",
+    headers: {
+      Authorization: authHeader,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erro ao enviar para Context IA: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data;
+}
+
 export function prepareBasicPayload(
   query: string,
   promptId: string,

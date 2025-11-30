@@ -37,12 +37,6 @@ const Index = () => {
             
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/regulatory">
-              
-            </Link>
-            <Link to="/patents">
-              
-            </Link>
             <DataSyncButton />
             <ExportButton filename="dashboard" />
           </div>
@@ -109,18 +103,6 @@ const Index = () => {
         {/* Competitor Monitor Section */}
         <div className="mb-8">
           <CompetitorMonitor />
-        </div>
-
-        {/* AI Trend Forecast Section */}
-        <div className="mb-8">
-          
-        </div>
-
-        {/* Data Pillars Section */}
-        <div className="mb-8">
-          
-          
-          
         </div>
       </main>
     </div>

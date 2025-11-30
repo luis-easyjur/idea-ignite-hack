@@ -114,10 +114,77 @@ export const CompetitorMonitor = () => {
   return <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {competitors.map(competitor => {
-        const latestResearch = research[competitor.id];
-        const isLoading = loadingCompetitor === competitor.id;
-        return;
-      })}
+          const latestResearch = research[competitor.id];
+          const isLoading = loadingCompetitor === competitor.id;
+          return (
+            <Card key={competitor.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg mb-1">{competitor.name}</CardTitle>
+                    {competitor.website && (
+                      <a
+                        href={competitor.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        {competitor.website}
+                      </a>
+                    )}
+                  </div>
+                  {latestResearch && (
+                    <Badge variant="outline" className={getActivityColor(latestResearch.activity_score || 0)}>
+                      Score: {latestResearch.activity_score || 0}
+                    </Badge>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {latestResearch && (
+                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    Última pesquisa:{" "}
+                    {format(new Date(latestResearch.researched_at || ""), "dd/MM/yyyy", { locale: ptBR })}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleResearch(competitor)}
+                    disabled={isLoading}
+                    className="flex-1"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Pesquisando...
+                      </>
+                    ) : (
+                      <>
+                        <Search className="h-4 w-4 mr-2" />
+                        Pesquisar
+                      </>
+                    )}
+                  </Button>
+                  {latestResearch && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() =>
+                        setSelectedResearch({ research: latestResearch, name: competitor.name })
+                      }
+                    >
+                      Ver Detalhes
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <CompetitorResearchModal open={!!selectedResearch} onOpenChange={open => !open && setSelectedResearch(null)} research={selectedResearch?.research || null} companyName={selectedResearch?.name || ""} />
