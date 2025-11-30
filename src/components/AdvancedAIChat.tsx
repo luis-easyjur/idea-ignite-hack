@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useToast } from "./ui/use-toast";
-import { prepareAdvancedPayload } from "@/lib/contextIA";
+
 import { MODULE_OPTIONS, ModuleType, getPromptId } from "@/config/prompts";
 import {
     DropdownMenu,
@@ -147,15 +147,22 @@ export const AdvancedAIChat = ({ sessionId, className, initialQuery }: AdvancedA
             const promptId = getPromptId(selectedPillar);
             if (!promptId) throw new Error('Prompt ID não configurado');
 
-            const payload = prepareAdvancedPayload(textToSend, promptId, sessionId);
-
             const apiUrl = import.meta.env.VITE_CONTEXT_IA_API_URL || "https://ubyagro-api.onrender.com";
-            const apiEndpoint = `${apiUrl.replace(/\/$/, "")}/chat`;
+
+            // A API agora sempre espera multipart/form-data
+            const { prepareAdvancedFormData } = await import("@/lib/contextIA");
+            const formData = prepareAdvancedFormData(
+                attachedFiles,
+                textToSend,
+                promptId,
+                sessionId
+            );
+
+            const apiEndpoint = `${apiUrl.replace(/\/$/, "")}/chat/with-files`;
 
             const response = await fetch(apiEndpoint, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
+                body: formData,
             });
 
             if (!response.ok) throw new Error(`Erro na API: ${response.status}`);

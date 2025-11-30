@@ -120,7 +120,7 @@ export function prepareBasicPayload(
 ): BasicPayloadData {
   // Converter promptId para número, ou usar 0 se não for válido
   const promptIdNumber = promptId ? parseInt(promptId, 10) : 0;
-  
+
   return {
     query,
     collection_name: "ubyagro-knowledge",
@@ -147,7 +147,7 @@ export function prepareAdvancedPayload(
 ): BasicPayloadData {
   // Converter promptId para número, ou usar 0 se não for válido
   const promptIdNumber = promptId ? parseInt(promptId, 10) : 0;
-  
+
   return {
     query,
     collection_name: "ubyagro-knowledge",
@@ -158,4 +158,42 @@ export function prepareAdvancedPayload(
     prompt_id: isNaN(promptIdNumber) ? 0 : promptIdNumber,
     id: sessionId,
   };
+}
+
+/**
+ * Prepara o FormData para envio à IA avançada (com ou sem arquivos)
+ * A API agora sempre espera multipart/form-data com campos individuais
+ * @param files Array de arquivos para enviar (pode ser vazio)
+ * @param query Prompt/mensagem do usuário
+ * @param promptId ID do prompt do ContextoAI baseado no pilar selecionado
+ * @param sessionId Hash da sessão do chat
+ * @returns FormData pronto para envio
+ */
+export function prepareAdvancedFormData(
+  files: File[],
+  query: string,
+  promptId: string,
+  sessionId: string
+): FormData {
+  const formData = new FormData();
+
+  // Adicionar arquivos ao FormData (se houver)
+  files.forEach((file) => {
+    formData.append('files', file);
+  });
+
+  // Converter promptId para número
+  const promptIdNumber = promptId ? parseInt(promptId, 10) : 0;
+
+  // Adicionar cada campo individualmente ao FormData
+  formData.append('query', query);
+  formData.append('collection_name', 'ubyagro-knowledge');
+  formData.append('rag_mode', 'advanced');
+  formData.append('model_name', 'gemini-2.5-pro');
+  formData.append('deep_research', 'true');
+  formData.append('top_k', '50');
+  formData.append('prompt_id', isNaN(promptIdNumber) ? '0' : promptIdNumber.toString());
+  formData.append('id', sessionId);
+
+  return formData;
 }
