@@ -12,9 +12,6 @@ verify_jwt = false
 [functions.dashboard-ai-chat]
 verify_jwt = false
 
-[functions.sync-agrofit-data]
-verify_jwt = false
-
 [functions.sync-patents-data]
 verify_jwt = false
 
@@ -37,12 +34,6 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.insights-ai]
-verify_jwt = false
-
-[functions.research-competitor]
-verify_jwt = false
-
-[functions.market-deep-research]
 verify_jwt = false
 
 [functions.fetch-elasticsearch-data]

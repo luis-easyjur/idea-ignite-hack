@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, Beaker, TrendingUp, Building2, BookOpen, Bot, Settings, LogOut, ChevronLeft, Brain, Sparkles } from "lucide-react";
+import { LayoutDashboard, BookOpen, Brain, Sparkles, Settings, LogOut, ChevronLeft, Beaker } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,10 +21,7 @@ import { Button } from "@/components/ui/button";
 
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Inteligência Regulatória", url: "/regulatory", icon: FileText },
   { title: "Análise de Patentes", url: "/patents", icon: Beaker },
-  { title: "Mercado & Tendências", url: "/market", icon: TrendingUp },
-  { title: "Monitor de Concorrentes", url: "/competitors", icon: Building2 },
   { title: "Estudos Científicos", url: "/research", icon: BookOpen },
   { title: "Insights Estratégicos", url: "/insights", icon: Brain },
   { title: "IA Avançada", url: "/ai-chat", icon: Sparkles },
