@@ -1,6 +1,8 @@
 import { Card } from "./ui/card";
-import { FileText, Shield, CheckCircle, ArrowRight } from "lucide-react";
+import { FileText, Shield, CheckCircle, ArrowRight, ChevronDown } from "lucide-react";
 import { Badge } from "./ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { useState } from "react";
 
 interface TimelineEvent {
   type: "science" | "patent" | "regulatory";
@@ -31,6 +33,8 @@ const events: TimelineEvent[] = [
 ];
 
 export const CorrelationTimeline = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  
   const icons = {
     science: FileText,
     patent: Shield,
@@ -51,55 +55,68 @@ export const CorrelationTimeline = () => {
 
   return (
     <Card className="p-6 animate-in">
-      <h3 className="text-lg font-bold text-foreground mb-2">Correlação de Dados</h3>
-      <p className="text-sm text-muted-foreground mb-6">
-        Rastreamento da jornada de produtos concorrentes
-      </p>
-
-      <div className="space-y-6">
-        {events.map((event, index) => {
-          const Icon = icons[event.type];
-          return (
-            <div key={index} className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div
-                  className="p-3 rounded-full"
-                  style={{ backgroundColor: `hsl(var(${colors[event.type]}) / 0.1)` }}
-                >
-                  <Icon className="h-5 w-5" style={{ color: `hsl(var(${colors[event.type]}))` }} />
-                </div>
-                {index < events.length - 1 && (
-                  <div className="w-0.5 h-12 bg-border mt-2"></div>
-                )}
-              </div>
-
-              <div className="flex-1 pb-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="outline" style={{ 
-                    backgroundColor: `hsl(var(${colors[event.type]}) / 0.1)`,
-                    borderColor: `hsl(var(${colors[event.type]}) / 0.2)`,
-                    color: `hsl(var(${colors[event.type]}))`
-                  }}>
-                    {labels[event.type]}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">{event.date}</span>
-                </div>
-                <h4 className="font-semibold text-foreground mb-1">{event.title}</h4>
-                <p className="text-sm text-muted-foreground">{event.company}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
-        <div className="flex items-center gap-2 text-primary">
-          <ArrowRight className="h-5 w-5" />
-          <p className="text-sm font-medium">
-            Previsão: Lançamento comercial em Q2 2025
-          </p>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-foreground">Correlação de Dados</h3>
+            <p className="text-xs text-muted-foreground">
+              Rastreamento da jornada de produtos concorrentes
+            </p>
+          </div>
+          <CollapsibleTrigger asChild>
+            <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+              <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+          </CollapsibleTrigger>
         </div>
-      </div>
+
+        <CollapsibleContent className="mt-6">
+          <div className="space-y-6">
+            {events.map((event, index) => {
+              const Icon = icons[event.type];
+              return (
+                <div key={index} className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className="p-3 rounded-full"
+                      style={{ backgroundColor: `hsl(var(${colors[event.type]}) / 0.1)` }}
+                    >
+                      <Icon className="h-5 w-5" style={{ color: `hsl(var(${colors[event.type]}))` }} />
+                    </div>
+                    {index < events.length - 1 && (
+                      <div className="w-0.5 h-12 bg-border mt-2"></div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 pb-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="outline" style={{ 
+                        backgroundColor: `hsl(var(${colors[event.type]}) / 0.1)`,
+                        borderColor: `hsl(var(${colors[event.type]}) / 0.2)`,
+                        color: `hsl(var(${colors[event.type]}))`
+                      }}>
+                        {labels[event.type]}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">{event.date}</span>
+                    </div>
+                    <h4 className="font-semibold text-foreground mb-1">{event.title}</h4>
+                    <p className="text-sm text-muted-foreground">{event.company}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+            <div className="flex items-center gap-2 text-primary">
+              <ArrowRight className="h-5 w-5" />
+              <p className="text-sm font-medium">
+                Previsão: Lançamento comercial em Q2 2025
+              </p>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 };
