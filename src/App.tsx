@@ -14,6 +14,7 @@ import Competitors from "./pages/Competitors";
 import Research from "./pages/Research";
 import Settings from "./pages/Settings";
 import Insights from "./pages/Insights";
+import AdvancedAI from "./pages/AdvancedAI";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,17 @@ const App = () => (
               <ProtectedRoute>
                 <AppLayout>
                   <Index />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/ai-chat"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AdvancedAI />
                 </AppLayout>
               </ProtectedRoute>
             }
