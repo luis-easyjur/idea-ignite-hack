@@ -32,6 +32,7 @@ import { RegionalGrowthChart } from "@/components/RegionalGrowthChart";
 import { PatentsDashboardSection } from "@/components/PatentsDashboardSection";
 import { ProductsIntelligenceSection } from "@/components/ProductsIntelligenceSection";
 import { ProductLaunchChart } from "@/components/ProductLaunchChart";
+import { ZARCDashboard } from "@/components/zarc";
 
 const Index = () => {
   const [filters, setFilters] = useState<FilterState>({});
@@ -176,6 +177,11 @@ const Index = () => {
         {/* Products Intelligence Section - Elasticsearch */}
         <div className="mb-8">
           <ProductsIntelligenceSection />
+        </div>
+
+        {/* ZARC Intelligence Section */}
+        <div className="mb-8">
+          <ZARCDashboard />
         </div>
 
         {/* Charts Section */}
