@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Sparkles, Settings, LogOut, ChevronLeft, Beaker, User } from "lucide-react";
+import { LayoutDashboard, BookOpen, Sparkles, Settings, LogOut, ChevronLeft, ChevronRight, Beaker, User } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,21 +86,23 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" className="border-r-0 shadow-sm">
       <SidebarHeader className="h-16 border-b border-sidebar-border bg-sidebar-background">
-        <div className="flex items-center justify-between px-4">
+        <div className="flex items-center justify-between px-2">
           {open ? (
-            <img 
-              src={ubyfolLogo} 
-              alt="Ubyfol" 
-              className="h-8 w-auto"
-            />
+            <>
+              <img 
+                src={ubyfolLogo} 
+                alt="Ubyfol" 
+                className="h-8 w-auto ml-2"
+              />
+              <SidebarTrigger className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent">
+                <ChevronLeft className="h-4 w-4 transition-transform" />
+              </SidebarTrigger>
+            </>
           ) : (
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center mx-auto">
-              <span className="text-primary-foreground font-bold text-sm">UB</span>
-            </div>
-          )}
-          {open && (
-            <SidebarTrigger className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent">
-              <ChevronLeft className="h-4 w-4 transition-transform" />
+            <SidebarTrigger className="mx-auto h-10 w-10 flex items-center justify-center hover:bg-sidebar-accent">
+              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-sm">UB</span>
+              </div>
             </SidebarTrigger>
           )}
         </div>
@@ -108,7 +110,7 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
 
       <SidebarContent className="bg-sidebar-background">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-semibold text-sidebar-foreground/70 px-4 py-2">
+          <SidebarGroupLabel className="text-xs font-semibold text-sidebar-foreground/70 px-4 py-2 group-data-[collapsible=icon]:hidden">
             Principal
           </SidebarGroupLabel>
           <SidebarGroupContent className="px-2">
@@ -119,11 +121,11 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
                     <NavLink
                       to={item.url}
                       end={item.url === "/"}
-                      className="flex items-center gap-3 px-3 py-2 hover:bg-sidebar-accent transition-all rounded-md text-sidebar-foreground/80 border-l-2 border-transparent"
+                      className="flex items-center gap-3 px-3 py-2 hover:bg-sidebar-accent transition-all rounded-md text-sidebar-foreground/80 border-l-2 border-transparent group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
                       activeClassName="bg-sidebar-accent text-sidebar-foreground font-medium border-l-2 border-primary"
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
-                      <span className="truncate">{item.title}</span>
+                      <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -135,7 +137,7 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
         <SidebarSeparator className="my-2" />
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-semibold text-sidebar-foreground/70 px-4 py-2">
+          <SidebarGroupLabel className="text-xs font-semibold text-sidebar-foreground/70 px-4 py-2 group-data-[collapsible=icon]:hidden">
             Inteligência
           </SidebarGroupLabel>
           <SidebarGroupContent className="px-2">
@@ -145,11 +147,11 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
                   <SidebarMenuButton asChild tooltip={item.title}>
                     <NavLink
                       to={item.url}
-                      className="flex items-center gap-3 px-3 py-2 hover:bg-sidebar-accent transition-all rounded-md text-sidebar-foreground/80 border-l-2 border-transparent"
+                      className="flex items-center gap-3 px-3 py-2 hover:bg-sidebar-accent transition-all rounded-md text-sidebar-foreground/80 border-l-2 border-transparent group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
                       activeClassName="bg-sidebar-accent text-sidebar-foreground font-medium border-l-2 border-primary"
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
-                      <span className="truncate">{item.title}</span>
+                      <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -167,11 +169,11 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
                 <SidebarMenuButton asChild tooltip="Configurações">
                   <NavLink
                     to="/settings"
-                    className="flex items-center gap-3 px-3 py-2 hover:bg-sidebar-accent transition-all rounded-md text-sidebar-foreground/80 border-l-2 border-transparent"
+                    className="flex items-center gap-3 px-3 py-2 hover:bg-sidebar-accent transition-all rounded-md text-sidebar-foreground/80 border-l-2 border-transparent group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
                     activeClassName="bg-sidebar-accent text-sidebar-foreground font-medium border-l-2 border-primary"
                   >
                     <Settings className="h-5 w-5 shrink-0" />
-                    <span className="truncate">Configurações</span>
+                    <span className="truncate group-data-[collapsible=icon]:hidden">Configurações</span>
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -185,7 +187,7 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 h-auto p-2 hover:bg-sidebar-accent"
+              className={open ? "w-full justify-start gap-3 h-auto p-2 hover:bg-sidebar-accent" : "w-full justify-center h-auto p-2 hover:bg-sidebar-accent"}
             >
               <Avatar className="h-8 w-8 shrink-0">
                 <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
