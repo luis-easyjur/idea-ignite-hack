@@ -30,6 +30,7 @@ Deno.serve(async (req) => {
 
     console.log('Fetching products:', { page, pageSize, filters });
     console.log('Using Elasticsearch URL:', ELASTICSEARCH_URL);
+    console.log('CODE VERSION: 2.0 - Sort removed');
 
     const must: any[] = [
       {
