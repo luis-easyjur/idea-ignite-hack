@@ -10,7 +10,6 @@ import Auth from "./pages/Auth";
 import Patents from "./pages/Patents";
 import Research from "./pages/Research";
 import Settings from "./pages/Settings";
-import Insights from "./pages/Insights";
 import NotFound from "./pages/NotFound";
 import AdvancedAI from "./pages/AdvancedAI";
 
@@ -64,17 +63,6 @@ const App = () => (
               <ProtectedRoute>
                 <AppLayout>
                   <Settings />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/insights"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <Insights />
                 </AppLayout>
               </ProtectedRoute>
             }

@@ -33,8 +33,5 @@ verify_jwt = false
 [functions.search-patents-bigquery]
 verify_jwt = false
 
-[functions.insights-ai]
-verify_jwt = false
-
 [functions.fetch-elasticsearch-data]
 verify_jwt = false
