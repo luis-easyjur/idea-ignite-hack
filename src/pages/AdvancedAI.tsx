@@ -7,10 +7,20 @@ const AdvancedAI = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [sessionId, setSessionId] = useState<string>("");
+  const [initialQuery, setInitialQuery] = useState<string>("");
 
   useEffect(() => {
     // Verificar se existe hash/id na URL
     const idFromUrl = searchParams.get("id");
+    const queryFromUrl = searchParams.get("q");
+    
+    if (queryFromUrl) {
+      setInitialQuery(decodeURIComponent(queryFromUrl));
+      // Limpar o parâmetro q da URL após capturar
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("q");
+      setSearchParams(newSearchParams, { replace: true });
+    }
     
     if (idFromUrl) {
       // Se existe, usar o hash da URL
@@ -44,7 +54,7 @@ const AdvancedAI = () => {
       <div className="min-h-screen bg-background">
         <main className="w-full h-screen flex flex-col">
           <div className="flex-1 min-h-0">
-            <AdvancedAIChat sessionId={sessionId} />
+            <AdvancedAIChat sessionId={sessionId} initialQuery={initialQuery} />
           </div>
         </main>
       </div>
