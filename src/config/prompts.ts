@@ -6,13 +6,11 @@
 export const PROMPT_IDS = {
   BASIC: import.meta.env.VITE_PROMPT_BASIC_ID || '',
   GENERAL: import.meta.env.VITE_PROMPT_GENERAL_ID || '',
-  MARKET: import.meta.env.VITE_PROMPT_MARKET_ID || '',
-  REGULATORY: import.meta.env.VITE_PROMPT_REGULATORY_ID || '',
   PATENTS: import.meta.env.VITE_PROMPT_PATENTS_ID || '',
   SCIENCE: import.meta.env.VITE_PROMPT_SCIENCE_ID || '',
 } as const;
 
-export type ModuleType = 'general' | 'market' | 'regulatory' | 'patents' | 'science';
+export type ModuleType = 'general' | 'patents' | 'science';
 
 export interface ModuleOption {
   value: ModuleType;
@@ -27,18 +25,6 @@ export const MODULE_OPTIONS: ModuleOption[] = [
     label: 'Pesquisa Geral',
     description: 'Análise geral sem foco específico',
     promptId: PROMPT_IDS.GENERAL,
-  },
-  {
-    value: 'market',
-    label: 'Dados de Mercado',
-    description: 'Market Intelligence: Tamanho de mercado, crescimento regional, comportamento por cultura (Cana, Milho, etc.). Fontes: Abisolo, IBGE, Conab',
-    promptId: PROMPT_IDS.MARKET,
-  },
-  {
-    value: 'regulatory',
-    label: 'Dados Regulatórios',
-    description: 'Regulatory Intelligence: Novos registros no MAPA, alterações ANVISA/IBAMA, monitoramento de moléculas. Fontes: MAPA, ANVISA, IBAMA',
-    promptId: PROMPT_IDS.REGULATORY,
   },
   {
     value: 'patents',

@@ -7,10 +7,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import Regulatory from "./pages/Regulatory";
 import Patents from "./pages/Patents";
-import Market from "./pages/Market";
-import Competitors from "./pages/Competitors";
 import Research from "./pages/Research";
 import Settings from "./pages/Settings";
 import Insights from "./pages/Insights";
@@ -40,44 +37,11 @@ const App = () => (
           />
 
           <Route
-            path="/regulatory"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <Regulatory />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
             path="/patents"
             element={
               <ProtectedRoute>
                 <AppLayout>
                   <Patents />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/market"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <Market />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/competitors"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <Competitors />
                 </AppLayout>
               </ProtectedRoute>
             }

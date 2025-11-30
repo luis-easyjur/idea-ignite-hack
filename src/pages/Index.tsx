@@ -62,7 +62,7 @@ const Index = () => {
                   title="Novo registro MAPA - Biodefensivo" 
                   description="Competidor Y registrou novo produto para controle biológico em soja" 
                   time="2h atrás" 
-                  type="regulatory" 
+                  type="general" 
                   priority="high" 
                   source="MAPA" 
                 />

@@ -7,7 +7,7 @@ interface AlertItemProps {
   title: string;
   description: string;
   time: string;
-  type: "regulatory" | "market" | "patent" | "science";
+  type: "patent" | "science" | "general";
   priority: "high" | "medium" | "low";
   source?: "MAPA" | "INPI" | "Abisolo" | "IBGE" | "Embrapa" | "ANVISA" | "IBAMA";
   sourceUrl?: string;
@@ -15,10 +15,9 @@ interface AlertItemProps {
 
 export const AlertItem = ({ title, description, time, type, priority, source, sourceUrl }: AlertItemProps) => {
   const typeColors = {
-    regulatory: "bg-chart-2/10 text-chart-2 border-chart-2/20",
-    market: "bg-chart-1/10 text-chart-1 border-chart-1/20",
     patent: "bg-chart-3/10 text-chart-3 border-chart-3/20",
     science: "bg-chart-4/10 text-chart-4 border-chart-4/20",
+    general: "bg-chart-1/10 text-chart-1 border-chart-1/20",
   };
 
   const priorityColors = {
@@ -28,10 +27,9 @@ export const AlertItem = ({ title, description, time, type, priority, source, so
   };
 
   const typeLabels = {
-    regulatory: "Regulatório",
-    market: "Mercado",
     patent: "Patente",
     science: "Científico",
+    general: "Geral",
   };
 
   const priorityLabels = {
