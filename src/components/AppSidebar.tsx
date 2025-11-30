@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ubyfolLogo from "@/assets/ubyfol-logo.svg";
+import { cn } from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
@@ -99,8 +100,8 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
               </SidebarTrigger>
             </>
           ) : (
-            <SidebarTrigger className="mx-auto h-10 w-10 flex items-center justify-center hover:bg-sidebar-accent">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+            <SidebarTrigger className="w-full flex items-center justify-center hover:bg-sidebar-accent rounded-md p-1">
+              <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center mx-auto">
                 <span className="text-primary-foreground font-bold text-sm">UB</span>
               </div>
             </SidebarTrigger>
@@ -113,7 +114,7 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
           <SidebarGroupLabel className="text-xs font-semibold text-sidebar-foreground/70 px-4 py-2 group-data-[collapsible=icon]:hidden">
             Principal
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-2">
+          <SidebarGroupContent className="px-2 group-data-[collapsible=icon]:px-1">
             <SidebarMenu>
               {mainNavigationItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
@@ -121,8 +122,23 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
                     <NavLink
                       to={item.url}
                       end={item.url === "/"}
-                      className="flex items-center gap-3 px-3 py-2 hover:bg-sidebar-accent transition-all rounded-md text-sidebar-foreground/80 border-l-2 border-transparent group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
-                      activeClassName="bg-sidebar-accent text-sidebar-foreground font-medium border-l-2 border-primary"
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-md transition-all",
+                        "hover:bg-sidebar-accent text-sidebar-foreground/80",
+                        "border-l-2 border-transparent",
+                        "group-data-[collapsible=icon]:border-l-0",
+                        "group-data-[collapsible=icon]:w-10",
+                        "group-data-[collapsible=icon]:h-10",
+                        "group-data-[collapsible=icon]:p-0",
+                        "group-data-[collapsible=icon]:mx-auto",
+                        "group-data-[collapsible=icon]:justify-center"
+                      )}
+                      activeClassName={cn(
+                        "bg-sidebar-accent text-sidebar-foreground font-medium border-l-2 border-primary",
+                        "group-data-[collapsible=icon]:border-l-0",
+                        "group-data-[collapsible=icon]:bg-primary/15",
+                        "group-data-[collapsible=icon]:text-primary"
+                      )}
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
                       <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
@@ -140,15 +156,30 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
           <SidebarGroupLabel className="text-xs font-semibold text-sidebar-foreground/70 px-4 py-2 group-data-[collapsible=icon]:hidden">
             Inteligência
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-2">
+          <SidebarGroupContent className="px-2 group-data-[collapsible=icon]:px-1">
             <SidebarMenu>
               {aiNavigationItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild tooltip={item.title}>
                     <NavLink
                       to={item.url}
-                      className="flex items-center gap-3 px-3 py-2 hover:bg-sidebar-accent transition-all rounded-md text-sidebar-foreground/80 border-l-2 border-transparent group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
-                      activeClassName="bg-sidebar-accent text-sidebar-foreground font-medium border-l-2 border-primary"
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-md transition-all",
+                        "hover:bg-sidebar-accent text-sidebar-foreground/80",
+                        "border-l-2 border-transparent",
+                        "group-data-[collapsible=icon]:border-l-0",
+                        "group-data-[collapsible=icon]:w-10",
+                        "group-data-[collapsible=icon]:h-10",
+                        "group-data-[collapsible=icon]:p-0",
+                        "group-data-[collapsible=icon]:mx-auto",
+                        "group-data-[collapsible=icon]:justify-center"
+                      )}
+                      activeClassName={cn(
+                        "bg-sidebar-accent text-sidebar-foreground font-medium border-l-2 border-primary",
+                        "group-data-[collapsible=icon]:border-l-0",
+                        "group-data-[collapsible=icon]:bg-primary/15",
+                        "group-data-[collapsible=icon]:text-primary"
+                      )}
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
                       <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
@@ -163,14 +194,29 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
         <div className="flex-1" />
 
         <SidebarGroup>
-          <SidebarGroupContent className="px-2">
+          <SidebarGroupContent className="px-2 group-data-[collapsible=icon]:px-1">
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Configurações">
                   <NavLink
                     to="/settings"
-                    className="flex items-center gap-3 px-3 py-2 hover:bg-sidebar-accent transition-all rounded-md text-sidebar-foreground/80 border-l-2 border-transparent group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
-                    activeClassName="bg-sidebar-accent text-sidebar-foreground font-medium border-l-2 border-primary"
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-md transition-all",
+                      "hover:bg-sidebar-accent text-sidebar-foreground/80",
+                      "border-l-2 border-transparent",
+                      "group-data-[collapsible=icon]:border-l-0",
+                      "group-data-[collapsible=icon]:w-10",
+                      "group-data-[collapsible=icon]:h-10",
+                      "group-data-[collapsible=icon]:p-0",
+                      "group-data-[collapsible=icon]:mx-auto",
+                      "group-data-[collapsible=icon]:justify-center"
+                    )}
+                    activeClassName={cn(
+                      "bg-sidebar-accent text-sidebar-foreground font-medium border-l-2 border-primary",
+                      "group-data-[collapsible=icon]:border-l-0",
+                      "group-data-[collapsible=icon]:bg-primary/15",
+                      "group-data-[collapsible=icon]:text-primary"
+                    )}
                   >
                     <Settings className="h-5 w-5 shrink-0" />
                     <span className="truncate group-data-[collapsible=icon]:hidden">Configurações</span>
@@ -187,7 +233,10 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className={open ? "w-full justify-start gap-3 h-auto p-2 hover:bg-sidebar-accent" : "w-full justify-center h-auto p-2 hover:bg-sidebar-accent"}
+              className={cn(
+                "h-auto p-2 hover:bg-sidebar-accent transition-all",
+                open ? "w-full justify-start gap-3" : "w-10 h-10 p-0 mx-auto justify-center"
+              )}
             >
               <Avatar className="h-8 w-8 shrink-0">
                 <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
