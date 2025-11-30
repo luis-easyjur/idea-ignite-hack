@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, TrendingUp } from "lucide-react";
-import ubyfolLogo from "@/assets/ubyfol-logo.svg";
+import ubygroLogo from "@/assets/ubygro-logo.png";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -140,8 +140,8 @@ export default function Auth() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img 
-            src={ubyfolLogo} 
-            alt="Ubyfol" 
+            src={ubygroLogo} 
+            alt="UBYGRO Grupo" 
             className="h-10 w-auto mx-auto mb-4"
           />
           <div className="flex items-center justify-center gap-2 mb-2">
