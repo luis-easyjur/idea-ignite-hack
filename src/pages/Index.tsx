@@ -33,7 +33,10 @@ const Index = () => {
 
         <FilterBar onFilterChange={setFilters} />
 
-        {/* Alerts and Correlation Grid - MOVED TO TOP */}
+        {/* Quick Stats Grid */}
+        <QuickStatsGrid />
+
+        {/* Alerts and Correlation Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Left Column - Recent Alerts (Limited to 3) */}
           <div className="lg:col-span-2">
@@ -79,9 +82,6 @@ const Index = () => {
             <CorrelationTimeline />
           </div>
         </div>
-
-        {/* Quick Stats Grid */}
-        <QuickStatsGrid />
 
         {/* Products Intelligence Section */}
         <div className="mb-6">
