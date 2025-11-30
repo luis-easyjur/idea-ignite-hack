@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Products from "./pages/Products";
 import Patents from "./pages/Patents";
 import Research from "./pages/Research";
 import Settings from "./pages/Settings";
@@ -30,6 +31,17 @@ const App = () => (
               <ProtectedRoute>
                 <AppLayout>
                   <Index />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/products"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Products />
                 </AppLayout>
               </ProtectedRoute>
             }
