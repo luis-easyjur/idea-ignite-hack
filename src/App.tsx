@@ -15,6 +15,7 @@ import Research from "./pages/Research";
 import Settings from "./pages/Settings";
 import Insights from "./pages/Insights";
 import NotFound from "./pages/NotFound";
+import AdvancedAI from "./pages/AdvancedAI";
 
 const queryClient = new QueryClient();
 
@@ -26,7 +27,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<Auth />} />
-          
+
           <Route
             path="/"
             element={
@@ -37,7 +38,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
-          
+
           <Route
             path="/regulatory"
             element={
@@ -48,7 +49,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
-          
+
           <Route
             path="/patents"
             element={
@@ -59,7 +60,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
-          
+
           <Route
             path="/market"
             element={
@@ -70,7 +71,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
-          
+
           <Route
             path="/competitors"
             element={
@@ -81,7 +82,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
-          
+
           <Route
             path="/research"
             element={
@@ -92,7 +93,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
-          
+
           <Route
             path="/settings"
             element={
@@ -103,7 +104,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
-          
+
           <Route
             path="/insights"
             element={
@@ -114,7 +115,18 @@ const App = () => (
               </ProtectedRoute>
             }
           />
-          
+
+          <Route
+            path="/ai-chat"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AdvancedAI />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, Beaker, TrendingUp, Building2, BookOpen, Bot, Settings, LogOut, ChevronLeft, Brain } from "lucide-react";
+import { LayoutDashboard, FileText, Beaker, TrendingUp, Building2, BookOpen, Bot, Settings, LogOut, ChevronLeft, Brain, Sparkles } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +27,7 @@ const navigationItems = [
   { title: "Monitor de Concorrentes", url: "/competitors", icon: Building2 },
   { title: "Estudos Científicos", url: "/research", icon: BookOpen },
   { title: "Insights Estratégicos", url: "/insights", icon: Brain },
+  { title: "IA Avançada", url: "/ai-chat", icon: Sparkles },
 ];
 
 interface AppSidebarProps {
@@ -70,7 +71,7 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
               </div>
             )}
           </SidebarGroupLabel>
-          
+
           <SidebarGroupContent className="px-2 mt-2">
             <SidebarMenu>
               {navigationItems.map((item) => (
@@ -95,17 +96,7 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent className="px-2">
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  onClick={onOpenChat} 
-                  tooltip="Assistente IA"
-                  className="text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                >
-                  <Bot className="h-4 w-4" />
-                  <span>Assistente IA</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
+
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Configurações">
                   <NavLink
@@ -133,7 +124,7 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
             <LogOut className="h-4 w-4" />
             {open && <span>Sair</span>}
           </Button>
-          
+
           <SidebarTrigger className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent">
             <ChevronLeft className={`h-4 w-4 transition-transform ${!open ? 'rotate-180' : ''}`} />
           </SidebarTrigger>

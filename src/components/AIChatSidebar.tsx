@@ -388,17 +388,17 @@ export const AIChatSidebar = ({ isOpen, onClose }: AIChatSidebarProps) => {
                 ))}
                 
                 {showSuggestions && !isLoading && (
-                  <div className="space-y-3 animate-in fade-in-50 duration-500">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Sparkles className="h-3 w-3" />
+                  <div className="space-y-1 animate-in fade-in-50 duration-500">
+                    <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <Sparkles className="h-2.5 w-2.5" />
                       <span>Perguntas sugeridas:</span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-3 gap-1">
                       {quickSuggestions.map((suggestion, idx) => (
                         <Badge
                           key={idx}
                           variant="outline"
-                          className="cursor-pointer hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-colors text-xs py-1.5 px-3"
+                          className="cursor-pointer hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-colors text-[11px] py-0.5 px-1.5 truncate"
                           onClick={() => sendMessage(suggestion)}
                         >
                           {suggestion}

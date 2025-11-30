@@ -132,3 +132,30 @@ export function prepareBasicPayload(
     id: sessionId,
   };
 }
+
+/**
+ * Prepara o payload avançado para envio à IA (chat avançado de insights)
+ * @param query Prompt/mensagem do usuário
+ * @param promptId ID do prompt do ContextoAI baseado no pilar selecionado (será convertido para número)
+ * @param sessionId Hash da sessão do chat
+ * @returns Objeto JSON pronto para envio
+ */
+export function prepareAdvancedPayload(
+  query: string,
+  promptId: string,
+  sessionId: string
+): BasicPayloadData {
+  // Converter promptId para número, ou usar 0 se não for válido
+  const promptIdNumber = promptId ? parseInt(promptId, 10) : 0;
+  
+  return {
+    query,
+    collection_name: "ubyagro-knowledge",
+    rag_mode: "advanced",
+    model_name: "gemini-2.5-pro",
+    deep_research: true,
+    top_k: 50,
+    prompt_id: isNaN(promptIdNumber) ? 0 : promptIdNumber,
+    id: sessionId,
+  };
+}
