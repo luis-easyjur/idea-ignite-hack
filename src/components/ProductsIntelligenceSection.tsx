@@ -110,8 +110,8 @@ export const ProductsIntelligenceSection = () => {
         </Card>
       </div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts Grid - First Row */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
         {/* Top Cultures Chart */}
         <Card>
           <CardHeader>
@@ -238,8 +238,8 @@ export const ProductsIntelligenceSection = () => {
         </Card>
       </div>
 
-      {/* New Section: Ingredients and Chemical Groups */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Ingredients and Chemical Groups */}
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         {/* Top Ingredients */}
         <Card>
           <CardHeader>

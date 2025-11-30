@@ -33,5 +33,41 @@ const chartConfig = {
   }
 };
 export const MarketEvolutionChart = () => {
-  return;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Evolução do Mercado</CardTitle>
+        <CardDescription>Crescimento de mercado de bioinsumos (2020-2024)</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="year" className="text-xs" />
+              <YAxis yAxisId="left" className="text-xs" />
+              <YAxis yAxisId="right" orientation="right" className="text-xs" />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="value"
+                stroke="hsl(var(--chart-1))"
+                strokeWidth={2}
+                dot={{ fill: "hsl(var(--chart-1))" }}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="growth"
+                stroke="hsl(var(--chart-2))"
+                strokeWidth={2}
+                dot={{ fill: "hsl(var(--chart-2))" }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
 };

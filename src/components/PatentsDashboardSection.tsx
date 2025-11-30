@@ -48,7 +48,7 @@ export const PatentsDashboardSection = () => {
       </div>
 
       {/* Quick Metrics */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         <Link to="/patents" className="block">
           <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-[1.02]">
             <div className="flex items-start justify-between">
@@ -91,8 +91,6 @@ export const PatentsDashboardSection = () => {
             </div>
           </div>
         </Card>
-
-        
       </div>
 
       {/* Charts Row */}
@@ -100,11 +98,5 @@ export const PatentsDashboardSection = () => {
         <PatentYearChart data={stats.byYear} />
         <TopCompaniesCard companies={stats.topCompanies} />
       </div>
-
-      {/* Insights Cards */}
-      
-
-      {/* Categories Distribution */}
-      
     </div>;
 };
