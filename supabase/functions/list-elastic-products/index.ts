@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 const ELASTICSEARCH_URL = 'https://elastic.easyjur.com/ubyagro-intelligence/_search';
-const ELASTICSEARCH_API_KEY = Deno.env.get('ELASTIC_API_KEY') || '';
+const ELASTICSEARCH_API_KEY = 'Wk9iQUhwRUJnTVQ0OWZnVFNKMFk6cUF2ZUkyekxSR2FlRXgxeWNFRl82Zw==';
 
 interface ProductFilters {
   search?: string;
@@ -29,6 +29,7 @@ Deno.serve(async (req) => {
     };
 
     console.log('Fetching products:', { page, pageSize, filters });
+    console.log('Using Elasticsearch URL:', ELASTICSEARCH_URL);
 
     const must: any[] = [
       {
