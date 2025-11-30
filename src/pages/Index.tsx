@@ -4,7 +4,7 @@ import { FilterBar, FilterState } from "@/components/FilterBar";
 import { ExportButton } from "@/components/ExportButton";
 import { DataSyncButton } from "@/components/DataSyncButton";
 import { QuickStatsGrid } from "@/components/QuickStatsGrid";
-import { ExternalApisStatsGrid } from "@/components/ExternalApisStatsGrid";
+import { RegionalClimateIntelligence } from "@/components/RegionalClimateIntelligence";
 import { ProductsIntelligenceSection } from "@/components/ProductsIntelligenceSection";
 import { PatentsDashboardSection } from "@/components/PatentsDashboardSection";
 import { AlertItem } from "@/components/AlertItem";
@@ -36,11 +36,6 @@ const Index = () => {
         {/* Quick Stats Grid */}
         <QuickStatsGrid />
 
-        {/* External APIs Stats Grid */}
-        <div className="mb-6">
-          <ExternalApisStatsGrid />
-        </div>
-
         {/* Products Intelligence Section - MOVED UP */}
         <div className="mb-6">
           <ProductsIntelligenceSection />
@@ -49,6 +44,11 @@ const Index = () => {
         {/* Patents Intelligence Section */}
         <div className="mb-6">
           <PatentsDashboardSection />
+        </div>
+
+        {/* Regional Climate Intelligence */}
+        <div className="mb-6">
+          <RegionalClimateIntelligence />
         </div>
 
         {/* Alerts and Correlation Grid */}
