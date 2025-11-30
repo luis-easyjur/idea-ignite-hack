@@ -131,7 +131,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
                 {product.indicacao_uso.map((indicacao, idx) => (
                   <div key={idx} className="p-3 rounded-lg bg-muted/50">
                     <p className="font-medium text-primary mb-2">{indicacao.cultura}</p>
-                    {indicacao.praga_nome_comum && indicacao.praga_nome_comum.length > 0 && (
+                    {indicacao.praga_nome_comum && Array.isArray(indicacao.praga_nome_comum) && indicacao.praga_nome_comum.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {indicacao.praga_nome_comum.map((praga, pIdx) => (
                           <Badge key={pIdx} variant="outline" className="text-xs">
