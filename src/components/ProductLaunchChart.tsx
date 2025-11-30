@@ -185,48 +185,7 @@ export const ProductLaunchChart = () => {
       </Card>;
   }
   return <Card>
-      <CardHeader>
-        <CardTitle>Lançamentos de Produtos por Empresa</CardTitle>
-        <CardDescription>
-          Quantidade de produtos lançados por mês de 2020 a 2025
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={filteredData} margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 60
-          }}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="month" className="text-xs" tick={{
-              fill: 'hsl(var(--muted-foreground))',
-              fontSize: 10
-            }} angle={-45} textAnchor="end" height={80} tickFormatter={formatMonth} />
-              <YAxis className="text-xs" tick={{
-              fill: 'hsl(var(--muted-foreground))'
-            }} label={{
-              value: 'Quantidade de Produtos',
-              angle: -90,
-              position: 'insideLeft'
-            }} />
-              <ChartTooltip content={<ChartTooltipContent />} formatter={(value: number) => [value, 'Produtos']} />
-              <Legend wrapperStyle={{
-              paddingTop: '20px'
-            }} iconType="line" />
-              {companies.slice(0, 10).map((company, index) => <Line key={company} type="monotone" dataKey={company} stroke={COLORS[index % COLORS.length]} strokeWidth={2} dot={{
-              r: 3
-            }} activeDot={{
-              r: 5
-            }} name={company.length > 30 ? company.substring(0, 30) + '...' : company} />)}
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartContainer>
-        {companies.length > 10 && <p className="text-xs text-muted-foreground mt-2">
-            Mostrando as 10 primeiras empresas. Total: {companies.length} empresas
-          </p>}
-      </CardContent>
+      
+      
     </Card>;
 };

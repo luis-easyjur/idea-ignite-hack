@@ -90,10 +90,7 @@ const Index = () => {
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <MarketEvolutionChart />
-          <RegionalGrowthChart />
-        </div>
+        
 
         {/* Product Launch Chart */}
         <div className="mb-8">
@@ -102,7 +99,7 @@ const Index = () => {
 
         {/* Competitor Monitor Section */}
         <div className="mb-8">
-          <CompetitorMonitor />
+          
         </div>
       </main>
     </div>
