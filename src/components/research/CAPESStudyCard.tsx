@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, User, GraduationCap, Building2, Calendar, Tag } from "lucide-react";
+import { BookOpen, User, GraduationCap, Building2, Calendar, Tag, Award } from "lucide-react";
 import { CAPESStudy } from "@/types/capes";
+import { qualisColors } from "@/lib/qualis-utils";
+import { cn } from "@/lib/utils";
 
 interface CAPESStudyCardProps {
   study: CAPESStudy;
@@ -24,6 +26,12 @@ export const CAPESStudyCard = ({ study, onViewDetails }: CAPESStudyCardProps) =>
             <Calendar className="w-3 h-3 mr-1" />
             {study.ano}
           </Badge>
+          {study.qualis && (
+            <Badge className={cn("text-xs font-bold", qualisColors[study.qualis])}>
+              <Award className="w-3 h-3 mr-1" />
+              Qualis {study.qualis}
+            </Badge>
+          )}
           {study.grandeArea && (
             <Badge variant="outline" className="text-xs">
               {study.grandeArea}

@@ -8,12 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Calendar, User, GraduationCap, Building2, BookOpen, Tag, FileText, Sparkles, Loader2 } from "lucide-react";
+import { ExternalLink, Calendar, User, GraduationCap, Building2, BookOpen, Tag, FileText, Sparkles, Loader2, Award } from "lucide-react";
 import { CAPESStudy } from "@/types/capes";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
+import { qualisColors, qualisDescriptions } from "@/lib/qualis-utils";
+import { cn } from "@/lib/utils";
 
 interface CAPESStudyDetailModalProps {
   study: CAPESStudy | null;
@@ -74,6 +76,12 @@ export const CAPESStudyDetailModal = ({
                 <Calendar className="w-3 h-3 mr-1" />
                 {study.ano}
               </Badge>
+              {study.qualis && (
+                <Badge className={cn("text-xs font-bold", qualisColors[study.qualis])}>
+                  <Award className="w-3 h-3 mr-1" />
+                  Qualis {study.qualis}
+                </Badge>
+              )}
               {study.grandeArea && (
                 <Badge variant="outline">{study.grandeArea}</Badge>
               )}
@@ -178,6 +186,26 @@ export const CAPESStudyDetailModal = ({
 
           <TabsContent value="classification" className="space-y-4 mt-4">
             <div className="space-y-4">
+              {study.qualis && (
+                <>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm font-semibold">
+                      <Award className="w-4 h-4" />
+                      <span>Classificação Qualis CAPES</span>
+                    </div>
+                    <div className="pl-6 space-y-2">
+                      <Badge className={cn("text-sm font-bold", qualisColors[study.qualis])}>
+                        Qualis {study.qualis}
+                      </Badge>
+                      <p className="text-sm text-muted-foreground">
+                        {qualisDescriptions[study.qualis]}
+                      </p>
+                    </div>
+                  </div>
+                  <Separator />
+                </>
+              )}
+
               {study.grandeArea && (
                 <div className="space-y-2">
                   <div className="text-sm font-semibold">Grande Área do Conhecimento</div>
