@@ -3,7 +3,7 @@ import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import ubyfolLogo from "@/assets/ubyfol-logo.svg";
+import ubyfolLogo from "@/assets/logo_ubyfol.png";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
