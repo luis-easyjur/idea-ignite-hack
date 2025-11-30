@@ -5,7 +5,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const ELASTIC_HOST = Deno.env.get('ELASTIC_HOST') || 'https://elastic.easyjur.com';
+// Remove trailing slash from host if present
+const ELASTIC_HOST = (Deno.env.get('ELASTIC_HOST') || 'https://elastic.easyjur.com').replace(/\/+$/, '');
 const ELASTIC_API_KEY = Deno.env.get('ELASTIC_API_KEY');
 const ELASTIC_INDEX = 'ubyagro-intelligence';
 
