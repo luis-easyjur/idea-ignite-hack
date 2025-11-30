@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Brain, Sparkles, Settings, LogOut, ChevronLeft, Beaker } from "lucide-react";
+import { LayoutDashboard, BookOpen, Sparkles, Settings, LogOut, ChevronLeft, Beaker } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,7 +23,6 @@ const navigationItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Análise de Patentes", url: "/patents", icon: Beaker },
   { title: "Estudos Científicos", url: "/research", icon: BookOpen },
-  { title: "Insights Estratégicos", url: "/insights", icon: Brain },
   { title: "IA Avançada", url: "/ai-chat", icon: Sparkles },
 ];
 
