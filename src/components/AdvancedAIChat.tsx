@@ -49,6 +49,7 @@ interface Message {
 interface AdvancedAIChatProps {
     sessionId: string;
     className?: string;
+    initialQuery?: string;
 }
 
 const quickSuggestions = [
@@ -58,7 +59,7 @@ const quickSuggestions = [
     "Quais tecnologias emergentes devo acompanhar?",
 ];
 
-export const AdvancedAIChat = ({ sessionId, className }: AdvancedAIChatProps) => {
+export const AdvancedAIChat = ({ sessionId, className, initialQuery }: AdvancedAIChatProps) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -68,6 +69,7 @@ export const AdvancedAIChat = ({ sessionId, className }: AdvancedAIChatProps) =>
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
+    const [hasInitialized, setHasInitialized] = useState(false);
 
     // Expanded suggestions list for the pill layout
     const quickSuggestions = [
@@ -101,6 +103,14 @@ export const AdvancedAIChat = ({ sessionId, className }: AdvancedAIChatProps) =>
             textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
         }
     }, [input]);
+
+    // Auto-send initial query
+    useEffect(() => {
+        if (initialQuery && initialQuery.trim() && !hasInitialized) {
+            setHasInitialized(true);
+            sendMessage(initialQuery);
+        }
+    }, [initialQuery, hasInitialized]);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
