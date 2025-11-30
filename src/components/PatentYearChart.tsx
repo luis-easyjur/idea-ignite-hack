@@ -34,7 +34,7 @@ export const PatentYearChart = ({ data, onYearClick }: PatentYearChartProps) => 
           />
           <Bar 
             dataKey="count" 
-            fill="hsl(var(--chart-3))" 
+            fill="hsl(var(--chart-1))" 
             radius={[8, 8, 0, 0]}
             cursor="pointer"
           />

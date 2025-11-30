@@ -19,7 +19,7 @@ import {
   Legend
 } from "recharts";
 
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
+const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 export const ProductsIntelligenceSection = () => {
   const { data, isLoading, error } = useElasticProductStats();
@@ -165,7 +165,7 @@ export const ProductsIntelligenceSection = () => {
                     border: '1px solid hsl(var(--border))' 
                   }}
                 />
-                <Bar dataKey="count" fill="hsl(var(--accent))" />
+                <Bar dataKey="count" fill="hsl(var(--chart-5))" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -335,7 +335,7 @@ export const ProductsIntelligenceSection = () => {
                     border: '1px solid hsl(var(--border))' 
                   }}
                 />
-                <Bar dataKey="count" fill="hsl(var(--primary))" />
+                <Bar dataKey="count" fill="hsl(var(--chart-2))" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -364,7 +364,7 @@ export const ProductsIntelligenceSection = () => {
                     border: '1px solid hsl(var(--border))' 
                   }}
                 />
-                <Bar dataKey="count" fill="hsl(var(--secondary))" />
+                <Bar dataKey="count" fill="hsl(var(--chart-3))" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -434,7 +434,7 @@ export const ProductsIntelligenceSection = () => {
                       border: '1px solid hsl(var(--border))' 
                     }}
                   />
-                  <Bar dataKey="count" fill="hsl(var(--primary))" />
+                  <Bar dataKey="count" fill="hsl(var(--chart-4))" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
