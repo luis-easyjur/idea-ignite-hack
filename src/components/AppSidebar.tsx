@@ -87,13 +87,13 @@ export function AppSidebar({ onOpenChat }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" className="border-r-0 shadow-sm">
       <SidebarHeader className="h-16 border-b border-sidebar-border bg-sidebar-background">
-        <div className="flex items-center justify-between px-2">
+        <div className="flex items-center justify-between h-full px-3">
           {open ? (
             <>
               <img 
                 src={ubyfolLogo} 
                 alt="Ubyfol" 
-                className="h-8 w-auto ml-2"
+                className="h-9 w-auto"
               />
               <SidebarTrigger className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent">
                 <ChevronLeft className="h-4 w-4 transition-transform" />
