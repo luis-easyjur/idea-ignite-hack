@@ -83,99 +83,98 @@ export const ZARCMinasGeraisChart = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Mapa de MG */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Mapa detalhado de MG por município */}
           <div className="lg:col-span-1">
-            <div className="bg-muted/30 rounded-lg p-2 h-[300px]">
-              <ZARCMinasGeraisMap />
-            </div>
-            <p className="text-xs text-muted-foreground text-center mt-2">
-              Minas Gerais em destaque
-            </p>
+            <ZARCMinasGeraisMap className="h-full" />
           </div>
 
-          {/* Gráfico de Pizza */}
-          <div className="lg:col-span-1">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={90}
-                  paddingAngle={2}
-                  dataKey="value"
-                  label={({ percentage }) => `${percentage}%`}
-                  labelLine={false}
-                >
-                  {chartData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                  formatter={(value: number, name: string) => [
-                    `${value.toLocaleString()} registros (${((value / total) * 100).toFixed(1)}%)`,
-                    name,
-                  ]}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="flex flex-wrap justify-center gap-2 mt-2">
-              {chartData.slice(0, 5).map((item, index) => (
-                <div key={item.name} className="flex items-center gap-1 text-xs">
-                  <div 
-                    className="w-2 h-2 rounded-full" 
-                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+          {/* Coluna direita: Gráfico + Insights */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Gráfico de Pizza */}
+            <div>
+              <h4 className="text-sm font-semibold mb-2">Distribuição por Cultura</h4>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={75}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={({ percentage }) => `${percentage}%`}
+                    labelLine={false}
+                  >
+                    {chartData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                    }}
+                    formatter={(value: number, name: string) => [
+                      `${value.toLocaleString()} registros (${((value / total) * 100).toFixed(1)}%)`,
+                      name,
+                    ]}
                   />
-                  <span className="text-muted-foreground">{item.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Insights */}
-          <div className="lg:col-span-1 space-y-3">
-            <h4 className="font-semibold text-sm">Insights Estratégicos</h4>
-            <ul className="text-sm text-muted-foreground space-y-2">
-              <li className="flex items-start gap-2">
-                <span className="text-green-500 font-bold">•</span>
-                MG é nosso estado-base com maior cobertura de zoneamento
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 font-bold">•</span>
-                Culturas no topo indicam maior demanda por insumos
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-yellow-500 font-bold">•</span>
-                Culturas sub-representadas podem ser oportunidades de nicho
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-purple-500 font-bold">•</span>
-                Priorizar P&D de bioestimulantes para culturas líderes
-              </li>
-            </ul>
-
-            {/* Top 5 culturas em lista */}
-            <div className="mt-4 pt-4 border-t border-border/50">
-              <h5 className="text-xs font-semibold mb-2">Top 5 Culturas</h5>
-              <div className="space-y-1">
-                {chartData.slice(0, 5).map((item, index) => (
-                  <div key={item.name} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">{index + 1}.</span>
-                      <span>{item.name}</span>
-                    </div>
-                    <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                      {item.percentage}%
-                    </Badge>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex flex-wrap justify-center gap-2">
+                {chartData.slice(0, 6).map((item, index) => (
+                  <div key={item.name} className="flex items-center gap-1 text-xs">
+                    <div 
+                      className="w-2 h-2 rounded-full" 
+                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                    />
+                    <span className="text-muted-foreground">{item.name}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Top 5 culturas + Insights */}
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
+              <div>
+                <h5 className="text-xs font-semibold mb-2">Top 5 Culturas</h5>
+                <div className="space-y-1">
+                  {chartData.slice(0, 5).map((item, index) => (
+                    <div key={item.name} className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">{index + 1}.</span>
+                        <span className="truncate max-w-[80px]">{item.name}</span>
+                      </div>
+                      <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                        {item.percentage}%
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h5 className="text-xs font-semibold mb-2">Insights</h5>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li className="flex items-start gap-1">
+                    <span className="text-green-500">•</span>
+                    Base operacional
+                  </li>
+                  <li className="flex items-start gap-1">
+                    <span className="text-blue-500">•</span>
+                    Maior cobertura ZARC
+                  </li>
+                  <li className="flex items-start gap-1">
+                    <span className="text-yellow-500">•</span>
+                    Oportunidades nicho
+                  </li>
+                  <li className="flex items-start gap-1">
+                    <span className="text-purple-500">•</span>
+                    Foco em P&D
+                  </li>
+                </ul>
               </div>
             </div>
           </div>

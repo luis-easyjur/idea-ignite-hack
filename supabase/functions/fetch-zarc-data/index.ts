@@ -126,6 +126,34 @@ serve(async (req) => {
         });
         break;
 
+      case 'municipios_detalhados_uf':
+        // Mapa detalhado: Municípios de um estado específico
+        if (!uf) {
+          throw new Error('UF parameter required for municipios_detalhados_uf query');
+        }
+        result = await queryElasticsearch({
+          size: 0,
+          query: {
+            bool: {
+              must: [
+                { term: { source: 'zarc' } },
+                { term: { 'metadata.uf.keyword': uf } },
+                { exists: { field: 'metadata.municipio' } }
+              ]
+            }
+          },
+          aggs: {
+            municipios: {
+              terms: {
+                field: 'metadata.municipio.keyword',
+                size: 1000, // MG tem ~850 municípios
+                order: { _count: 'desc' }
+              }
+            }
+          }
+        });
+        break;
+
       case 'cultura_risco':
         // Gráfico 4: Matrix de risco climático
         result = await queryElasticsearch({
