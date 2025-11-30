@@ -110,8 +110,8 @@ export const ProductsIntelligenceSection = () => {
         </Card>
       </div>
 
-      {/* Charts Grid - First Row */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
+      {/* Culturas e Pragas */}
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         {/* Top Cultures Chart */}
         <Card>
           <CardHeader>
@@ -142,6 +142,38 @@ export const ProductsIntelligenceSection = () => {
           </CardContent>
         </Card>
 
+        {/* Top Pests */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Pragas Mais Combatidas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.pests.slice(0, 10)} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis type="number" className="fill-muted-foreground" />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={120}
+                  fontSize={11}
+                  className="fill-muted-foreground"
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))' 
+                  }}
+                />
+                <Bar dataKey="count" fill="hsl(var(--accent))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Rankings - Concorrentes e Grupos Químicos */}
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         {/* Top Companies */}
         <Card>
           <CardHeader>
@@ -205,70 +237,6 @@ export const ProductsIntelligenceSection = () => {
                 );
               })()}
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Top Pests */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Pragas Mais Combatidas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data.pests.slice(0, 10)} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis type="number" className="fill-muted-foreground" />
-                <YAxis 
-                  dataKey="name" 
-                  type="category" 
-                  width={120}
-                  fontSize={11}
-                  className="fill-muted-foreground"
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))' 
-                  }}
-                />
-                <Bar dataKey="count" fill="hsl(var(--accent))" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Ingredients and Chemical Groups */}
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-        {/* Top Ingredients */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Beaker className="h-5 w-5 text-primary" />
-              Top Ingredientes Ativos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data.ingredients.slice(0, 10)} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis type="number" className="fill-muted-foreground" />
-                <YAxis 
-                  dataKey="name" 
-                  type="category" 
-                  width={150}
-                  fontSize={10}
-                  className="fill-muted-foreground"
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))' 
-                  }}
-                />
-                <Bar dataKey="count" fill="hsl(var(--primary))" />
-              </BarChart>
-            </ResponsiveContainer>
           </CardContent>
         </Card>
 
@@ -339,8 +307,72 @@ export const ProductsIntelligenceSection = () => {
         </Card>
       </div>
 
-      {/* Toxicity and Formulations */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Ingredientes e Formulações */}
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+        {/* Top Ingredients */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Beaker className="h-5 w-5 text-primary" />
+              Top Ingredientes Ativos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.ingredients.slice(0, 10)} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis type="number" className="fill-muted-foreground" />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={150}
+                  fontSize={10}
+                  className="fill-muted-foreground"
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))' 
+                  }}
+                />
+                <Bar dataKey="count" fill="hsl(var(--primary))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Formulation Types */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Tipos de Formulação</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.formulations.slice(0, 8)} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis type="number" className="fill-muted-foreground" />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={180}
+                  fontSize={10}
+                  className="fill-muted-foreground"
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))' 
+                  }}
+                />
+                <Bar dataKey="count" fill="hsl(var(--secondary))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Toxicidade e Categorias */}
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         {/* Toxicity Classification */}
         <Card>
           <CardHeader>
@@ -378,66 +410,37 @@ export const ProductsIntelligenceSection = () => {
           </CardContent>
         </Card>
 
-        {/* Formulation Types */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tipos de Formulação</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data.formulations.slice(0, 8)} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis type="number" className="fill-muted-foreground" />
-                <YAxis 
-                  dataKey="name" 
-                  type="category" 
-                  width={180}
-                  fontSize={10}
-                  className="fill-muted-foreground"
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))' 
-                  }}
-                />
-                <Bar dataKey="count" fill="hsl(var(--secondary))" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        {/* Categories Distribution */}
+        {data.categories.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Categorias de Produtos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={data.categories} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" className="fill-muted-foreground" />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    width={150}
+                    fontSize={11}
+                    className="fill-muted-foreground"
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))' 
+                    }}
+                  />
+                  <Bar dataKey="count" fill="hsl(var(--primary))" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
       </div>
-
-      {/* Categories Distribution */}
-      {data.categories.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Categorias de Produtos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={data.categories} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis type="number" className="fill-muted-foreground" />
-                <YAxis 
-                  dataKey="name" 
-                  type="category" 
-                  width={150}
-                  fontSize={11}
-                  className="fill-muted-foreground"
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))' 
-                  }}
-                />
-                <Bar dataKey="count" fill="hsl(var(--primary))" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
