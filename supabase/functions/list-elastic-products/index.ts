@@ -108,10 +108,7 @@ Deno.serve(async (req) => {
         bool: { must }
       },
       from,
-      size: pageSize,
-      sort: [
-        { 'raw_content.titular_registro.keyword': 'asc' }
-      ]
+      size: pageSize
     };
 
     const response = await fetch(ELASTICSEARCH_URL, {
