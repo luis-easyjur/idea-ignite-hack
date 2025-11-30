@@ -27,14 +27,14 @@ export const ProductFilters = ({ filters, onFiltersChange, onClearFilters }: Pro
         </div>
 
         <Select
-          value={filters.source || ''}
-          onValueChange={(value) => onFiltersChange({ ...filters, source: value as any })}
+          value={filters.source || 'all'}
+          onValueChange={(value) => onFiltersChange({ ...filters, source: value === 'all' ? '' : value as any })}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Fonte" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todas as Fontes</SelectItem>
+            <SelectItem value="all">Todas as Fontes</SelectItem>
             <SelectItem value="agrofit">AGROFIT</SelectItem>
             <SelectItem value="bioinsumos">Bioinsumos</SelectItem>
           </SelectContent>
