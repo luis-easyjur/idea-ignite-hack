@@ -308,12 +308,12 @@ export const AdvancedAIChat = ({ sessionId, className, initialQuery }: AdvancedA
                             <h1 className="text-2xl font-semibold tracking-tight text-foreground">IA Avançada</h1>
                         </div>
 
-                        <div className="flex flex-wrap justify-center gap-2 w-full max-w-2xl">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-2xl">
                             {quickSuggestions.map((suggestion, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => sendMessage(suggestion)}
-                                    className="px-4 py-2 rounded-full bg-card hover:bg-muted border border-border text-sm text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-[1.02] shadow-sm"
+                                    className="px-4 py-2 rounded-full bg-card hover:bg-muted border border-border text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-[1.02] shadow-sm text-left"
                                 >
                                     {suggestion}
                                 </button>

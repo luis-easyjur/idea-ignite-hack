@@ -35,14 +35,14 @@ const Products = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
       <Card>
-        <CardHeader>
+        <CardHeader className="p-4 sm:p-6">
           <div className="flex items-center gap-3">
-            <Package className="h-8 w-8 text-primary" />
+            <Package className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
             <div>
-              <CardTitle className="text-3xl">Produtos Agrícolas</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-xl sm:text-2xl md:text-3xl">Produtos Agrícolas</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
                 {data?.total ? (
                   <>Base de dados com <span className="font-semibold">{data.total.toLocaleString('pt-BR')}</span> produtos registrados</>
                 ) : (

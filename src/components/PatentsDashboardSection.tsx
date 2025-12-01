@@ -48,7 +48,7 @@ export const PatentsDashboardSection = () => {
       </div>
 
       {/* Quick Metrics */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         <Link to="/patents" className="block">
           <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-[1.02]">
             <div className="flex items-start justify-between">

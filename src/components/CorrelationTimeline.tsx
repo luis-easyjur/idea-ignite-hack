@@ -60,16 +60,16 @@ export const CorrelationTimeline = () => {
   const selectedCorrelation = correlations[0]; // Show first correlation
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-background to-primary/5">
-      <div className="space-y-4">
+    <Card className="p-4 sm:p-6 bg-gradient-to-br from-background to-primary/5">
+      <div className="space-y-3 sm:space-y-4">
         {/* Header with Toggle */}
         <div 
           className="flex items-center justify-between cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
         >
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-bold text-foreground">
+            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h3 className="text-base sm:text-lg font-bold text-foreground">
               Correlação Inteligente
             </h3>
             <Badge variant="outline" className="text-xs">
@@ -100,9 +100,9 @@ export const CorrelationTimeline = () => {
             </div>
             
             {/* Timeline Items */}
-            <div className="relative pl-8 space-y-4">
+            <div className="relative pl-6 sm:pl-8 space-y-3 sm:space-y-4">
               {/* Vertical Line */}
-              <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-border" />
+              <div className="absolute left-1.5 sm:left-2 top-0 bottom-0 w-0.5 bg-border" />
               
               {selectedCorrelation.events.map((event: CorrelationEvent, idx: number) => {
                 const Icon = iconMap[event.type];

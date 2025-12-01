@@ -36,15 +36,15 @@ const Index = () => {
   
   return <ProtectedRoute>
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
         {/* Hero Section */}
-        <div className="mb-6 animate-in flex items-center justify-between">
+        <div className="mb-4 sm:mb-6 animate-in flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-foreground">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
               Inteligência Competitiva MVP
             </h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <DataSyncButton />
             <ExportButton filename="dashboard" />
           </div>
@@ -56,24 +56,24 @@ const Index = () => {
         <QuickStatsGrid />
 
         {/* AI Insights Section */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <AIInsightsCard />
         </div>
 
         {/* Alerts and Correlation Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           {/* Left Column - Smart Alerts */}
           <div className="lg:col-span-2">
-            <Card className="p-6">
+            <Card className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-xl font-bold text-foreground">Alertas Inteligentes</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground">Alertas Inteligentes</h3>
                   <Badge variant="outline" className="text-xs">
                     <Sparkles className="h-3 w-3 mr-1" />
                     IA
                   </Badge>
                 </div>
-                <Button variant="ghost" size="sm" className="text-xs">
+                <Button variant="ghost" size="sm" className="text-xs hidden sm:flex">
                   Ver todos <ArrowRight className="h-3 w-3 ml-1" />
                 </Button>
               </div>
@@ -133,17 +133,17 @@ const Index = () => {
         </div>
 
         {/* Products Intelligence Section */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <ProductsIntelligenceSection />
         </div>
 
         {/* Patents Intelligence Section */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <PatentsDashboardSection />
         </div>
 
         {/* Regional Climate Intelligence */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <RegionalClimateIntelligence />
         </div>
       </main>

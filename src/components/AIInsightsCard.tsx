@@ -48,13 +48,13 @@ export const AIInsightsCard = () => {
   };
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-background to-muted/20">
-      <div className="space-y-6">
+    <Card className="p-4 sm:p-6 bg-gradient-to-br from-background to-muted/20">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-primary" />
-            <h3 className="text-xl font-bold text-foreground">Insights de IA</h3>
+            <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h3 className="text-lg sm:text-xl font-bold text-foreground">Insights de IA</h3>
           </div>
           <Badge variant="outline" className="text-xs">
             Gerado com IA
@@ -64,12 +64,12 @@ export const AIInsightsCard = () => {
         {/* Main Trend */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-green-500" />
-            <h4 className="font-semibold text-foreground">Tendência Principal</h4>
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+            <h4 className="text-sm sm:text-base font-semibold text-foreground">Tendência Principal</h4>
           </div>
-          <div className="pl-6 space-y-1">
-            <p className="font-medium text-foreground">{insights.main_trend.title}</p>
-            <p className="text-sm text-muted-foreground">{insights.main_trend.description}</p>
+          <div className="pl-4 sm:pl-6 space-y-1">
+            <p className="text-sm sm:text-base font-medium text-foreground">{insights.main_trend.title}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{insights.main_trend.description}</p>
             <Badge variant="secondary" className="text-xs">
               Crescimento: {insights.main_trend.growth_rate}
             </Badge>
