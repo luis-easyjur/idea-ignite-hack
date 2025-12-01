@@ -118,17 +118,17 @@ const Patents = () => {
     return range;
   };
   return <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
-          <div className="mb-8 flex items-center justify-between">
+      <main className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 max-w-7xl">
+          <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-3xl font-bold text-foreground mb-2">
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
                 Análise de Patentes
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Monitoramento de propriedade intelectual no setor
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               <PatentTermsModal />
               <ExportButton data={filteredPatents} filename="patentes" />
             </div>

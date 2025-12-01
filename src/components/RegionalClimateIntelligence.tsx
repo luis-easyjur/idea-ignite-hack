@@ -139,24 +139,24 @@ export const RegionalClimateIntelligence = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-primary" />
+          <h3 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
+            <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             Inteligência Climática Regional
           </h3>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             ClimAPI + SATVeg - Análise por região brasileira
           </p>
         </div>
-        <div className="flex gap-2">
-          <Badge variant="outline" className="bg-muted/50 text-muted-foreground">
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="outline" className="bg-muted/50 text-muted-foreground text-xs">
             Dados Mockados
           </Badge>
-          <Badge variant="outline" className="bg-chart-2/10 text-chart-2 border-chart-2/30">
+          <Badge variant="outline" className="bg-chart-2/10 text-chart-2 border-chart-2/30 text-xs">
             ClimAPI
           </Badge>
-          <Badge variant="outline" className="bg-chart-1/10 text-chart-1 border-chart-1/30">
+          <Badge variant="outline" className="bg-chart-1/10 text-chart-1 border-chart-1/30 text-xs">
             SATVeg
           </Badge>
         </div>
@@ -187,7 +187,7 @@ export const RegionalClimateIntelligence = () => {
 
             <div className="p-4 space-y-4">
               {/* Climate Indicators */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 xs:grid-cols-3 gap-3">
                 <div className="flex items-center gap-2">
                   <div className="p-2 rounded-lg bg-chart-2/10">
                     <Thermometer className="h-4 w-4 text-chart-2" />

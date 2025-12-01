@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Eye } from "lucide-react";
 import { ElasticProduct } from "@/types/products";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,7 +52,8 @@ export const ProductsTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border bg-card">
+      {/* Desktop Table View */}
+      <div className="hidden md:block rounded-lg border bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -104,6 +106,48 @@ export const ProductsTable = ({
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        {products.map((product) => (
+          <Card key={product.id} className="p-4">
+            <div className="space-y-3">
+              <div>
+                <h4 className="font-medium text-sm leading-tight">{product.nome_comercial || product.titular_registro}</h4>
+                <p className="text-xs text-muted-foreground mt-1">{product.titular_registro}</p>
+              </div>
+              
+              <div className="flex flex-wrap gap-1.5">
+                {product.classe_categoria?.slice(0, 3).map((cat, idx) => (
+                  <Badge key={idx} variant="secondary" className="text-xs">
+                    {cat}
+                  </Badge>
+                ))}
+                {product.classe_categoria?.length > 3 && (
+                  <Badge variant="outline" className="text-xs">
+                    +{product.classe_categoria.length - 3}
+                  </Badge>
+                )}
+              </div>
+              
+              <div className="flex items-center justify-between pt-2 border-t">
+                <Badge variant={product.source === 'agrofit' ? 'default' : 'outline'} className="text-xs">
+                  {product.source === 'agrofit' ? 'AGROFIT' : 'Bioinsumos'}
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onViewDetails(product)}
+                  className="gap-1 text-xs h-8"
+                >
+                  <Eye className="h-3 w-3" />
+                  Detalhes
+                </Button>
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
 
       {totalPages > 1 && (

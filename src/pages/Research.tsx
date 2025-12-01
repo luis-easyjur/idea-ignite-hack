@@ -124,25 +124,25 @@ const Research = () => {
 
           {/* Campo de Busca */}
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex gap-2">
+            <CardContent className="pt-4 sm:pt-6">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 sm:h-5 sm:w-5" />
                   <Input
                     placeholder="Buscar por título, autor, palavra-chave..."
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="pl-12 h-12 text-base"
+                    className="pl-10 sm:pl-12 h-10 sm:h-12 text-sm sm:text-base"
                   />
                 </div>
                 <Button
                   onClick={handleSearch}
                   size="lg"
-                  className="h-12 px-8"
+                  className="h-10 sm:h-12 px-6 sm:px-8 w-full sm:w-auto"
                 >
-                  <Search className="h-5 w-5 mr-2" />
-                  Buscar
+                  <Search className="h-4 w-4 sm:h-5 sm:w-5 sm:mr-2" />
+                  <span className="sm:inline">Buscar</span>
                 </Button>
               </div>
               <div className="mt-3 text-sm text-muted-foreground text-center">
